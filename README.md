@@ -25,11 +25,26 @@ for epoch in epochs:
 ...
 
 save_path = '{}_{}'.format(model_name, dataset_name)
-MV.summary(save_path=save_path)
-MV.traj_plot(save_path=save_path)
-MV.violin_plot(save_path=save_path)
-MV.box_plot(save_path=save_path)
+MV.summary(save_path=save_path)  # save fig into .tex and .pdf foramt
+MV.traj_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
+MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
+MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
+
+MV.summary(save_path=None)  # show the fig via matplotlib
+MV.traj_plot(save_path=None)  # show the fig via matplotlib
+MV.violin_plot(save_path=None)  # show the fig via matplotlib
+MV.box_plot(save_path=None)  # show the fig via matplotlib
 ```
 
 ## Example
+See the plot definition of plot function to customize figure params, e.g., fig title, xlabel, ylabel.
+Currently, only simple figures are supported, you can make complex figure by assemble the `.tex` file.
 
+### Traj Plot
+![img.png](img.png)
+
+### Box Plot
+![img_1.png](img_1.png)
+
+### Violin Plot
+![img_2.png](img_2.png)
