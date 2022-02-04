@@ -29,9 +29,11 @@ MV = MetricVisualizer()
 ...
 
 for trail in Trails:
-    acc, f1 = evaluate(model, test_dataloader)
-    MV.add_metric('Accuracy', 96.5)
-    MV.add_metric('F1', 94.1)
+    for _ in repeat:
+        acc, f1 = evaluate(model, test_dataloader)
+        MV.add_metric('Accuracy', 96.5)
+        MV.add_metric('F1', 94.1)
+    MV.next_trail()
 
 ...
 
