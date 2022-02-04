@@ -41,10 +41,10 @@ See the plot definition of plot function to customize figure params, e.g., fig t
 Currently, only simple figures are supported, you can make complex figure by assemble the `.tex` file.
 
 ### Traj Plot
-![img.png](img.png)
+![img.png](fig/traj_plot_example.png)
 
 ### Box Plot
-![img_1.png](img_1.png)
+![img_1.png](fig/box_plot_example.png)
 
 ### Violin Plot
-![img_2.png](img_2.png)
+![img_2.png](fig/violin_plot_example.png)
