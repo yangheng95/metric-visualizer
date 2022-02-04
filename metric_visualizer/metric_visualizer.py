@@ -51,13 +51,13 @@ class MetricVisualizer:
             grid = major,
             thick,
             xtick={$xtick$},
-            xticklabels={$xticklabels$},
+            xticklabels={$xticklabel$},
             ylabel = {$ylabel$},
             ylabel style={font=\Large},
             xlabel = {$xlabel$},
             xlabel style={font=\Large},
-            x tick label style={rotate=20,anchor=north},
-            y tick label style={rotate=90,anchor=south},
+            x tick label style={rotate=0,anchor=north},
+            y tick label style={rotate=0,anchor=east},
             xticklabel shift=1pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
@@ -89,14 +89,14 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.12,every axis/.append style={
             grid = major,
             thick,
+            xticklabels={$xticklabel$},
             xtick={$xtick$},
-            xticklabels={$xticklabels$},
             ylabel = {$ylabel$},
             ylabel style={font=\Large},
             xlabel = {$xlabel$},
             xlabel style={font=\Large},
-            x tick label style={rotate=20,anchor=north},
-            y tick label style={rotate=90,anchor=south},
+            x tick label style={rotate=0,anchor=north},
+            y tick label style={rotate=0,anchor=east},
             xticklabel shift=1pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
@@ -127,16 +127,16 @@ class MetricVisualizer:
             grid = major,
             thick,
             xtick={$xtick$},
-            xticklabels={$xticklabels$},
+            xticklabels={$xticklabel$},
             xlabel = {$xlabel$},
             xlabel style={font=\Large},
-            x tick label style={rotate=20,anchor=north},
-            y tick label style={rotate=90,anchor=south},
+            x tick label style={rotate=0,anchor=north},
+            y tick label style={rotate=0,anchor=east},
             ylabel = {$ylabel$},
             ylabel style={font=\Large},
             xticklabel shift=1pt,
             line width = 1pt,
-            tick style = {line width = 0.8pt}}}
+            tick style = {line width = 0.8pt}}
         }
         \pgfplotsset{every plot/.append style={very thin}}
 
@@ -165,13 +165,13 @@ class MetricVisualizer:
         Used for plotting, e.g.,
             'Metric1': {
                 'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                'trail-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
             },
             'Metric2': {
                 'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                'trail-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
             }
 
         :param metric_dict: If you want to plot figure, it is recommended to add multiple trail experiments. In these trial, the experimental results
@@ -182,13 +182,13 @@ class MetricVisualizer:
                 {
                     # 'Metric1': {
                     #     'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                    #     'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                    #     'trail-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
                     # },
                     # 'Metric2': {
                     #     'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                    #     'trail-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                    #     'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
                     # }
                 })
         else:
@@ -218,6 +218,10 @@ class MetricVisualizer:
 
         xlabel = kwargs.pop('xlabel', '')
 
+        ylabel = kwargs.pop('ylabel', '')
+
+        linewidth = kwargs.pop('linewidth', 3)
+
         hatches = kwargs.pop('hatches', None)
 
         fontsize = kwargs.pop('fontsize', 12)
@@ -225,6 +229,7 @@ class MetricVisualizer:
         rotation = kwargs.pop('rotation', 0)
 
         for metric_name in self.metrics.keys():
+            ax = plt.subplot()
             metrics = self.metrics[metric_name]
 
             x = [i for i, label in enumerate(metrics)]
@@ -232,7 +237,6 @@ class MetricVisualizer:
 
             y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
-            ax = plt.subplot()
 
             marker = random.choice(self.MARKERS)
             color = random.choice(self.COLORS)
@@ -243,41 +247,49 @@ class MetricVisualizer:
                                     color=color,
                                     label=metric_name,
                                     markersize=markersize,
+                                    linewidth=linewidth
                                     )
-                plt.xticks(xticks if xticks else list(range(self.trail_id + 1)))
                 if kwargs.pop('traj_point', True):
-                    traj_point = ax.scatter([x] * y.shape[1],
+                    traj_point = plt.subplot().scatter([x] * y.shape[1],
                                             y,
                                             marker=marker,
                                             color=color
                                             )
                 if kwargs.pop('traj_fill', True):
-                    traj_fill = ax.fill_between(x,
+                    traj_fill = plt.subplot().fill_between(x,
                                                 y_avg - y_std,
                                                 y_avg + y_std,
                                                 color=color,
                                                 hatch=hatches[i] if hatches else None,
                                                 alpha=alpha
                                                 )
-            ax.grid()
-            ax.minorticks_on()
 
-            plt.grid()
-            plt.minorticks_on()
-            plt.xticks(fontsize=fontsize)
-            plt.yticks(fontsize=fontsize, rotation=rotation)
-            plt.xlabel(xlabel if xlabel else 'Trail')
-            plt.ylabel(' and '.join(list(self.metrics.keys())))
             legend_without_duplicate_labels(ax)
+
+            tex_xtick = list(metrics.keys()) if not xticks else xticks
+
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.ylabel(' and '.join(list(self.metrics.keys())))
+
+        plt.grid()
+        plt.minorticks_on()
+
+        plt.xticks(list(range(len(metrics.keys()))), fontsize=fontsize)
+        plt.yticks(fontsize=fontsize, rotation=rotation)
 
         if not save_path:
             plt.show()
         else:
             tikz_code = tikzplotlib.get_tikz_code()
-            tex_src = self.violin_plot_tex_template.replace('$tikz_code$', tikz_code)
+            tex_src = self.traj_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xticklabel$', ','.join(tex_xtick))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$', ylabel)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open(save_path + '_metric_traj_plot.tex', mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_traj_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
             texs = find_cwd_files('.tex')
@@ -294,7 +306,7 @@ class MetricVisualizer:
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
-
+        print('Traj plot finished')
         plt.close()
 
     def box_plot(self, save_path=None, **kwargs):
@@ -307,7 +319,11 @@ class MetricVisualizer:
 
         xlabel = kwargs.pop('xlabel', '')
 
+        xticks = kwargs.pop('xticks', '')
+
         ylabel = kwargs.pop('ylabel', '')
+
+        yticks = kwargs.pop('yticks', '')
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -317,7 +333,7 @@ class MetricVisualizer:
 
         rotation = kwargs.pop('rotation', 0)
 
-        linewidth = kwargs.pop('linewidth', 2)
+        linewidth = kwargs.pop('linewidth', 3)
 
         widths = kwargs.pop('widths', 0.5)
 
@@ -326,8 +342,7 @@ class MetricVisualizer:
         for metric_name in self.metrics.keys():
             color = random.choice(self.COLORS)
             metric = self.metrics[metric_name]
-            xticks = list(range(len(metric.keys())))
-            xticklabel = list(metric.keys())
+            xticks = metric.keys() if not xticks else xticks
 
             data = [metric[trail] for trail in metric.keys()]
 
@@ -336,7 +351,7 @@ class MetricVisualizer:
             box_parts.append(boxs_parts['boxes'][0])
             legend_labels.append(metric_name)
 
-            plt.xlabel(xlabel if xlabel else 'Trail')
+            plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
             plt.ylabel(' and '.join(list(self.metrics.keys())))
 
             for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
@@ -344,7 +359,11 @@ class MetricVisualizer:
 
             plt.setp(boxs_parts["fliers"], markeredgecolor=color)
 
+        plt.grid()
+        plt.minorticks_on()
+
         plt.legend(box_parts, legend_labels, loc=legend_loc)
+
 
         if not save_path:
             plt.show()
@@ -352,13 +371,13 @@ class MetricVisualizer:
             tikz_code = tikzplotlib.get_tikz_code()
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x+1) for x in range(len(xticks))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_box_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
             texs = find_cwd_files('.tex')
@@ -376,6 +395,7 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
 
+        print('Box plot finished')
         plt.close()
 
     def violin_plot(self, save_path=None, **kwargs):
@@ -394,7 +414,11 @@ class MetricVisualizer:
 
         xlabel = kwargs.pop('xlabel', '')
 
+        xticks = kwargs.pop('xticks', '')
+
         ylabel = kwargs.pop('ylabel', '')
+
+        yticks = kwargs.pop('yticks', '')
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -404,26 +428,31 @@ class MetricVisualizer:
 
         rotation = kwargs.pop('rotation', 0)
 
-        linewidth = kwargs.pop('linewidth', 2)
+        linewidth = kwargs.pop('linewidth', 3)
 
+        violin_parts = []
+        legend_labels = []
         for metric_name in self.metrics.keys():
             metric = self.metrics[metric_name]
-            xticks = list(range(len(metric.keys())))
-            xticklabel = list(metric.keys())
+            xticks = metric.keys() if not xticks else xticks
 
             data = [metric[trail] for trail in metric.keys()]
 
             violin = ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
 
-            plt.xlabel(xlabel if xlabel else 'Trail')
+            plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
             plt.ylabel(' and '.join(list(self.metrics.keys())))
 
             for pc in violin['bodies']:
                 pc.set_linewidth(linewidth)
 
-            add_label(violin, metric_name)
+            violin_parts.append(violin["bodies"][0])
+            legend_labels.append(metric_name)
 
-        plt.legend(*zip(*legend_labels), loc=legend_loc)
+        plt.grid()
+        plt.minorticks_on()
+
+        plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
         if not save_path:
             plt.show()
@@ -431,13 +460,13 @@ class MetricVisualizer:
             tikz_code = tikzplotlib.get_tikz_code()
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x+1) for x in range(len(xticks))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open(save_path + '_metric_violin_plot.tex', mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_violin_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
             texs = find_cwd_files('.tex')
@@ -454,6 +483,9 @@ class MetricVisualizer:
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
+
+        print('Violin plot finished')
+
         plt.close()
 
     def summary(self, save_path=None, **kwargs):
@@ -469,11 +501,11 @@ class MetricVisualizer:
                 _data += [[mn, trail, metrics[trail]]]
                 _data[-1].append(
                     ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
-                        np.average(metrics[trail]),
-                        np.median(metrics[trail]),
-                        iqr(metrics[trail], rng=(25, 75), interpolation='midpoint'),
-                        np.max(metrics[trail]),
-                        np.min(metrics[trail])
+                        round(np.average(metrics[trail]), 2),
+                        round(np.median(metrics[trail]), 2),
+                        round(iqr(metrics[trail], rng=(25, 75), interpolation='midpoint'), 2),
+                        round(np.max(metrics[trail]), 2),
+                        round(np.min(metrics[trail]), 2)
                     )]
                 )
                 table_data += _data
@@ -482,7 +514,6 @@ class MetricVisualizer:
                                 headers=header,
                                 numalign='center',
                                 tablefmt='fancy_grid')
-        summary_str += '\nmetrics = {}\n'.format(str(self.metrics))
         summary_str += '\n -------------------- Metric Summary --------------------\n'
 
         print(summary_str)
@@ -506,6 +537,10 @@ if __name__ == '__main__':
             'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
         }})
     mv.summary()
-    mv.traj_plot(save_plot=True)
+    mv.traj_plot()
     mv.violin_plot()
     mv.box_plot()
+    mv.traj_plot(save_path='./')
+    mv.violin_plot(save_path='./')
+    mv.box_plot(save_path='./')
+
