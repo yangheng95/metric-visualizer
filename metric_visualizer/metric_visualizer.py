@@ -384,7 +384,7 @@ class MetricVisualizer:
             plt.show()
         else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8').write(tex_src)
+            open(save_path + '_metric_violin_plot.tex', mode='w', encoding='utf8').write(tex_src)
             texs = find_cwd_files('.tex')
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
