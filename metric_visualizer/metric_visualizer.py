@@ -246,10 +246,11 @@ class MetricVisualizer:
         tex_src = tex_src.replace('$xlabel$', xlabel)
         tex_src = tex_src.replace('$ylabel$', ylabel)
 
-        plt.show()
-        if save_path:
+        if not save_path:
+            plt.show()
+        else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '.tex', mode='w', encoding='utf8').write(tex_src)
+            open(save_path + '_metric_traj_plot.tex', mode='w', encoding='utf8').write(tex_src)
             texs = find_cwd_files('.tex')
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
@@ -306,17 +307,18 @@ class MetricVisualizer:
         legend_without_duplicate_labels(ax)
 
         tikz_code = tikzplotlib.get_tikz_code()
-        tex_src = self.box_plot_tex_template.replace('$src_code$', tikz_code)
+        tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
         tex_src = tex_src.replace('$xtick$', xticks)
         tex_src = tex_src.replace('$xticklabels$', ', '.join(list(range(len(xticks)))))
         tex_src = tex_src.replace('$xlabel$', xlabel)
         tex_src = tex_src.replace('$ylabel$', ylabel)
 
-        plt.show()
-        if save_path:
+        if not save_path:
+            plt.show()
+        else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '.tex', mode='w', encoding='utf8').write(tex_src)
+            open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8').write(tex_src)
             texs = find_cwd_files('.tex')
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
@@ -371,17 +373,18 @@ class MetricVisualizer:
         legend_without_duplicate_labels(ax)
 
         tikz_code = tikzplotlib.get_tikz_code()
-        tex_src = self.box_plot_tex_template.replace('$src_code$', tikz_code)
+        tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
         tex_src = tex_src.replace('$xtick$', xticks)
         tex_src = tex_src.replace('$xticklabels$', ', '.join(list(range(len(xticks)))))
         tex_src = tex_src.replace('$xlabel$', xlabel)
         tex_src = tex_src.replace('$ylabel$', ylabel)
 
-        plt.show()
-        if save_path:
+        if not save_path:
+            plt.show()
+        else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '.tex', mode='w', encoding='utf8').write(tex_src)
+            open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8').write(tex_src)
             texs = find_cwd_files('.tex')
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
