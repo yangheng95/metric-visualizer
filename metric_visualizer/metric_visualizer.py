@@ -191,6 +191,8 @@ class MetricVisualizer:
                     #     'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
                     # }
                 })
+        else:
+            self.metrics = metric_dict
 
         self.trail_id = 0
 
@@ -204,7 +206,7 @@ class MetricVisualizer:
             else:
                 self.metrics[metric_name]['trail-{}'.format(self.trail_id)].append(value)
         else:
-            self.metrics[metric_name] = {'trail-{}'.format(self.trail_id):[value]}
+            self.metrics[metric_name] = {'trail-{}'.format(self.trail_id): [value]}
 
     def traj_plot(self, save_path=None, **kwargs):
 
@@ -268,12 +270,12 @@ class MetricVisualizer:
             plt.ylabel(' and '.join(list(self.metrics.keys())))
             legend_without_duplicate_labels(ax)
 
-        tikz_code = tikzplotlib.get_tikz_code()
-        tex_src = self.violin_plot_tex_template.replace('$tikz_code$', tikz_code)
-
         if not save_path:
             plt.show()
         else:
+            tikz_code = tikzplotlib.get_tikz_code()
+            tex_src = self.violin_plot_tex_template.replace('$tikz_code$', tikz_code)
+
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open(save_path + '_metric_traj_plot.tex', mode='w', encoding='utf8')
             fout.write(tex_src)
@@ -344,17 +346,17 @@ class MetricVisualizer:
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
-        tikz_code = tikzplotlib.get_tikz_code()
-        tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
-
-        tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
-        tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
-        tex_src = tex_src.replace('$xlabel$', xlabel)
-        tex_src = tex_src.replace('$ylabel$', ylabel)
-
         if not save_path:
             plt.show()
         else:
+            tikz_code = tikzplotlib.get_tikz_code()
+            tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$', ylabel)
+
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8')
             fout.write(tex_src)
@@ -423,17 +425,17 @@ class MetricVisualizer:
 
         plt.legend(*zip(*legend_labels), loc=legend_loc)
 
-        tikz_code = tikzplotlib.get_tikz_code()
-        tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
-
-        tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
-        tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
-        tex_src = tex_src.replace('$xlabel$', xlabel)
-        tex_src = tex_src.replace('$ylabel$', ylabel)
-
         if not save_path:
             plt.show()
         else:
+            tikz_code = tikzplotlib.get_tikz_code()
+            tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$', ylabel)
+
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open(save_path + '_metric_violin_plot.tex', mode='w', encoding='utf8')
             fout.write(tex_src)
@@ -480,6 +482,7 @@ class MetricVisualizer:
                                 headers=header,
                                 numalign='center',
                                 tablefmt='fancy_grid')
+        summary_str += '\nmetrics = {}\n'.format(str(self.metrics))
         summary_str += '\n -------------------- Metric Summary --------------------\n'
 
         print(summary_str)
@@ -491,7 +494,17 @@ class MetricVisualizer:
 
 
 if __name__ == '__main__':
-    mv = MetricVisualizer()
+    mv = MetricVisualizer({
+        'Metric1': {
+            'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+            'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+            'trail-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+        },
+        'Metric2': {
+            'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+            'trail-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+            'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+        }})
     mv.summary()
     mv.traj_plot(save_plot=True)
     mv.violin_plot()
