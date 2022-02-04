@@ -462,8 +462,8 @@ class MetricVisualizer:
 
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
-            _data = []
             for trail in metrics.keys():
+                _data = []
                 _data += [[mn, trail, metrics[trail]]]
                 _data[-1].append(
                     ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
