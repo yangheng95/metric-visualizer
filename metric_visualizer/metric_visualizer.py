@@ -5,6 +5,9 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 import os.path
+import random
+import shlex
+import subprocess
 
 import matplotlib.colors
 import numpy as np
@@ -12,6 +15,7 @@ import tikzplotlib
 from findfile import find_cwd_files
 from matplotlib import pyplot as plt
 from scipy.stats import iqr
+from tabulate import tabulate
 
 
 def legend_without_duplicate_labels(ax):
@@ -178,7 +182,7 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        markers = kwargs.pop('markers', self.MARKERS)
+        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
 
         plot_labels = kwargs.pop('plot_labels', None)
 
@@ -188,7 +192,7 @@ class MetricVisualizer:
 
         ylabel = kwargs.pop('ylabel', '')
 
-        colors = kwargs.pop('colors', self.COLORS)
+        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
 
         hatches = kwargs.pop('hatches', None)
 
@@ -250,16 +254,20 @@ class MetricVisualizer:
             plt.show()
         else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '_metric_traj_plot.tex', mode='w', encoding='utf8').write(tex_src)
+            fout = open(save_path + '_metric_traj_plot.tex', mode='w', encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
             texs = find_cwd_files('.tex')
             for pdf in texs:
-                cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             pdfs = find_cwd_files('.pdf', exclude_key='crop')
             for pdf in pdfs:
-                cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
@@ -275,7 +283,7 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        markers = kwargs.pop('markers', self.MARKERS)
+        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
 
         plot_labels = kwargs.pop('plot_labels', None)
 
@@ -285,7 +293,7 @@ class MetricVisualizer:
 
         ylabel = kwargs.pop('ylabel', '')
 
-        colors = kwargs.pop('colors', self.COLORS)
+        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
 
         hatches = kwargs.pop('hatches', None)
 
@@ -318,16 +326,20 @@ class MetricVisualizer:
             plt.show()
         else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8').write(tex_src)
+            fout = open(save_path + '_metric_box_plot.tex', mode='w', encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
             texs = find_cwd_files('.tex')
             for pdf in texs:
-                cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             pdfs = find_cwd_files('.pdf', exclude_key='crop')
             for pdf in pdfs:
-                cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
@@ -341,7 +353,7 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        markers = kwargs.pop('markers', self.MARKERS)
+        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
 
         plot_labels = kwargs.pop('plot_labels', None)
 
@@ -351,7 +363,7 @@ class MetricVisualizer:
 
         ylabel = kwargs.pop('ylabel', '')
 
-        colors = kwargs.pop('colors', self.COLORS)
+        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
 
         hatches = kwargs.pop('hatches', None)
 
@@ -384,27 +396,36 @@ class MetricVisualizer:
             plt.show()
         else:
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            open(save_path + '_metric_violin_plot.tex', mode='w', encoding='utf8').write(tex_src)
+            fout = open(save_path + '_metric_violin_plot.tex', mode='w', encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
             texs = find_cwd_files('.tex')
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             pdfs = find_cwd_files('.pdf', exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
-                os.system(cmd)
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
         plt.close()
 
     def summary(self, save_path=None, **kwargs):
-        summary_str = ''
-        summary_str += ' -------------------- Metric Summary --------------------\n'
+        summary_str = ' -------------------- Metric Summary --------------------\n'
+        summary_str += tabulate([self.metrics[metric_name] for metric_name in self.metrics.keys()],
+                                headers=list(self.metrics.keys()),
+                                showindex="always",
+                                numalign='center',
+                                tablefmt='fancy_grid')
+        summary_str += '\n'
         for metric_name in self.metrics:
             metrics = self.metrics[metric_name]
-            summary_str += '{}: '.format(metric_name) + str(metrics) + '\n'
+            # summary_str += '{}: '.format(metric_name) + str(metrics) + '\n'
             summary_str += 'Avg:{}, \tMedian: {}, \tIQR: {}, \tMax: {}, \tMin: {}\n'.format(
                 np.average(metrics),
                 np.median(metrics),
