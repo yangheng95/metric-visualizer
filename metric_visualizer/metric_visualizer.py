@@ -8,12 +8,14 @@ import os.path
 import random
 import shlex
 import subprocess
+from collections import OrderedDict
 
 import matplotlib.colors
 import numpy as np
 import tikzplotlib
 from findfile import find_cwd_files
 from matplotlib import pyplot as plt
+import matplotlib.patches as mpatches
 from scipy.stats import iqr
 from tabulate import tabulate
 
@@ -159,40 +161,60 @@ class MetricVisualizer:
         self.box_plot_tex_template = box_traj_tex_template
 
     def __init__(self, metric_dict=None):
-        if metric_dict is None:
-            self.metrics = {
-                # 'Metric1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                # 'Metric2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79]
+        """
+        Used for plotting, e.g.,
+            'Metric1': {
+                'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+            },
+            'Metric2': {
+                'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
             }
 
-    def clear(self):
-        self.metrics = {}
+        :param metric_dict: If you want to plot figure, it is recommended to add multiple trail experiments. In these trial, the experimental results
+        are comparative, e.g., just minor different in these experiments.
+        """
+        if metric_dict is None:
+            self.metrics = OrderedDict(
+                {
+                    # 'Metric1': {
+                    #     'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    # },
+                    # 'Metric2': {
+                    #     'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    # }
+                })
+
+        self.trail_id = 0
+
+    def next_trail(self):
+        self.trail_id += 1
 
     def add_metric(self, metric_name='Accuracy', value=0):
         if metric_name in self.metrics:
-            self.metrics[metric_name].append(value)
+            if 'trail-{}'.format(self.trail_id) not in self.metrics[metric_name]:
+                self.metrics[metric_name]['trail-{}'.format(self.trail_id)] = [value]
+            else:
+                self.metrics[metric_name]['trail-{}'.format(self.trail_id)].append(value)
         else:
-            self.metrics[metric_name] = [value]
+            self.metrics[metric_name] = {'trail-{}'.format(self.trail_id):[value]}
 
     def traj_plot(self, save_path=None, **kwargs):
 
-        ax = plt.subplot()
-
-        alpha = kwargs.pop('markersize', 0.5)
+        alpha = kwargs.pop('alpha', 0.3)
 
         markersize = kwargs.pop('markersize', 3)
-
-        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
-
-        plot_labels = kwargs.pop('plot_labels', None)
 
         xticks = kwargs.pop('xticks', '')
 
         xlabel = kwargs.pop('xlabel', '')
-
-        ylabel = kwargs.pop('ylabel', '')
-
-        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
 
         hatches = kwargs.pop('hatches', None)
 
@@ -200,55 +222,54 @@ class MetricVisualizer:
 
         rotation = kwargs.pop('rotation', 0)
 
-        x = [i for i in range(len(self.metrics))] if not xticks else xticks
-        y = np.array([self.metrics[metric_name] for metric_name in self.metrics])
+        for metric_name in self.metrics.keys():
+            metrics = self.metrics[metric_name]
 
-        y_avg = np.average(y, axis=1)
-        y_std = np.std(y, axis=1)
+            x = [i for i, label in enumerate(metrics)]
+            y = np.array([metrics[metric_name] for metric_name in metrics])
 
-        for i in range(len(x)):
-            if kwargs.pop('avg_point', True):
-                ax.plot(x,
-                        y_avg,
-                        marker=markers[i],
-                        color=colors[i],
-                        label=plot_labels[i] if plot_labels else None,
-                        markersize=markersize,
-                        )
-            if kwargs.pop('traj_point', True):
-                ax.plot(x,
-                        y,
-                        marker=markers[i],
-                        color=colors[i],
-                        # label=plot_labels[i],
-                        markersize=markersize,
-                        )
-            if kwargs.pop('traj_fill', True):
-                plt.fill_between(x,
-                                 y_avg - y_std,
-                                 y_avg + y_std,
-                                 color=colors[i],
-                                 hatch=hatches[i] if hatches else None,
-                                 alpha=alpha
-                                 )
+            y_avg = np.average(y, axis=1)
+            y_std = np.std(y, axis=1)
+            ax = plt.subplot()
 
-        plt.grid()
-        plt.minorticks_on()
-        plt.xticks(fontsize=fontsize)
-        plt.yticks(fontsize=fontsize, rotation=rotation)
+            marker = random.choice(self.MARKERS)
+            color = random.choice(self.COLORS)
+            for i in range(len(x)):
+                avg_point = ax.plot(x,
+                                    y_avg,
+                                    marker=marker,
+                                    color=color,
+                                    label=metric_name,
+                                    markersize=markersize,
+                                    )
+                plt.xticks(xticks if xticks else list(range(self.trail_id + 1)))
+                if kwargs.pop('traj_point', True):
+                    traj_point = ax.scatter([x] * y.shape[1],
+                                            y,
+                                            marker=marker,
+                                            color=color
+                                            )
+                if kwargs.pop('traj_fill', True):
+                    traj_fill = ax.fill_between(x,
+                                                y_avg - y_std,
+                                                y_avg + y_std,
+                                                color=color,
+                                                hatch=hatches[i] if hatches else None,
+                                                alpha=alpha
+                                                )
+            ax.grid()
+            ax.minorticks_on()
 
-        ax.grid()
-        ax.minorticks_on()
-
-        legend_without_duplicate_labels(ax)
+            plt.grid()
+            plt.minorticks_on()
+            plt.xticks(fontsize=fontsize)
+            plt.yticks(fontsize=fontsize, rotation=rotation)
+            plt.xlabel(xlabel if xlabel else 'Trail')
+            plt.ylabel(' and '.join(list(self.metrics.keys())))
+            legend_without_duplicate_labels(ax)
 
         tikz_code = tikzplotlib.get_tikz_code()
         tex_src = self.violin_plot_tex_template.replace('$tikz_code$', tikz_code)
-
-        tex_src = tex_src.replace('$xtick$', xticks)
-        tex_src = tex_src.replace('$xticklabels$', ', '.join(list(range(len(xticks)))))
-        tex_src = tex_src.replace('$xlabel$', xlabel)
-        tex_src = tex_src.replace('$ylabel$', ylabel)
 
         if not save_path:
             plt.show()
@@ -275,25 +296,18 @@ class MetricVisualizer:
         plt.close()
 
     def box_plot(self, save_path=None, **kwargs):
-        ax = plt.subplot()
 
         ax = plt.subplot()
 
-        alpha = kwargs.pop('markersize', 0.5)
+        alpha = kwargs.pop('alpha', 1)
 
         markersize = kwargs.pop('markersize', 3)
-
-        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
-
-        plot_labels = kwargs.pop('plot_labels', None)
-
-        xticks = kwargs.pop('xticks', '')
 
         xlabel = kwargs.pop('xlabel', '')
 
         ylabel = kwargs.pop('ylabel', '')
 
-        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
+        legend_loc = kwargs.pop('legend_loc', 2)
 
         hatches = kwargs.pop('hatches', None)
 
@@ -301,24 +315,40 @@ class MetricVisualizer:
 
         rotation = kwargs.pop('rotation', 0)
 
-        data = [self.metrics[metric_name] for metric_name in self.metrics]
+        linewidth = kwargs.pop('linewidth', 2)
 
         widths = kwargs.pop('widths', 0.5)
 
-        boxs_parts = ax.boxplot(data, widths=widths)
+        box_parts = []
+        legend_labels = []
+        for metric_name in self.metrics.keys():
+            color = random.choice(self.COLORS)
+            metric = self.metrics[metric_name]
+            xticks = list(range(len(metric.keys())))
+            xticklabel = list(metric.keys())
 
-        for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
-            plt.setp(boxs_parts[item], color='grey')
+            data = [metric[trail] for trail in metric.keys()]
 
-        plt.setp(boxs_parts["fliers"], markeredgecolor='grey')
+            boxs_parts = ax.boxplot(data, widths=widths, meanline=True)
 
-        legend_without_duplicate_labels(ax)
+            box_parts.append(boxs_parts['boxes'][0])
+            legend_labels.append(metric_name)
+
+            plt.xlabel(xlabel if xlabel else 'Trail')
+            plt.ylabel(' and '.join(list(self.metrics.keys())))
+
+            for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
+                plt.setp(boxs_parts[item], color=color)
+
+            plt.setp(boxs_parts["fliers"], markeredgecolor=color)
+
+        plt.legend(box_parts, legend_labels, loc=legend_loc)
 
         tikz_code = tikzplotlib.get_tikz_code()
         tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-        tex_src = tex_src.replace('$xtick$', xticks)
-        tex_src = tex_src.replace('$xticklabels$', ', '.join(list(range(len(xticks)))))
+        tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
+        tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
         tex_src = tex_src.replace('$xlabel$', xlabel)
         tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -347,23 +377,24 @@ class MetricVisualizer:
         plt.close()
 
     def violin_plot(self, save_path=None, **kwargs):
+
+        legend_labels = []
+
+        def add_label(violin, label):
+            color = violin["bodies"][0].get_facecolor().flatten()
+            legend_labels.append((mpatches.Patch(color=color), label))
+
         ax = plt.subplot()
 
-        alpha = kwargs.pop('markersize', 0.5)
+        alpha = kwargs.pop('alpha', 1)
 
         markersize = kwargs.pop('markersize', 3)
-
-        markers = kwargs.pop('markers', random.choices(self.MARKERS, k=len(self.metrics)))
-
-        plot_labels = kwargs.pop('plot_labels', None)
-
-        xticks = kwargs.pop('xticks', '')
 
         xlabel = kwargs.pop('xlabel', '')
 
         ylabel = kwargs.pop('ylabel', '')
 
-        colors = kwargs.pop('colors', random.choices(self.COLORS, k=len(self.metrics)))
+        legend_loc = kwargs.pop('legend_loc', 2)
 
         hatches = kwargs.pop('hatches', None)
 
@@ -373,22 +404,30 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 2)
 
-        data = [self.metrics[metric_name] for metric_name in self.metrics]
+        for metric_name in self.metrics.keys():
+            metric = self.metrics[metric_name]
+            xticks = list(range(len(metric.keys())))
+            xticklabel = list(metric.keys())
 
-        violin_parts = ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
+            data = [metric[trail] for trail in metric.keys()]
 
-        for pc in violin_parts['bodies']:
-            # pc.set_facecolor('black')
-            # pc.set_edgecolor('black')
-            pc.set_linewidth(linewidth)
+            violin = ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
 
-        legend_without_duplicate_labels(ax)
+            plt.xlabel(xlabel if xlabel else 'Trail')
+            plt.ylabel(' and '.join(list(self.metrics.keys())))
+
+            for pc in violin['bodies']:
+                pc.set_linewidth(linewidth)
+
+            add_label(violin, metric_name)
+
+        plt.legend(*zip(*legend_labels), loc=legend_loc)
 
         tikz_code = tikzplotlib.get_tikz_code()
         tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-        tex_src = tex_src.replace('$xtick$', xticks)
-        tex_src = tex_src.replace('$xticklabels$', ', '.join(list(range(len(xticks)))))
+        tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in xticks]))
+        tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticklabel]))
         tex_src = tex_src.replace('$xlabel$', xlabel)
         tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -417,23 +456,31 @@ class MetricVisualizer:
 
     def summary(self, save_path=None, **kwargs):
         summary_str = ' -------------------- Metric Summary --------------------\n'
-        summary_str += tabulate([self.metrics[metric_name] for metric_name in self.metrics.keys()],
-                                headers=list(self.metrics.keys()),
-                                showindex="always",
+        header = ['Metric', 'Trail', 'Values', 'Summary']
+
+        table_data = []
+
+        for mn in self.metrics.keys():
+            metrics = self.metrics[mn]
+            _data = []
+            for trail in metrics.keys():
+                _data += [[mn, trail, metrics[trail]]]
+                _data[-1].append(
+                    ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
+                        np.average(metrics[trail]),
+                        np.median(metrics[trail]),
+                        iqr(metrics[trail], rng=(25, 75), interpolation='midpoint'),
+                        np.max(metrics[trail]),
+                        np.min(metrics[trail])
+                    )]
+                )
+                table_data += _data
+
+        summary_str += tabulate(table_data,
+                                headers=header,
                                 numalign='center',
                                 tablefmt='fancy_grid')
-        summary_str += '\n'
-        for metric_name in self.metrics:
-            metrics = self.metrics[metric_name]
-            # summary_str += '{}: '.format(metric_name) + str(metrics) + '\n'
-            summary_str += 'Avg:{}, \tMedian: {}, \tIQR: {}, \tMax: {}, \tMin: {}\n'.format(
-                np.average(metrics),
-                np.median(metrics),
-                iqr(metrics, rng=(25, 75), interpolation='midpoint'),
-                np.max(metrics),
-                np.min(metrics)
-            )
-        summary_str += ' -------------------- Metric Summary --------------------\n'
+        summary_str += '\n -------------------- Metric Summary --------------------\n'
 
         print(summary_str)
 
