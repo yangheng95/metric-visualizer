@@ -216,6 +216,18 @@ class MetricVisualizer:
 
     def traj_plot(self, save_path=None, **kwargs):
 
+        def fix_tex_traj_plot_legend(tex_src_str, metrics):
+            for metric_name in metrics.keys():
+                tex_src_str = tex_src_str.replace('\\addlegendentry{' + metric_name + '}', '', len(metrics[metric_name]) - 1)
+            point_first_addplot = tex_src_str.find('\\addplot')
+            point_end_axis = tex_src_str.find('\\end{axis')
+            point_first_addlegend = tex_src_str.find("\\addlegend")
+            point_switch = point_first_addlegend - tex_src_str[point_first_addplot + 1:point_first_addlegend + 1][::-1].find('\\addplot'[::-1]) - len('\\addplot')
+
+            tex_src_str = tex_src_str[:point_first_addplot] + tex_src_str[point_switch:point_end_axis] + tex_src_str[point_first_addplot:point_switch] + tex_src_str[point_end_axis:]
+
+            return tex_src_str
+
         alpha = kwargs.pop('alpha', 0.01)
 
         markersize = kwargs.pop('markersize', 3)
@@ -286,13 +298,18 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
-            tikz_code = tikzplotlib.get_tikz_code()
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                self.traj_plot(save_path, **kwargs)
+
             tex_src = self.traj_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join(tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
+            tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_traj_plot.tex').lstrip('_'), mode='w', encoding='utf8')
@@ -373,7 +390,11 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
-            tikz_code = tikzplotlib.get_tikz_code()
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                self.box_plot(save_path, **kwargs)
+
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
@@ -462,7 +483,11 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
-            tikz_code = tikzplotlib.get_tikz_code()
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                self.violin_plot(save_path, **kwargs)
+
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))

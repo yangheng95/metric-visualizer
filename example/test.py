@@ -28,7 +28,7 @@ MV.traj_plot(save_path=save_path)  # save fig into .tex and .pdf format
 MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
 MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
 
-save_path = 'example'
+save_path = ''
 MV.traj_plot(save_path=save_path)  # show the fig via matplotlib
 MV.violin_plot(save_path=save_path)  # show the fig via matplotlib
 MV.box_plot(save_path=save_path)  # show the fig via matplotlib
