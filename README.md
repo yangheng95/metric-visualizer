@@ -7,9 +7,10 @@ pip install metric_visualizer
 ```
 
 ## Usage
-If you need to run trail experiments, you can use this tool to make simple plots then fix it manually. 
+If you need to run trail experiments, you can use this tool to make simple plots then fix it manually.
+
 ```python3
-from metric_visualizer import MetricVisualizer
+from metric_visualizer import MetricPlot
 
 """
     if two metrics are used,
@@ -27,7 +28,7 @@ from metric_visualizer import MetricVisualizer
     }
 """
 # MV = MetricVisualizer(metrics)
-MV = MetricVisualizer()
+MV = MetricPlot()
 
 ...
 
@@ -70,6 +71,7 @@ To analyze the impact of max_seq_len, we can use MetricVisualizer as following:
 ```bash
 pip install pyabsa  # install pyabsa
 ```
+
 ```python3
 
 # -*- coding: utf-8 -*-
@@ -78,10 +80,10 @@ pip install pyabsa  # install pyabsa
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
-
+import autocuda
 import random
 
-from metric_visualizer import MetricVisualizer
+from metric_plot import MetricPlot
 
 from pyabsa.functional import Trainer
 from pyabsa.functional import APCConfigManager
@@ -104,8 +106,10 @@ apc_config_english.cache_dataset = False
 apc_config_english.patience = 10
 apc_config_english.seed = seeds
 
-MV = MetricVisualizer()
+MV = MetricPlot()
 apc_config_english.MV = MV
+
+device = autocuda.auto_cuda()
 
 for max_seq_len in max_seq_lens:
     apc_config_english.eta = max_seq_len
@@ -113,21 +117,21 @@ for max_seq_len in max_seq_lens:
     Trainer(config=apc_config_english,
             dataset=Laptop14,  # train set and test set will be automatically detected
             checkpoint_save_mode=0,  # =None to avoid save model
-            auto_device=True  # automatic choose CUDA or CPU
+            auto_device=device  # automatic choose CUDA or CPU
             )
     apc_config_english.MV.next_trail()
 
 save_path = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
 MV.summary(save_path=None)
-MV.traj_plot(save_path=None)
-MV.violin_plot(save_path=None)
-MV.box_plot(save_path=None)
+MV.traj_plot(save_path=None, xlabel='Max_Seq_Len')
+MV.violin_plot(save_path=None, xlabel='Max_Seq_Len')
+MV.box_plot(save_path=None, xlabel='Max_Seq_Len')
 
 try:
     MV.summary(save_path=save_path)
-    MV.traj_plot(save_path=save_path)
-    MV.violin_plot(save_path=save_path)
-    MV.box_plot(save_path=save_path)
+    MV.traj_plot(save_path=save_path, xlabel='Max_Seq_Len')
+    MV.violin_plot(save_path=save_path, xlabel='Max_Seq_Len')
+    MV.box_plot(save_path=save_path, xlabel='Max_Seq_Len')
 except Exception as e:
     pass
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # file: setup.py
-# time: 2021/4/22 0022
+# time: 2022/2/4
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
@@ -18,7 +18,7 @@ setup(
     description='',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/yangheng95/MetricVisualizer',
+    url='https://github.com/yangheng95/metric_plot',
     # Author details
     author='Heng, Yang',
     author_email='yangheng@m.scnu.edu.cn',

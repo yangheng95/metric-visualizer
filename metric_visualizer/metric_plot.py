@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: metric_visualizer.py
+# file: metric_plot.py
 # time: 03/02/2022
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
@@ -26,14 +26,20 @@ def legend_without_duplicate_labels(ax):
     ax.legend(*zip(*unique))
 
 
-class MetricVisualizer:
+class MetricPlot:
     COLORS_DICT = matplotlib.colors.XKCD_COLORS
     COLORS_DICT.update(matplotlib.colors.CSS4_COLORS)
     COLORS = list(COLORS_DICT.values())
     # MARKERS = matplotlib.markers
-    MARKERS = [".", "o", "v", "^", "<", ">", "1", "2", "3", "4", "8", "s", "p", "P", "*", "h", "H", "+", "x", "X", "D", "d", "|", "_",
-               0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, "None", " ", ""]
-    HATCHES = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
+    MARKERS = [".", "o", "v", "^", "<", ">",
+               "1", "2", "3", "4", "8", "s",
+               "p", "P", "*", "h", "H", "+",
+               "x", "X", "D", "d", "|", "_",
+               0, 1, 2, 4, 5, 6, 7, 8, 9, 10,
+               11, "None", " ", ""]
+
+    HATCHES = ['/', '\\', '|', '-', '+', 'x',
+               'o', 'O', '.', '*']
 
     box_plot_tex_template = r"""
     \documentclass{article}
@@ -251,18 +257,18 @@ class MetricVisualizer:
                                     )
                 if kwargs.pop('traj_point', True):
                     traj_point = plt.subplot().scatter([x] * y.shape[1],
-                                            y,
-                                            marker=marker,
-                                            color=color
-                                            )
+                                                       y,
+                                                       marker=marker,
+                                                       color=color
+                                                       )
                 if kwargs.pop('traj_fill', True):
                     traj_fill = plt.subplot().fill_between(x,
-                                                y_avg - y_std,
-                                                y_avg + y_std,
-                                                color=color,
-                                                hatch=hatches[i] if hatches else None,
-                                                alpha=alpha
-                                                )
+                                                           y_avg - y_std,
+                                                           y_avg + y_std,
+                                                           color=color,
+                                                           hatch=hatches[i] if hatches else None,
+                                                           alpha=alpha
+                                                           )
 
             legend_without_duplicate_labels(ax)
 
@@ -364,7 +370,6 @@ class MetricVisualizer:
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
-
         if not save_path:
             plt.show()
         else:
@@ -372,7 +377,7 @@ class MetricVisualizer:
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x+1) for x in range(len(xticks))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(xticks))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -461,7 +466,7 @@ class MetricVisualizer:
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x+1) for x in range(len(xticks))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(xticks))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -525,7 +530,7 @@ class MetricVisualizer:
 
 
 if __name__ == '__main__':
-    mv = MetricVisualizer({
+    mv = MetricPlot({
         'Metric1': {
             'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
             'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
@@ -543,4 +548,3 @@ if __name__ == '__main__':
     mv.traj_plot(save_path='./')
     mv.violin_plot(save_path='./')
     mv.box_plot(save_path='./')
-
