@@ -5,7 +5,7 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = '0.3.0'
-__name__ = 'metric_plot'
+__version__ = '0.3.2'
+__name__ = 'metric_visualizer'
 
-from .metric_plot import MetricPlot
+from .metric_visualizer import MetricVisualizer

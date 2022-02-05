@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: metric_plot.py
+# file: metric_visualizer.py
 # time: 03/02/2022
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
@@ -26,7 +26,7 @@ def legend_without_duplicate_labels(ax):
     ax.legend(*zip(*unique))
 
 
-class MetricPlot:
+class MetricVisualizer:
     COLORS_DICT = matplotlib.colors.XKCD_COLORS
     COLORS_DICT.update(matplotlib.colors.CSS4_COLORS)
     COLORS = list(COLORS_DICT.values())
@@ -170,14 +170,14 @@ class MetricPlot:
         """
         Used for plotting, e.g.,
             'Metric1': {
-                'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                'trail-0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
+                'train-1': [64.53, 58.33, 97.89, 68.12, 88.6, 60.33, 70.99, 75.91, 42.49, 15.03],
+                'train-2': [97.74, 86.05, 41.34, 81.66, 75.08, 1.76, 94.63, 27.26, 47.11, 42.06],
             },
             'Metric2': {
-                'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                'trail-0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44] ,
+                'train-1': [187.58, 106.35, 134.22, 167.68, 188.24, 196.54, 154.21, 193.71, 183.34, 150.18],
+                'train-2': [159.24, 148.44, 119.49, 160.24, 169.6, 133.27, 129.36, 180.36, 165.24, 152.38],
             }
 
         :param metric_dict: If you want to plot figure, it is recommended to add multiple trail experiments. In these trial, the experimental results
@@ -524,13 +524,13 @@ class MetricPlot:
         print(summary_str)
 
         if save_path:
-            fout = open(save_path + '.txt', mode='w', encoding='utf8')
+            fout = open(save_path + '_summary.txt', mode='w', encoding='utf8')
             fout.write(summary_str)
             fout.close()
 
 
 if __name__ == '__main__':
-    mv = MetricPlot({
+    mv = MetricVisualizer({
         'Metric1': {
             'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
             'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
