@@ -348,7 +348,7 @@ class MetricVisualizer:
 
             tex_src = self.traj_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-            tex_src = tex_src.replace('$xticklabel$', ','.join(tex_xtick))
+            tex_src = tex_src.replace('$xticklabel$', ','.join(str(x) for x in tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
