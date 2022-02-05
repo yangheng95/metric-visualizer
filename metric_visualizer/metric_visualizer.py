@@ -272,7 +272,7 @@ class MetricVisualizer:
 
             legend_without_duplicate_labels(ax)
 
-            tex_xtick = list(metrics.keys()) if not xticks else xticks
+            tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
         plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
         plt.ylabel(' and '.join(list(self.metrics.keys())))
@@ -347,10 +347,10 @@ class MetricVisualizer:
         legend_labels = []
         for metric_name in self.metrics.keys():
             color = random.choice(self.COLORS)
-            metric = self.metrics[metric_name]
-            xticks = metric.keys() if not xticks else xticks
+            metrics = self.metrics[metric_name]
+            tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
-            data = [metric[trail] for trail in metric.keys()]
+            data = [metrics[trail] for trail in metrics.keys()]
 
             boxs_parts = ax.boxplot(data, widths=widths, meanline=True)
 
@@ -376,8 +376,8 @@ class MetricVisualizer:
             tikz_code = tikzplotlib.get_tikz_code()
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(xticks))]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -439,7 +439,7 @@ class MetricVisualizer:
         legend_labels = []
         for metric_name in self.metrics.keys():
             metric = self.metrics[metric_name]
-            xticks = metric.keys() if not xticks else xticks
+            tex_xtick = list(metric.keys()) if xticks is None else xticks
 
             data = [metric[trail] for trail in metric.keys()]
 
@@ -465,8 +465,8 @@ class MetricVisualizer:
             tikz_code = tikzplotlib.get_tikz_code()
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
-            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in xticks]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(xticks))]))
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 

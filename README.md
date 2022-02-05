@@ -43,15 +43,15 @@ MV.box_plot(save_path=None)  # show the fig via matplotlib
 
 ### Traj Plot
 
-![img.png](fig/traj_plot_example.png)
+![traj_plot_example](fig/traj_plot_example.png)
 
 ### Box Plot
 
-![img_1.png](fig/box_plot_example.png)
+![box_plot_example](fig/box_plot_example.png)
 
 ### Violin Plot
 
-![img_2.png](fig/violin_plot_example.png)
+![violin_plot_example](fig/violin_plot_example.png)
 
 ## Real Usage Example in PyABSA
 
@@ -102,17 +102,17 @@ for max_seq_len in max_seq_lens:
             )
     apc_config_english.MV.next_trail()
 
-save_path = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
-MV.summary(save_path=None)
-MV.traj_plot(save_path=None, xlabel='Max_Seq_Len')
-MV.violin_plot(save_path=None, xlabel='Max_Seq_Len')
-MV.box_plot(save_path=None, xlabel='Max_Seq_Len')
+apc_config_english.MV.summary(save_path=None)
+apc_config_english.MV.traj_plot(save_path=None, xlabel='Max_Seq_Len')
+apc_config_english.MV.violin_plot(save_path=None, xlabel='Max_Seq_Len')
+apc_config_english.MV.box_plot(save_path=None, xlabel='Max_Seq_Len')
 
+save_path = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
 try:
-    MV.summary(save_path=save_path)
-    MV.traj_plot(save_path=save_path, xlabel='Max_Seq_Len')
-    MV.violin_plot(save_path=save_path, xlabel='Max_Seq_Len')
-    MV.box_plot(save_path=save_path, xlabel='Max_Seq_Len')
+    apc_config_english.MV.summary(save_path=save_path)
+    apc_config_english.MV.traj_plot(save_path=save_path, xlabel='Max_Seq_Len')
+    apc_config_english.MV.violin_plot(save_path=save_path, xlabel='Max_Seq_Len')
+    apc_config_english.MV.box_plot(save_path=save_path, xlabel='Max_Seq_Len')
 except Exception as e:
     pass
 

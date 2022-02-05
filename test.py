@@ -23,10 +23,10 @@ for trail in range(trail_num):
     MV.next_trail()
 
 save_path = None
-MV.summary(save_path=save_path)  # save fig into .tex and .pdf foramt
-MV.traj_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
-MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
-MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
+MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
+MV.traj_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
 
 save_path = 'example'
 MV.traj_plot(save_path=save_path)  # show the fig via matplotlib
