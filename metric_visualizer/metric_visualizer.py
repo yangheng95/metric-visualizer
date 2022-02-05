@@ -216,7 +216,7 @@ class MetricVisualizer:
 
     def traj_plot(self, save_path=None, **kwargs):
 
-        alpha = kwargs.pop('alpha', 0.3)
+        alpha = kwargs.pop('alpha', 0.01)
 
         markersize = kwargs.pop('markersize', 3)
 
@@ -226,7 +226,7 @@ class MetricVisualizer:
 
         ylabel = kwargs.pop('ylabel', '')
 
-        linewidth = kwargs.pop('linewidth', 3)
+        linewidth = kwargs.pop('linewidth', 0.5)
 
         hatches = kwargs.pop('hatches', None)
 
@@ -525,26 +525,6 @@ class MetricVisualizer:
 
         if save_path:
             fout = open(save_path + '_summary.txt', mode='w', encoding='utf8')
+            summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
-
-
-if __name__ == '__main__':
-    mv = MetricVisualizer({
-        'Metric1': {
-            'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-            'trail-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-            'trail-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-        },
-        'Metric2': {
-            'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-            'trail-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-            'trail-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-        }})
-    mv.summary()
-    mv.traj_plot()
-    mv.violin_plot()
-    mv.box_plot()
-    mv.traj_plot(save_path='./')
-    mv.violin_plot(save_path='./')
-    mv.box_plot(save_path='./')

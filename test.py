@@ -29,7 +29,6 @@ MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
 MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf foramt
 
 save_path = 'example'
-MV.summary(save_path=None)  # show the fig via matplotlib
-MV.traj_plot(save_path=None)  # show the fig via matplotlib
-MV.violin_plot(save_path=None)  # show the fig via matplotlib
-MV.box_plot(save_path=None)  # show the fig via matplotlib
+MV.traj_plot(save_path=save_path)  # show the fig via matplotlib
+MV.violin_plot(save_path=save_path)  # show the fig via matplotlib
+MV.box_plot(save_path=save_path)  # show the fig via matplotlib
