@@ -7,6 +7,7 @@ pip install metric_visualizer
 ```
 
 ## Usage
+
 If you need to run trail experiments, you can use this tool to make simple plots then fix it manually.
 
 ```python3
@@ -54,6 +55,7 @@ MV.box_plot(save_path=save_path)  # show the fig via matplotlib
 ## Real Usage Example in PyABSA
 
 To analyze the impact of max_seq_len, we can use MetricVisualizer as following:
+
 ```bash
 pip install pyabsa  # install pyabsa
 ```

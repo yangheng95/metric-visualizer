@@ -13,7 +13,7 @@ from collections import OrderedDict
 import matplotlib.colors
 import numpy as np
 import tikzplotlib
-from findfile import find_cwd_files
+from findfile import find_cwd_files, find_cwd_file
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 from scipy.stats import iqr
@@ -73,6 +73,46 @@ class MetricVisualizer:
         \begin{figure}
         \centering
 
+        $tikz_code$
+
+        \end{figure}
+
+    \end{document}
+    """
+
+    bar_plot_tex_template = r"""
+    \documentclass{article}
+    \usepackage{pgfplots}
+    \usepackage{tikz}
+    \usepackage{caption}
+    \usetikzlibrary{intersections}
+    \usepackage{helvet}
+    \usepackage[eulergreek]{sansmath}
+    \usepackage{amsfonts,amssymb,amsmath,amsthm,amsopn}	% math related
+
+    \begin{document}
+        \pagestyle{empty}
+        \pgfplotsset{ compat=1.12,every axis/.append style={
+            grid = major,
+            thick,
+            xtick={$xtick$},
+            xticklabels={$xticklabel$},
+            ylabel = {$ylabel$},
+            ylabel style={font=\Large},
+            xlabel = {$xlabel$},
+            xlabel style={font=\Large},
+            x tick label style={rotate=0,anchor=north},
+            y tick label style={rotate=0,anchor=east},
+            xticklabel shift=1pt,
+            line width = 1pt,
+            tick style = {line width = 0.8pt}}}
+        \pgfplotsset{every plot/.append style={thin}}
+
+
+        \begin{figure}
+        \centering
+		\usetikzlibrary{patterns}
+		
         $tikz_code$
 
         \end{figure}
@@ -160,11 +200,14 @@ class MetricVisualizer:
     def set_box_plot_tex_template(self, box_plot_tex_template):
         self.box_plot_tex_template = box_plot_tex_template
 
+    def set_bar_plot_tex_template(self, bar_plot_tex_template):
+        self.bar_plot_tex_template = bar_plot_tex_template
+
     def set_violin_plot_tex_template(self, box_violin_tex_template):
-        self.box_plot_tex_template = box_violin_tex_template
+        self.violin_plot_tex_template = box_violin_tex_template
 
     def set_traj_plot_tex_template(self, box_traj_tex_template):
-        self.box_plot_tex_template = box_traj_tex_template
+        self.box_traj_tex_template = box_traj_tex_template
 
     def __init__(self, metric_dict=None):
         """
@@ -315,13 +358,13 @@ class MetricVisualizer:
             fout = open((save_path + '_metric_traj_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            texs = find_cwd_files('.tex')
+            texs = find_cwd_files(['.tex', '_metric_traj_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files('.pdf', exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', '_metric_traj_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -329,6 +372,7 @@ class MetricVisualizer:
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files('_metric_traj_plot', exclude_key='crop'))
         print('Traj plot finished')
         plt.close()
 
@@ -406,13 +450,13 @@ class MetricVisualizer:
             fout = open((save_path + '_metric_box_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            texs = find_cwd_files('.tex')
+            texs = find_cwd_files(['.tex', '_metric_box_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files('.pdf', exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', '_metric_box_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -420,8 +464,197 @@ class MetricVisualizer:
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files('_metric_box_plot', exclude_key='crop'))
 
         print('Box plot finished')
+        plt.close()
+
+    def avg_bar_plot(self, save_path=None, **kwargs):
+
+        ax = plt.subplot()
+
+        alpha = kwargs.pop('alpha', 1)
+
+        markersize = kwargs.pop('markersize', 3)
+
+        xlabel = kwargs.pop('xlabel', '')
+
+        xticks = kwargs.pop('xticks', '')
+
+        ylabel = kwargs.pop('ylabel', '')
+
+        yticks = kwargs.pop('yticks', '')
+
+        legend_loc = kwargs.pop('legend_loc', 2)
+
+        hatches = kwargs.pop('hatches', True)
+
+        fontsize = kwargs.pop('fontsize', 12)
+
+        rotation = kwargs.pop('rotation', 0)
+
+        linewidth = kwargs.pop('linewidth', 3)
+
+        widths = kwargs.pop('widths', 0.5)
+
+        box_parts = []
+        legend_labels = []
+        total_width = 0.9
+        for i, metric_name in enumerate(self.metrics.keys()):
+            metric_num = len(self.metrics.keys())
+            trail_num = len(self.metrics[metric_name])
+            color = random.choice(self.COLORS)
+            metrics = self.metrics[metric_name]
+            width = total_width / metric_num
+            x = np.arange(trail_num)
+            x = x - (total_width - width) / 2
+            x = x + i * width
+            Y = np.array([np.average(self.metrics[m_name][trail]) for m_name in self.metrics.keys() for trail in self.metrics[m_name] if metric_name == m_name])
+            plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+
+            for i, j in zip(x, Y):
+                plt.text(i, j + width, '%.1f' % j, ha='center', va='bottom')
+
+            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.ylabel(' and '.join(list(self.metrics.keys())))
+
+        plt.grid()
+        plt.minorticks_on()
+
+        plt.legend(box_parts, legend_labels, loc=legend_loc)
+
+        if not save_path:
+            plt.show()
+        else:
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                self.box_plot(save_path, **kwargs)
+
+            tex_src = self.bar_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$', ylabel)
+
+            # plt.savefig(save_path, dpi=1000, format='pdf')
+            fout = open((save_path + '_metric_avg_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
+            texs = find_cwd_files(['.tex', '_metric_avg_bar_plot'])
+            for pdf in texs:
+                cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            pdfs = find_cwd_files(['.pdf', '_metric_avg_bar_plot'], exclude_key='crop')
+            for pdf in pdfs:
+                cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+                os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files('_metric_avg_bar_plot', exclude_key='crop'))
+
+        print('Avg Bar plot finished')
+        plt.close()
+
+    def sum_bar_plot(self, save_path=None, **kwargs):
+
+        ax = plt.subplot()
+
+        alpha = kwargs.pop('alpha', 1)
+
+        markersize = kwargs.pop('markersize', 3)
+
+        xlabel = kwargs.pop('xlabel', '')
+
+        xticks = kwargs.pop('xticks', '')
+
+        ylabel = kwargs.pop('ylabel', '')
+
+        yticks = kwargs.pop('yticks', '')
+
+        legend_loc = kwargs.pop('legend_loc', 2)
+
+        hatches = kwargs.pop('hatches', True)
+
+        fontsize = kwargs.pop('fontsize', 12)
+
+        rotation = kwargs.pop('rotation', 0)
+
+        linewidth = kwargs.pop('linewidth', 3)
+
+        widths = kwargs.pop('widths', 0.5)
+
+        box_parts = []
+        legend_labels = []
+        total_width = 0.9
+        for i, metric_name in enumerate(self.metrics.keys()):
+            metric_num = len(self.metrics.keys())
+            trail_num = len(self.metrics[metric_name])
+            color = random.choice(self.COLORS)
+            metrics = self.metrics[metric_name]
+            width = total_width / metric_num
+            x = np.arange(trail_num)
+            x = x - (total_width - width) / 2
+            x = x + i * width
+            Y = np.array([np.sum(self.metrics[m_name][trail]) for m_name in self.metrics.keys() for trail in self.metrics[m_name] if metric_name == m_name])
+            plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+
+            for i, j in zip(x, Y):
+                plt.text(i, j + width, '%.1f' % j, ha='center', va='bottom')
+
+            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.ylabel(' and '.join(list(self.metrics.keys())))
+
+        plt.grid()
+        plt.minorticks_on()
+
+        plt.legend(box_parts, legend_labels, loc=legend_loc)
+
+        if not save_path:
+            plt.show()
+        else:
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                self.box_plot(save_path, **kwargs)
+
+            tex_src = self.bar_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$', ylabel)
+
+            # plt.savefig(save_path, dpi=1000, format='pdf')
+            fout = open((save_path + '_metric_sum_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
+            texs = find_cwd_files(['.tex', '_metric_sum_bar_plot'])
+            for pdf in texs:
+                cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            pdfs = find_cwd_files(['.pdf', '_metric_sum_bar_plot'], exclude_key='crop')
+            for pdf in pdfs:
+                cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+                os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files('_metric_sum_bar_plot', exclude_key='crop'))
+
+        print('Sum Bar plot finished')
         plt.close()
 
     def violin_plot(self, save_path=None, **kwargs):
@@ -475,10 +708,10 @@ class MetricVisualizer:
             violin_parts.append(violin["bodies"][0])
             legend_labels.append(metric_name)
 
+            plt.legend(violin_parts, legend_labels, loc=legend_loc)
+
         plt.grid()
         plt.minorticks_on()
-
-        plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
         if not save_path:
             plt.show()
@@ -499,13 +732,13 @@ class MetricVisualizer:
             fout = open((save_path + '_metric_violin_plot.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            texs = find_cwd_files('.tex')
+            texs = find_cwd_files(['.tex', '_metric_violin_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files('.pdf', exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', '_metric_violin_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -513,6 +746,7 @@ class MetricVisualizer:
 
             for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
                 os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files('_metric_violin_plot', exclude_key='crop'))
 
         print('Violin plot finished')
 

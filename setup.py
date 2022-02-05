@@ -9,6 +9,7 @@ from setuptools import setup, find_packages
 
 from metric_visualizer import __name__, __version__
 from pathlib import Path
+
 cwd = Path(__file__).parent
 long_description = (cwd / "README.md").read_text(encoding='utf8')
 
@@ -18,7 +19,7 @@ setup(
     description='',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/yangheng95/metric_plot',
+    url='https://github.com/yangheng95/metric_visualizer',
     # Author details
     author='Heng, Yang',
     author_email='yangheng@m.scnu.edu.cn',
