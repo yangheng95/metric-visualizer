@@ -80,49 +80,27 @@ MV.sum_bar_plot(save_path=save_path)  # save fig into tikz and .pdf format
 ╘══════════╧═════════╧══════════════════════════════════════════════════════════════╧═════════════════════════════════════════════════════════════╛
  -------------------- Metric Summary --------------------
 ```
-## Plot via Matplotlib
+## Plot via Matplotlib (or Tikz)
 
-### Traj Plot
+### Traj Plot [tikz version](fig/example_metric_traj_plot.pdf)
 
 ![traj_plot_example](fig/traj_plot_example.png)
 
-### Box Plot
+### Box Plot [tikz version](fig/example_metric_box_plot.pdf)
 
 ![box_plot_example](fig/box_plot_example.png)
 
-### Violin Plot
+### Violin Plot [tikz version](fig/example_metric_violin_plot.pdf)
 
 ![violin_plot_example](fig/violin_plot_example.png)
 
-### Average Bar Plot
+### Average Bar Plot [tikz version](fig/avg_bar_plot_example.png)
 
 ![violin_plot_example](fig/avg_bar_plot_example.png)
 
-### Sum Bar Plot
+### Sum Bar Plot [tikz version](fig/example_metric_sum_bar_plot.pdf)
 
 ![violin_plot_example](fig/sum_bar_plot_example.png)
-
-## Plot via TIkz
-
-### Traj Plot
-
-![traj_plot_example](fig/example_metric_traj_plot.pdf)
-
-### Box Plot
-
-![box_plot_example](fig/example_metric_box_plot.pdf)
-
-### Violin Plot
-
-![violin_plot_example](fig/example_metric_violin_plot.pdf)
-
-### Average Bar Plot
-
-![violin_plot_example](fig/example_metric_avg_bar_plot.pdf)
-
-### Sum Bar Plot
-
-![violin_plot_example](fig/example_metric_sum_bar_plot.pdf)
 
 ## Real Usage Example in PyABSA
 
