@@ -19,6 +19,8 @@ import matplotlib.patches as mpatches
 from scipy.stats import iqr
 from tabulate import tabulate
 
+retry_count = 100
+
 
 def legend_without_duplicate_labels(ax):
     handles, labels = ax.get_legend_handles_labels()
@@ -259,19 +261,9 @@ class MetricVisualizer:
 
     def traj_plot(self, save_path=None, **kwargs):
 
-        def fix_tex_traj_plot_legend(tex_src_str, metrics):
-            for metric_name in metrics.keys():
-                tex_src_str = tex_src_str.replace('\\addlegendentry{' + metric_name + '}', '', len(metrics[metric_name]) - 1)
-            point_first_addplot = tex_src_str.find('\\addplot')
-            point_end_axis = tex_src_str.find('\\end{axis')
-            point_first_addlegend = tex_src_str.find("\\addlegend")
-            point_switch = point_first_addlegend - tex_src_str[point_first_addplot + 1:point_first_addlegend + 1][::-1].find('\\addplot'[::-1]) - len('\\addplot')
-
-            tex_src_str = tex_src_str[:point_first_addplot] + tex_src_str[point_switch:point_end_axis] + tex_src_str[point_first_addplot:point_switch] + tex_src_str[point_end_axis:]
-
-            return tex_src_str
-
         alpha = kwargs.pop('alpha', 0.01)
+
+        legend_loc = kwargs.pop('legend_loc', 2)
 
         markersize = kwargs.pop('markersize', 3)
 
@@ -289,6 +281,8 @@ class MetricVisualizer:
 
         rotation = kwargs.pop('rotation', 0)
 
+        traj_parts = []
+        legend_labels = []
         for metric_name in self.metrics.keys():
             ax = plt.subplot()
             metrics = self.metrics[metric_name]
@@ -306,10 +300,10 @@ class MetricVisualizer:
                                     y_avg,
                                     marker=marker,
                                     color=color,
-                                    label=metric_name,
                                     markersize=markersize,
                                     linewidth=linewidth
                                     )
+
                 if kwargs.pop('traj_point', True):
                     traj_point = plt.subplot().scatter([x] * y.shape[1],
                                                        y,
@@ -325,12 +319,14 @@ class MetricVisualizer:
                                                            alpha=alpha
                                                            )
 
-            legend_without_duplicate_labels(ax)
-
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
+            traj_parts.append(avg_point[0])
+            legend_labels.append(metric_name)
+        plt.legend(traj_parts, legend_labels, loc=legend_loc)
+
         plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
-        plt.ylabel(' and '.join(list(self.metrics.keys())))
+        plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
         plt.minorticks_on()
@@ -341,10 +337,16 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
+            global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
             except ValueError as e:
-                self.traj_plot(save_path, **kwargs)
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
 
             tex_src = self.traj_plot_tex_template.replace('$tikz_code$', tikz_code)
 
@@ -352,7 +354,8 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
-            tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
+
+            # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_traj_plot.tex').lstrip('_'), mode='w', encoding='utf8')
@@ -413,13 +416,13 @@ class MetricVisualizer:
 
             data = [metrics[trial] for trial in metrics.keys()]
 
-            boxs_parts = ax.boxplot(data, widths=widths, meanline=True)
+            boxs_parts = ax.boxplot(data, positions=list(range(len(metrics.keys()))), widths=widths, meanline=True)
 
             box_parts.append(boxs_parts['boxes'][0])
             legend_labels.append(metric_name)
 
             plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
-            plt.ylabel(' and '.join(list(self.metrics.keys())))
+            plt.ylabel(', '.join(list(self.metrics.keys())))
 
             for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
                 plt.setp(boxs_parts[item], color=color)
@@ -434,15 +437,21 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
+            global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
             except ValueError as e:
-                self.box_plot(save_path, **kwargs)
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
 
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -497,8 +506,7 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.5)
 
-        box_parts = []
-        legend_labels = []
+        sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(self.metrics.keys()):
             metric_num = len(self.metrics.keys())
@@ -510,33 +518,44 @@ class MetricVisualizer:
             x = x - (total_width - width) / 2
             x = x + i * width
             Y = np.array([np.average(self.metrics[m_name][trial]) for m_name in self.metrics.keys() for trial in self.metrics[m_name] if metric_name == m_name])
-            plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+            if save_path:
+                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+                plt.legend()
+            else:
+                bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+                sum_bar_parts.append(bar[0])
+                legend_labels = list(self.metrics.keys())
+                plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
-                plt.text(i, j + width, '%.1f' % j, ha='center', va='bottom')
+                plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
 
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
         plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
-        plt.ylabel(' and '.join(list(self.metrics.keys())))
+        plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
         plt.minorticks_on()
 
-        plt.legend(box_parts, legend_labels, loc=legend_loc)
-
         if not save_path:
             plt.show()
         else:
+            global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
             except ValueError as e:
-                self.box_plot(save_path, **kwargs)
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
 
             tex_src = self.bar_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -591,8 +610,7 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.5)
 
-        box_parts = []
-        legend_labels = []
+        sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(self.metrics.keys()):
             metric_num = len(self.metrics.keys())
@@ -604,33 +622,44 @@ class MetricVisualizer:
             x = x - (total_width - width) / 2
             x = x + i * width
             Y = np.array([np.sum(self.metrics[m_name][trial]) for m_name in self.metrics.keys() for trial in self.metrics[m_name] if metric_name == m_name])
-            plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+            if save_path:
+                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+                plt.legend()
+            else:
+                bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
+                sum_bar_parts.append(bar[0])
+                legend_labels = list(self.metrics.keys())
+                plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
-                plt.text(i, j + width, '%.1f' % j, ha='center', va='bottom')
+                plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
 
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
         plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
-        plt.ylabel(' and '.join(list(self.metrics.keys())))
+        plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
         plt.minorticks_on()
 
-        plt.legend(box_parts, legend_labels, loc=legend_loc)
-
         if not save_path:
             plt.show()
         else:
+            global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
             except ValueError as e:
-                self.box_plot(save_path, **kwargs)
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
 
             tex_src = self.bar_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
@@ -692,23 +721,27 @@ class MetricVisualizer:
         violin_parts = []
         legend_labels = []
         for metric_name in self.metrics.keys():
-            metric = self.metrics[metric_name]
-            tex_xtick = list(metric.keys()) if xticks is None else xticks
+            metrics = self.metrics[metric_name]
+            tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
-            data = [metric[trial] for trial in metric.keys()]
+            data = [metrics[trial] for trial in metrics.keys()]
 
-            violin = ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
+            if save_path:
+                violin = ax.violinplot(data, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin_parts.append(violin['bodies'][0])
+                legend_labels = list(self.metrics.keys())
+                plt.legend(violin_parts, legend_labels, loc=0)
+            else:
+                violin = ax.violinplot(data, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin_parts.append(violin['bodies'][0])
+                legend_labels = list(self.metrics.keys())
+                plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
             plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
-            plt.ylabel(' and '.join(list(self.metrics.keys())))
+            plt.ylabel(', '.join(list(self.metrics.keys())))
 
             for pc in violin['bodies']:
                 pc.set_linewidth(linewidth)
-
-            violin_parts.append(violin["bodies"][0])
-            legend_labels.append(metric_name)
-
-            plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
         plt.grid()
         plt.minorticks_on()
@@ -716,15 +749,21 @@ class MetricVisualizer:
         if not save_path:
             plt.show()
         else:
+            global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
             except ValueError as e:
-                self.violin_plot(save_path, **kwargs)
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
 
             tex_src = self.box_plot_tex_template.replace('$tikz_code$', tikz_code)
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
-            tex_src = tex_src.replace('$xtick$', ','.join([str(x + 1) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ylabel)
 
