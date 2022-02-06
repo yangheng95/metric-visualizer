@@ -8,7 +8,7 @@ pip install metric_visualizer
 
 ## Usage
 
-If you need to run trail experiments, you can use this tool to make simple plots then fix it manually.
+If you need to run trial experiments, you can use this tool to make simple plots then fix it manually.
 
 ```python3
 from metric_visualizer import MetricVisualizer
@@ -16,28 +16,32 @@ import numpy as np
 
 MV = MetricVisualizer()
 
-trail_num = 10  # number of different trails
+trial_num = 10  # number of different trials, the trial in this repo means controlled experiments
 repeat = 10  # number of repeats
 metric_num = 3  # number of metrics
 
-for trail in range(trail_num):
+for trial in range(trial_num):
     for r in range(repeat):
         t = 0  # metric scale factor        # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random()+n) * 100 for n in range(metric_num)]
         for i, m in enumerate(metrics):
             MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))
-    MV.next_trail()
+    MV.next_trial()
 
-save_path = None
-MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
+
+MV.summary(save_path=None)  # save fig into .tex and .pdf format
+MV.traj_plot(save_path=None)  # save fig into .tex and .pdf format
+MV.violin_plot(save_path=None)  # save fig into .tex and .pdf format
+MV.box_plot(save_path=None) 
+MV.avg_bar_plot(save_path=None)
+MV.sum_bar_plot(save_path=None)# save fig into .tex and .pdf format
 
 save_path = 'example'
 MV.traj_plot(save_path=save_path)  # show the fig via matplotlib
 MV.violin_plot(save_path=save_path)  # show the fig via matplotlib
 MV.box_plot(save_path=save_path)  # show the fig via matplotlib
+MV.avg_bar_plot(save_path=save_path)
+MV.sum_bar_plot(save_path=save_path)
 ```
 
 ### Traj Plot
@@ -100,7 +104,7 @@ for max_seq_len in max_seq_lens:
             checkpoint_save_mode=0,  # =None to avoid save model
             auto_device=device  # automatic choose CUDA or CPU
             )
-    apc_config_english.MV.next_trail()
+    apc_config_english.MV.next_trial()
 
 apc_config_english.MV.summary(save_path=None)
 apc_config_english.MV.traj_plot(save_path=None, xlabel='Max_Seq_Len')

@@ -213,29 +213,29 @@ class MetricVisualizer:
         """
         Used for plotting, e.g.,
             'Metric1': {
-                'trail-0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
+                'trial-0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
                 'train-1': [64.53, 58.33, 97.89, 68.12, 88.6, 60.33, 70.99, 75.91, 42.49, 15.03],
                 'train-2': [97.74, 86.05, 41.34, 81.66, 75.08, 1.76, 94.63, 27.26, 47.11, 42.06],
             },
             'Metric2': {
-                'trail-0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44] ,
+                'trial-0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44] ,
                 'train-1': [187.58, 106.35, 134.22, 167.68, 188.24, 196.54, 154.21, 193.71, 183.34, 150.18],
                 'train-2': [159.24, 148.44, 119.49, 160.24, 169.6, 133.27, 129.36, 180.36, 165.24, 152.38],
             }
 
-        :param metric_dict: If you want to plot figure, it is recommended to add multiple trail experiments. In these trial, the experimental results
+        :param metric_dict: If you want to plot figure, it is recommended to add multiple trial experiments. In these trial, the experimental results
         are comparative, e.g., just minor different in these experiments.
         """
         if metric_dict is None:
             self.metrics = OrderedDict(
                 {
                     # 'Metric1': {
-                    #     'trail-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'trial-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
                     #     'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
                     #     'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
                     # },
                     # 'Metric2': {
-                    #     'trail-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'trial-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
                     #     'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
                     #     'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
                     # }
@@ -243,19 +243,19 @@ class MetricVisualizer:
         else:
             self.metrics = metric_dict
 
-        self.trail_id = 0
+        self.trial_id = 0
 
-    def next_trail(self):
-        self.trail_id += 1
+    def next_trial(self):
+        self.trial_id += 1
 
     def add_metric(self, metric_name='Accuracy', value=0):
         if metric_name in self.metrics:
-            if 'trail-{}'.format(self.trail_id) not in self.metrics[metric_name]:
-                self.metrics[metric_name]['trail-{}'.format(self.trail_id)] = [value]
+            if 'trial-{}'.format(self.trial_id) not in self.metrics[metric_name]:
+                self.metrics[metric_name]['trial-{}'.format(self.trial_id)] = [value]
             else:
-                self.metrics[metric_name]['trail-{}'.format(self.trail_id)].append(value)
+                self.metrics[metric_name]['trial-{}'.format(self.trial_id)].append(value)
         else:
-            self.metrics[metric_name] = {'trail-{}'.format(self.trail_id): [value]}
+            self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
 
     def traj_plot(self, save_path=None, **kwargs):
 
@@ -411,7 +411,7 @@ class MetricVisualizer:
             metrics = self.metrics[metric_name]
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
-            data = [metrics[trail] for trail in metrics.keys()]
+            data = [metrics[trial] for trial in metrics.keys()]
 
             boxs_parts = ax.boxplot(data, widths=widths, meanline=True)
 
@@ -502,14 +502,14 @@ class MetricVisualizer:
         total_width = 0.9
         for i, metric_name in enumerate(self.metrics.keys()):
             metric_num = len(self.metrics.keys())
-            trail_num = len(self.metrics[metric_name])
+            trial_num = len(self.metrics[metric_name])
             color = random.choice(self.COLORS)
             metrics = self.metrics[metric_name]
             width = total_width / metric_num
-            x = np.arange(trail_num)
+            x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.average(self.metrics[m_name][trail]) for m_name in self.metrics.keys() for trail in self.metrics[m_name] if metric_name == m_name])
+            Y = np.array([np.average(self.metrics[m_name][trial]) for m_name in self.metrics.keys() for trial in self.metrics[m_name] if metric_name == m_name])
             plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
 
             for i, j in zip(x, Y):
@@ -596,14 +596,14 @@ class MetricVisualizer:
         total_width = 0.9
         for i, metric_name in enumerate(self.metrics.keys()):
             metric_num = len(self.metrics.keys())
-            trail_num = len(self.metrics[metric_name])
+            trial_num = len(self.metrics[metric_name])
             color = random.choice(self.COLORS)
             metrics = self.metrics[metric_name]
             width = total_width / metric_num
-            x = np.arange(trail_num)
+            x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.sum(self.metrics[m_name][trail]) for m_name in self.metrics.keys() for trail in self.metrics[m_name] if metric_name == m_name])
+            Y = np.array([np.sum(self.metrics[m_name][trial]) for m_name in self.metrics.keys() for trial in self.metrics[m_name] if metric_name == m_name])
             plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches else None, color=color)
 
             for i, j in zip(x, Y):
@@ -695,7 +695,7 @@ class MetricVisualizer:
             metric = self.metrics[metric_name]
             tex_xtick = list(metric.keys()) if xticks is None else xticks
 
-            data = [metric[trail] for trail in metric.keys()]
+            data = [metric[trial] for trial in metric.keys()]
 
             violin = ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
 
@@ -760,16 +760,16 @@ class MetricVisualizer:
 
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
-            for trail in metrics.keys():
+            for trial in metrics.keys():
                 _data = []
-                _data += [[mn, trail, metrics[trail]]]
+                _data += [[mn, trial, metrics[trial]]]
                 _data[-1].append(
                     ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
-                        round(np.average(metrics[trail]), 2),
-                        round(np.median(metrics[trail]), 2),
-                        round(iqr(metrics[trail], rng=(25, 75), interpolation='midpoint'), 2),
-                        round(np.max(metrics[trail]), 2),
-                        round(np.min(metrics[trail]), 2)
+                        round(np.average(metrics[trial]), 2),
+                        round(np.median(metrics[trial]), 2),
+                        round(iqr(metrics[trial], rng=(25, 75), interpolation='midpoint'), 2),
+                        round(np.max(metrics[trial]), 2),
+                        round(np.min(metrics[trial]), 2)
                     )]
                 )
                 table_data += _data

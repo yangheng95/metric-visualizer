@@ -10,17 +10,17 @@ import numpy as np
 
 MV = MetricVisualizer()
 
-trail_num = 10  # number of different trails
+trial_num = 10  # number of different trials,
 repeat = 10  # number of repeats
 metric_num = 3  # number of metrics
 
-for trail in range(trail_num):
+for trial in range(trial_num):
     for r in range(repeat):
         t = 0  # metric scale factor        # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n) * 100 for n in range(metric_num)]
         for i, m in enumerate(metrics):
             MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))
-    MV.next_trail()
+    MV.next_trial()
 
 save_path = None
 MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
