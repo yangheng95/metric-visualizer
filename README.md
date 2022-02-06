@@ -11,36 +11,36 @@ pip install metric_visualizer
 If you need to run trial experiments, you can use this tool to make simple plots then fix it manually.
 
 ```python3
-from metric_visualizer import MetricVisualizer
 import numpy as np
-
+from metric_visualizer import MetricVisualizer
 MV = MetricVisualizer()
 
-trial_num = 10  # number of different trials, the trial in this repo means controlled experiments
+trial_num = 5  # number of different trials,
 repeat = 10  # number of repeats
 metric_num = 3  # number of metrics
 
 for trial in range(trial_num):
-    for r in range(repeat):
-        t = 0  # metric scale factor        # repeat the experiments to plot violin or box figure
-        metrics = [(np.random.random()+n) * 100 for n in range(metric_num)]
+    for r in range(repeat):  # repeat the experiments to plot violin or box figure
+        metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
             MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))
     MV.next_trial()
 
-MV.summary(save_path=None)  # plot fig via matplotlib
-MV.traj_plot(save_path=None)  # plot fig via matplotlib
-MV.violin_plot(save_path=None)  # plot fig via matplotlib
-MV.box_plot(save_path=None)  # plot fig via matplotlib
-MV.avg_bar_plot(save_path=None)  # plot fig via matplotlib
-MV.sum_bar_plot(save_path=None)  # plot fig via matplotlib
+save_path = None
+MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
+MV.traj_plot(save_path=save_path, xlabel='Trials')  # save fig into .tex and .pdf format
+MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.avg_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.sum_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
 
 save_path = 'example'
-MV.traj_plot(save_path=save_path)  #  save fig into tikz and .pdf format
-MV.violin_plot(save_path=save_path)  # save fig into tikz and .pdf format
-MV.box_plot(save_path=save_path)  # save fig into tikz and .pdf format
-MV.avg_bar_plot(save_path=save_path)  # save fig into tikz and .pdf format
-MV.sum_bar_plot(save_path=save_path)  # save fig into tikz and .pdf format
+MV.traj_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.violin_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.box_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.avg_bar_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
+MV.sum_bar_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
+
 ```
 
 ```html
@@ -94,7 +94,7 @@ MV.sum_bar_plot(save_path=save_path)  # save fig into tikz and .pdf format
 
 ![violin_plot_example](fig/violin_plot_example.png)
 
-### Average Bar Plot [tikz version](fig/avg_bar_plot_example.png)
+### Average Bar Plot [tikz version](fig/example_metric_avg_bar_plot.pdf)
 
 ![violin_plot_example](fig/avg_bar_plot_example.png)
 
