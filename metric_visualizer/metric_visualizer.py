@@ -405,7 +405,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.5)
+        widths = kwargs.pop('widths', 0.9)
 
         box_parts = []
         legend_labels = []
@@ -504,7 +504,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.5)
+        widths = kwargs.pop('widths', 0.9)
 
         sum_bar_parts = []
         total_width = 0.9
@@ -608,7 +608,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.5)
+        widths = kwargs.pop('widths', 0.9)
 
         sum_bar_parts = []
         total_width = 0.9
@@ -718,6 +718,8 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
+        widths = kwargs.pop('widths', 0.9)
+
         violin_parts = []
         legend_labels = []
         for metric_name in self.metrics.keys():
@@ -727,12 +729,12 @@ class MetricVisualizer:
             data = [metrics[trial] for trial in metrics.keys()]
 
             if save_path:
-                violin = ax.violinplot(data, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(self.metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=0)
             else:
-                violin = ax.violinplot(data, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(self.metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=legend_loc)
@@ -793,7 +795,7 @@ class MetricVisualizer:
 
     def summary(self, save_path=None, **kwargs):
         summary_str = ' -------------------- Metric Summary --------------------\n'
-        header = ['Metric', 'Trail', 'Values', 'Summary']
+        header = ['Metric', 'Trial', 'Values', 'Summary']
 
         table_data = []
 
