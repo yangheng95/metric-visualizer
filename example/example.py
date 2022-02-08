@@ -30,6 +30,7 @@ MV.avg_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
 MV.sum_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
 
 save_path = 'example'
+MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
 MV.traj_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
 MV.violin_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
 MV.box_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib

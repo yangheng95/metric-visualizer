@@ -832,9 +832,16 @@ class MetricVisualizer:
             fout.close()
 
     def dump(self, filename='metric_visualizer.dat'):
-        pickle.dump(self, open(filename, mode='wb'))
+        pickle.dump(self, open('trial_id-{}-'.format(self.trial_id)+filename, mode='wb'))
 
     def load(self, filename='metric_visualizer.dat'):
+        if not os.path.exists(filename):
+            dats = find_cwd_files(filename)
+            if not dats:
+                raise ValueError('Can not find {}'.format(filename))
+            else:
+                filename = max(dats)
+
         mv = pickle.load(open(filename, mode='rb'))
         self.metrics = mv.metrics
         return self
