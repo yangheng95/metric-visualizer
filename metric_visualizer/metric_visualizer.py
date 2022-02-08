@@ -56,7 +56,7 @@ class MetricVisualizer:
 
     \begin{document}
         \pagestyle{empty}
-        \pgfplotsset{ compat=1.12,every axis/.append style={
+        \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
             font=\Large,
@@ -68,6 +68,8 @@ class MetricVisualizer:
             y tick label style={rotate=0,anchor=east},
             xticklabel shift=$xtickshift$pt,
             yticklabel shift=$ytickshift$pt,
+            xlabel shift=$xlabelshift$pt,
+            ylabel shift=$ylabelshift$pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
         \pgfplotsset{every plot/.append style={thin}}
@@ -95,7 +97,7 @@ class MetricVisualizer:
 
     \begin{document}
         \pagestyle{empty}
-        \pgfplotsset{ compat=1.12,every axis/.append style={
+        \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
             font=\Large,
@@ -107,6 +109,8 @@ class MetricVisualizer:
             y tick label style={rotate=0,anchor=east},
             xticklabel shift=$xtickshift$pt,
             yticklabel shift=$ytickshift$pt,
+            xlabel shift=$xlabelshift$pt,
+            ylabel shift=$ylabelshift$pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
         \pgfplotsset{every plot/.append style={thin}}
@@ -135,7 +139,7 @@ class MetricVisualizer:
 
     \begin{document}
         \pagestyle{empty}
-        \pgfplotsset{ compat=1.12,every axis/.append style={
+        \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
             font=\Large,
@@ -147,6 +151,8 @@ class MetricVisualizer:
             y tick label style={rotate=0,anchor=east},
             xticklabel shift=$xtickshift$pt,
             yticklabel shift=$ytickshift$pt,
+            xlabel shift=$xlabelshift$pt,
+            ylabel shift=$ylabelshift$pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
         \pgfplotsset{every plot/.append style={thin}}
@@ -184,6 +190,8 @@ class MetricVisualizer:
             y tick label style={rotate=0,anchor=east},
             xticklabel shift=$xtickshift$pt,
             yticklabel shift=$ytickshift$pt,
+            xlabel shift=$xlabelshift$pt,
+            ylabel shift=$ylabelshift$pt,
             line width = 1pt,
             tick style = {line width = 0.8pt}}
         }
@@ -269,11 +277,13 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xticks = kwargs.pop('xticks', '')
+        xlabel = kwargs.pop('xlabel', None)
 
-        xlabel = kwargs.pop('xlabel', '')
+        xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', '')
+        ylabel = kwargs.pop('ylabel', None)
+
+        yticks = kwargs.pop('yticks', None)
 
         linewidth = kwargs.pop('linewidth', 0.5)
 
@@ -282,6 +292,10 @@ class MetricVisualizer:
         xrotation = kwargs.pop('xrotation', 0)
 
         yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
 
         xtickshift = kwargs.pop('xtickshift', 1)
 
@@ -336,6 +350,8 @@ class MetricVisualizer:
 
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
+        plt.xlabel(xlabel if xlabel is not None else 'Difference Param in Trials')
+        plt.ylabel(', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
 
         if not save_path:
             plt.show()
@@ -355,10 +371,12 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join(str(x) for x in tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', xlabel if xlabel else 'Difference Param in Trials')
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if not ylabel else ylabel)
+            tex_src = tex_src.replace('$xlabel$', 'Difference Param in Trials' if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
@@ -392,13 +410,13 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', '')
+        xlabel = kwargs.pop('xlabel', None)
 
-        xticks = kwargs.pop('xticks', '')
+        xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', '')
+        ylabel = kwargs.pop('ylabel', None)
 
-        yticks = kwargs.pop('yticks', '')
+        yticks = kwargs.pop('yticks', None)
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -407,6 +425,10 @@ class MetricVisualizer:
         xrotation = kwargs.pop('xrotation', 0)
 
         yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
 
         xtickshift = kwargs.pop('xtickshift', 1)
 
@@ -439,6 +461,8 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
+        plt.xlabel(xlabel if xlabel is not None else 'Difference Param in Trials')
+        plt.ylabel(', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
@@ -460,10 +484,12 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', xlabel if xlabel else 'Difference Param in Trials')
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if not ylabel else ylabel)
+            tex_src = tex_src.replace('$xlabel$', 'Difference Param in Trials' if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_box_plot.tex').lstrip('_'), mode='w', encoding='utf8')
@@ -496,13 +522,13 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', '')
+        xlabel = kwargs.pop('xlabel', None)
 
-        xticks = kwargs.pop('xticks', '')
+        xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', '')
+        ylabel = kwargs.pop('ylabel', None)
 
-        yticks = kwargs.pop('yticks', '')
+        yticks = kwargs.pop('yticks', None)
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -511,6 +537,10 @@ class MetricVisualizer:
         xrotation = kwargs.pop('xrotation', 0)
 
         yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
 
         xtickshift = kwargs.pop('xtickshift', 1)
 
@@ -550,7 +580,8 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-
+        plt.xlabel(xlabel if xlabel is not None else 'Difference Param in Trials')
+        plt.ylabel(', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -569,10 +600,12 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', xlabel if xlabel else 'Difference Param in Trials')
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if not ylabel else ylabel)
+            tex_src = tex_src.replace('$xlabel$', 'Difference Param in Trials' if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_avg_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
@@ -605,13 +638,13 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', '')
+        xlabel = kwargs.pop('xlabel', None)
 
-        xticks = kwargs.pop('xticks', '')
+        xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', '')
+        ylabel = kwargs.pop('ylabel', None)
 
-        yticks = kwargs.pop('yticks', '')
+        yticks = kwargs.pop('yticks', None)
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -620,6 +653,10 @@ class MetricVisualizer:
         xrotation = kwargs.pop('xrotation', 0)
 
         yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
 
         xtickshift = kwargs.pop('xtickshift', 1)
 
@@ -659,6 +696,8 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
+        plt.xlabel(xlabel if xlabel is not None else 'Difference Param in Trials')
+        plt.ylabel(', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -677,10 +716,12 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', xlabel if xlabel else 'Difference Param in Trials')
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if not ylabel else ylabel)
+            tex_src = tex_src.replace('$xlabel$', 'Difference Param in Trials' if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_sum_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
@@ -719,13 +760,13 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', '')
+        xlabel = kwargs.pop('xlabel', None)
 
-        xticks = kwargs.pop('xticks', '')
+        xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', '')
+        ylabel = kwargs.pop('ylabel', None)
 
-        yticks = kwargs.pop('yticks', '')
+        yticks = kwargs.pop('yticks', None)
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -734,6 +775,10 @@ class MetricVisualizer:
         xrotation = kwargs.pop('xrotation', 0)
 
         yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
 
         xtickshift = kwargs.pop('xtickshift', 1)
 
@@ -769,6 +814,8 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
+        plt.xlabel(xlabel if xlabel is not None else 'Difference Param in Trials')
+        plt.ylabel(', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -787,10 +834,12 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', xlabel if xlabel else 'Difference Param in Trials')
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if not ylabel else ylabel)
+            tex_src = tex_src.replace('$xlabel$', 'Difference Param in Trials' if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(self.metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
             fout = open((save_path + '_metric_violin_plot.tex').lstrip('_'), mode='w', encoding='utf8')
