@@ -5,6 +5,7 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 import os.path
+import pickle
 import random
 import shlex
 import subprocess
@@ -249,6 +250,7 @@ class MetricVisualizer:
 
     def next_trial(self):
         self.trial_id += 1
+        self.dump()
 
     def add_metric(self, metric_name='Accuracy', value=0):
         if metric_name in self.metrics:
@@ -325,7 +327,7 @@ class MetricVisualizer:
             legend_labels.append(metric_name)
         plt.legend(traj_parts, legend_labels, loc=legend_loc)
 
-        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trials')
         plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
@@ -421,7 +423,7 @@ class MetricVisualizer:
             box_parts.append(boxs_parts['boxes'][0])
             legend_labels.append(metric_name)
 
-            plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+            plt.xlabel(xlabel if xlabel else 'Difference Param in Trials')
             plt.ylabel(', '.join(list(self.metrics.keys())))
 
             for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
@@ -532,7 +534,7 @@ class MetricVisualizer:
 
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
-        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trials')
         plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
@@ -636,7 +638,7 @@ class MetricVisualizer:
 
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
-        plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+        plt.xlabel(xlabel if xlabel else 'Difference Param in Trials')
         plt.ylabel(', '.join(list(self.metrics.keys())))
 
         plt.grid()
@@ -739,7 +741,7 @@ class MetricVisualizer:
                 legend_labels = list(self.metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
-            plt.xlabel(xlabel if xlabel else 'Difference Param in Trails')
+            plt.xlabel(xlabel if xlabel else 'Difference Param in Trials')
             plt.ylabel(', '.join(list(self.metrics.keys())))
 
             for pc in violin['bodies']:
@@ -828,3 +830,11 @@ class MetricVisualizer:
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
+
+    def dump(self, filename='metric_visualizer.dat'):
+        pickle.dump(self, open(filename, mode='wb'))
+
+    def load(self, filename='metric_visualizer.dat'):
+        mv = pickle.load(open(filename, mode='rb'))
+        self.metrics = mv.metrics
+        return self
