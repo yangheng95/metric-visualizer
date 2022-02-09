@@ -274,46 +274,48 @@ class MetricVisualizer:
             self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
 
     def traj_plot_by_metric(self, save_path=None, **kwargs):
-        transposed_metrics = self.transpose()
-        self.traj_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.transpose()
+        self.traj_plot(plot_metrics, save_path, **kwargs)
 
     def box_plot_by_metric(self, save_path=None, **kwargs):
-        transposed_metrics = self.transpose()
-        self.box_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.transpose()
+        self.box_plot(plot_metrics, save_path, **kwargs)
 
     def avg_bar_plot_by_metric(self, save_path=None, **kwargs):
-        transposed_metrics = self.transpose()
-        self.avg_bar_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.transpose()
+        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
     def sum_bar_plot_by_metric(self, save_path=None, **kwargs):
-        transposed_metrics = self.transpose()
-        self.sum_bar_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.transpose()
+        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
     def violin_plot_by_metric(self, save_path=None, **kwargs):
-        transposed_metrics = self.transpose()
-        self.violin_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.transpose()
+        self.violin_plot(plot_metrics, save_path, **kwargs)
 
     def traj_plot_by_trial(self, save_path=None, **kwargs):
-        transposed_metrics = self.metrics
-        self.traj_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.metrics
+        self.traj_plot(plot_metrics, save_path, **kwargs)
 
     def box_plot_by_trial(self, save_path=None, **kwargs):
-        transposed_metrics = self.metrics
-        self.box_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.metrics
+        self.box_plot(plot_metrics, save_path, **kwargs)
 
     def avg_bar_plot_by_trial(self, save_path=None, **kwargs):
-        transposed_metrics = self.metrics
-        self.avg_bar_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.metrics
+        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
     def sum_bar_plot_by_trial(self, save_path=None, **kwargs):
-        transposed_metrics = self.metrics
-        self.sum_bar_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.metrics
+        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
     def violin_plot_by_trial(self, save_path=None, **kwargs):
-        transposed_metrics = self.metrics
-        self.violin_plot(transposed_metrics, save_path, **kwargs)
+        plot_metrics = self.metrics
+        self.violin_plot(plot_metrics, save_path, **kwargs)
 
-    def traj_plot(self, transposed_metrics, save_path=None, **kwargs):
+    def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if not plot_metrics:
+            plot_metrics = self.metrics
 
         alpha = kwargs.pop('alpha', 0.01)
 
@@ -347,9 +349,9 @@ class MetricVisualizer:
 
         traj_parts = []
         legend_labels = []
-        for metric_name in transposed_metrics.keys():
+        for metric_name in plot_metrics.keys():
             ax = plt.subplot()
-            metrics = transposed_metrics[metric_name]
+            metrics = plot_metrics[metric_name]
 
             x = [i for i, label in enumerate(metrics)]
             y = np.array([metrics[metric_name] for metric_name in metrics])
@@ -395,7 +397,7 @@ class MetricVisualizer:
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-        plt.ylabel(', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
         if not save_path:
             plt.show()
@@ -416,7 +418,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xticklabel$', ','.join(str(x) for x in tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
@@ -446,7 +448,9 @@ class MetricVisualizer:
         print('Traj plot finished')
         plt.close()
 
-    def box_plot(self, transposed_metrics, save_path=None, **kwargs):
+    def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if not plot_metrics:
+            plot_metrics = self.metrics
 
         ax = plt.subplot()
 
@@ -484,9 +488,9 @@ class MetricVisualizer:
 
         box_parts = []
         legend_labels = []
-        for metric_name in transposed_metrics.keys():
+        for metric_name in plot_metrics.keys():
             color = random.choice(self.COLORS)
-            metrics = transposed_metrics[metric_name]
+            metrics = plot_metrics[metric_name]
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
             data = [metrics[trial] for trial in metrics.keys()]
@@ -506,7 +510,7 @@ class MetricVisualizer:
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-        plt.ylabel(', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
@@ -529,7 +533,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
@@ -558,7 +562,9 @@ class MetricVisualizer:
         print('Box plot finished')
         plt.close()
 
-    def avg_bar_plot(self, transposed_metrics, save_path=None, **kwargs):
+    def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if not plot_metrics:
+            plot_metrics = self.metrics
 
         ax = plt.subplot()
 
@@ -576,7 +582,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', True)
+        hatches = kwargs.pop('hatches', None)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -596,23 +602,23 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
-        for i, metric_name in enumerate(transposed_metrics.keys()):
-            metric_num = len(transposed_metrics.keys())
-            trial_num = len(transposed_metrics[metric_name])
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            metric_num = len(plot_metrics.keys())
+            trial_num = len(plot_metrics[metric_name])
             color = random.choice(self.COLORS)
-            metrics = transposed_metrics[metric_name]
+            metrics = plot_metrics[metric_name]
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.average(transposed_metrics[m_name][trial]) for m_name in transposed_metrics.keys() for trial in transposed_metrics[m_name] if metric_name == m_name])
+            Y = np.array([np.average(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
             if save_path:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
                 plt.legend()
             else:
                 bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
                 sum_bar_parts.append(bar[0])
-                legend_labels = list(transposed_metrics.keys())
+                legend_labels = list(plot_metrics.keys())
                 plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
@@ -625,7 +631,7 @@ class MetricVisualizer:
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-        plt.ylabel(', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -645,7 +651,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
@@ -674,7 +680,9 @@ class MetricVisualizer:
         print('Avg Bar plot finished')
         plt.close()
 
-    def sum_bar_plot(self, transposed_metrics, save_path=None, **kwargs):
+    def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if not plot_metrics:
+            plot_metrics = self.metrics
 
         ax = plt.subplot()
 
@@ -692,7 +700,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', True)
+        hatches = kwargs.pop('hatches', None)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -712,23 +720,23 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
-        for i, metric_name in enumerate(transposed_metrics.keys()):
-            metric_num = len(transposed_metrics.keys())
-            trial_num = len(transposed_metrics[metric_name])
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            metric_num = len(plot_metrics.keys())
+            trial_num = len(plot_metrics[metric_name])
             color = random.choice(self.COLORS)
-            metrics = transposed_metrics[metric_name]
+            metrics = plot_metrics[metric_name]
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.sum(transposed_metrics[m_name][trial]) for m_name in transposed_metrics.keys() for trial in transposed_metrics[m_name] if metric_name == m_name])
+            Y = np.array([np.sum(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
             if save_path:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
                 plt.legend()
             else:
                 bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
                 sum_bar_parts.append(bar[0])
-                legend_labels = list(transposed_metrics.keys())
+                legend_labels = list(plot_metrics.keys())
                 plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
@@ -741,7 +749,7 @@ class MetricVisualizer:
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-        plt.ylabel(', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -761,7 +769,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
@@ -790,8 +798,10 @@ class MetricVisualizer:
         print('Sum Bar plot finished')
         plt.close()
 
-    def violin_plot(self, transposed_metrics, save_path=None, **kwargs):
-
+    def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if not plot_metrics:
+            plot_metrics = self.metrics
+            
         legend_labels = []
 
         def add_label(violin, label):
@@ -834,8 +844,8 @@ class MetricVisualizer:
 
         violin_parts = []
         legend_labels = []
-        for metric_name in transposed_metrics.keys():
-            metrics = transposed_metrics[metric_name]
+        for metric_name in plot_metrics.keys():
+            metrics = plot_metrics[metric_name]
             tex_xtick = list(metrics.keys()) if xticks is None else xticks
 
             data = [metrics[trial] for trial in metrics.keys()]
@@ -843,12 +853,12 @@ class MetricVisualizer:
             if save_path:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
-                legend_labels = list(transposed_metrics.keys())
+                legend_labels = list(plot_metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=0)
             else:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
-                legend_labels = list(transposed_metrics.keys())
+                legend_labels = list(plot_metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
             for pc in violin['bodies']:
@@ -859,7 +869,7 @@ class MetricVisualizer:
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-        plt.ylabel(', '.join(list(transposed_metrics.keys())) if ylabel is None else ylabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
         else:
@@ -879,7 +889,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
             tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
-            tex_src = tex_src.replace('$ylabel$', ', '.join(list(transposed_metrics)) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics)) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))

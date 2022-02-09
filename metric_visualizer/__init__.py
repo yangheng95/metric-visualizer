@@ -5,7 +5,7 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = '0.3.20'
+__version__ = '0.4.0'
 __name__ = 'metric_visualizer'
 
 from .metric_visualizer import MetricVisualizer
