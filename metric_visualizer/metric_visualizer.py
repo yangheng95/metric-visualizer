@@ -10,6 +10,7 @@ import random
 import shlex
 import subprocess
 from collections import OrderedDict
+from functools import wraps
 
 import matplotlib.colors
 import numpy as np
@@ -17,7 +18,7 @@ import tikzplotlib
 from findfile import find_cwd_files, find_cwd_file
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
-from scipy.stats import iqr
+from scipy.stats import iqr, wilcoxon
 from tabulate import tabulate
 
 from metric_visualizer import __version__
@@ -29,6 +30,18 @@ def legend_without_duplicate_labels(ax):
     handles, labels = ax.get_legend_handles_labels()
     unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if l not in labels[:i]]
     ax.legend(*zip(*unique))
+
+
+def exception_handle(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            print('Exception <{}> found in function <{}>'.format(e, f))
+
+    return decorated
 
 
 class MetricVisualizer:
@@ -273,6 +286,7 @@ class MetricVisualizer:
         else:
             self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
 
+    @exception_handle
     def traj_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
         self.traj_plot(plot_metrics, save_path, **kwargs)
@@ -313,7 +327,10 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
+    # @exception_handle
     def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
 
@@ -448,10 +465,12 @@ class MetricVisualizer:
         print('Traj plot finished')
         plt.close()
 
+    # @exception_handle
     def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
-
         ax = plt.subplot()
 
         alpha = kwargs.pop('alpha', 1)
@@ -562,7 +581,10 @@ class MetricVisualizer:
         print('Box plot finished')
         plt.close()
 
+    # @exception_handle
     def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
 
@@ -680,7 +702,10 @@ class MetricVisualizer:
         print('Avg Bar plot finished')
         plt.close()
 
+    # @exception_handle
     def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
 
@@ -798,10 +823,13 @@ class MetricVisualizer:
         print('Sum Bar plot finished')
         plt.close()
 
+    # @exception_handle
     def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
-            
+
         legend_labels = []
 
         def add_label(violin, label):
@@ -919,6 +947,7 @@ class MetricVisualizer:
 
         plt.close()
 
+    @exception_handle
     def transpose(self):
         transposed_metrics = OrderedDict()
         for metric_name in self.metrics.keys():
@@ -928,15 +957,19 @@ class MetricVisualizer:
                 transposed_metrics[trial_name][metric_name] = self.metrics[metric_name][trial_name]
         return transposed_metrics
 
+    @exception_handle
     def A12_plot(self):
         raise NotImplementedError()
 
+    @exception_handle
     def sk_rank_plot(self):
         raise NotImplementedError()
 
+    @exception_handle
     def wilconxon_rank_test(self):
         raise NotImplementedError()
 
+    @exception_handle
     def summary(self, save_path=None, **kwargs):
         summary_str = ' -------------------- Metric Summary --------------------\n'
         header = ['Metric', 'Trial', 'Values', 'Summary']

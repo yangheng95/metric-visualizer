@@ -23,11 +23,11 @@ for trial in range(trial_num):
 
 save_path = None
 MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot(save_path=save_path, xlabel='', axrotation=30)  # save fig into .tex and .pdf format
-MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.avg_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.traj_plot_by_trial(save_path=save_path, xlabel='', axrotation=30)  # save fig into .tex and .pdf format
+MV.violin_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
+MV.box_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
 
 save_path = 'example'
 MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
