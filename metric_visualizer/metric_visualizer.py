@@ -234,7 +234,7 @@ class MetricVisualizer:
     def set_traj_plot_tex_template(self, traj_plot_tex_template):
         self.traj_plot_tex_template = traj_plot_tex_template
 
-    def __init__(self, name='unnamed', metric_dict=None):
+    def __init__(self, name='unnamed', trial_tag='', trial_tag_list=None, metric_dict=None):
         """
         Used for plotting, e.g.,
             'Metric1': {
@@ -251,6 +251,16 @@ class MetricVisualizer:
         :param metric_dict: If you want to plot figure, it is recommended to add multiple trial experiments. In these trial, the experimental results
         are comparative, e.g., just minor different in these experiments.
         """
+        if not trial_tag:
+            self.trial_tag = 'Trial'
+        else:
+            self.trial_tag = trial_tag
+            
+        if not trial_tag_list:
+            self.trial_tag_list = []
+        else:
+            self.trial_tag_list = [str(t) for t in trial_tag_list]
+
         self.version = __version__
         self.name = name
         if metric_dict is None:
@@ -286,7 +296,6 @@ class MetricVisualizer:
         else:
             self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
 
-    @exception_handle
     def traj_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
         self.traj_plot(plot_metrics, save_path, **kwargs)
@@ -327,7 +336,7 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
-    # @exception_handle
+    @exception_handle
     def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -367,8 +376,14 @@ class MetricVisualizer:
         traj_parts = []
         legend_labels = []
         for metric_name in plot_metrics.keys():
-            ax = plt.subplot()
             metrics = plot_metrics[metric_name]
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                if self.trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
+            ax = plt.subplot()
 
             x = [i for i, label in enumerate(metrics)]
             y = np.array([metrics[metric_name] for metric_name in metrics])
@@ -402,7 +417,7 @@ class MetricVisualizer:
                                                            alpha=alpha
                                                            )
 
-            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
             traj_parts.append(avg_point[0])
             legend_labels.append(metric_name)
@@ -413,7 +428,7 @@ class MetricVisualizer:
 
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-        plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+        plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
         if not save_path:
@@ -434,7 +449,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join(str(x) for x in tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -465,7 +480,7 @@ class MetricVisualizer:
         print('Traj plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -508,13 +523,19 @@ class MetricVisualizer:
         box_parts = []
         legend_labels = []
         for metric_name in plot_metrics.keys():
-            color = random.choice(self.COLORS)
             metrics = plot_metrics[metric_name]
-            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                if self.trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
+            color = random.choice(self.COLORS)
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
             data = [metrics[trial] for trial in metrics.keys()]
 
-            boxs_parts = ax.boxplot(data, positions=list(range(len(metrics.keys()))), widths=widths, meanline=True)
+            boxs_parts = ax.boxplot(data, positions=list(range(len(trial_tag_list))), widths=widths, meanline=True)
 
             box_parts.append(boxs_parts['boxes'][0])
             legend_labels.append(metric_name)
@@ -528,7 +549,7 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-        plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+        plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
@@ -551,7 +572,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -581,7 +602,7 @@ class MetricVisualizer:
         print('Box plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -625,10 +646,16 @@ class MetricVisualizer:
         sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(plot_metrics.keys()):
+            metrics = plot_metrics[metric_name]
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                if self.trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
             color = random.choice(self.COLORS)
-            metrics = plot_metrics[metric_name]
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
@@ -646,13 +673,13 @@ class MetricVisualizer:
             for i, j in zip(x, Y):
                 plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
 
-            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
         plt.grid()
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-        plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+        plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
@@ -672,7 +699,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -702,7 +729,7 @@ class MetricVisualizer:
         print('Avg Bar plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -746,10 +773,16 @@ class MetricVisualizer:
         sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(plot_metrics.keys()):
+            metrics = plot_metrics[metric_name]
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                if self.trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
             color = random.choice(self.COLORS)
-            metrics = plot_metrics[metric_name]
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
@@ -767,13 +800,13 @@ class MetricVisualizer:
             for i, j in zip(x, Y):
                 plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
 
-            tex_xtick = list(metrics.keys()) if xticks is None else xticks
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
         plt.grid()
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-        plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+        plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
@@ -793,7 +826,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -823,7 +856,7 @@ class MetricVisualizer:
         print('Sum Bar plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -874,17 +907,22 @@ class MetricVisualizer:
         legend_labels = []
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
-            tex_xtick = list(metrics.keys()) if xticks is None else xticks
-
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                if self.trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
             data = [metrics[trial] for trial in metrics.keys()]
 
             if save_path:
-                violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=0)
             else:
-                violin = ax.violinplot(data, widths=widths, positions=list(range(len(metrics.keys()))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
                 plt.legend(violin_parts, legend_labels, loc=legend_loc)
@@ -896,7 +934,7 @@ class MetricVisualizer:
         plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
-        plt.xlabel(', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+        plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         if not save_path:
             plt.show()
@@ -916,7 +954,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(metrics.keys())) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics)) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -951,10 +989,10 @@ class MetricVisualizer:
     def transpose(self):
         transposed_metrics = OrderedDict()
         for metric_name in self.metrics.keys():
-            for trial_name in self.metrics[metric_name].keys():
-                if trial_name not in transposed_metrics:
-                    transposed_metrics[trial_name] = {}
-                transposed_metrics[trial_name][metric_name] = self.metrics[metric_name][trial_name]
+            for trial_tag_list in self.metrics[metric_name].keys():
+                if trial_tag_list not in transposed_metrics:
+                    transposed_metrics[trial_tag_list] = {}
+                transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
         return transposed_metrics
 
     @exception_handle
@@ -969,18 +1007,22 @@ class MetricVisualizer:
     def wilconxon_rank_test(self):
         raise NotImplementedError()
 
-    @exception_handle
+    # @exception_handle
     def summary(self, save_path=None, **kwargs):
         summary_str = ' -------------------- Metric Summary --------------------\n'
-        header = ['Metric', 'Trial', 'Values', 'Summary']
+        header = ['Metric', self.trial_tag, 'Values', 'Summary']
 
         table_data = []
 
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
-            for trial in metrics.keys():
+            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = self.trial_tag_list
+            for i, trial in enumerate(metrics.keys()):
                 _data = []
-                _data += [[mn, trial, metrics[trial]]]
+                _data += [[mn, trial_tag_list[i], metrics[trial]]]
                 _data[-1].append(
                     ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
                         round(np.average(metrics[trial]), 2),

@@ -8,7 +8,7 @@
 from metric_visualizer import MetricVisualizer
 import numpy as np
 
-MV = MetricVisualizer()
+MV = MetricVisualizer(trial_tag='Trial ID', trial_tag_list=[0, 1, 2, 3, 4])
 
 trial_num = 5  # number of different trials,
 repeat = 10  # number of repeats
