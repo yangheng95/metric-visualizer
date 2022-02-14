@@ -1017,7 +1017,10 @@ class MetricVisualizer:
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
             if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                trial_tag_list = list(metrics.keys())
+                if len(self.trial_tag_list) > len(metrics.keys()):
+                    trial_tag_list = self.trial_tag_list[:len(metrics.keys())]
+                else:
+                    trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = self.trial_tag_list
             for i, trial in enumerate(metrics.keys()):
