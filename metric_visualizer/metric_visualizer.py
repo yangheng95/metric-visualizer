@@ -459,9 +459,10 @@ class MetricVisualizer:
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open((save_path + '_metric_traj_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
+            plt.savefig(save_path + '_metric_traj_plot.pdf')
             texs = find_cwd_files(['.tex', '_metric_traj_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
@@ -580,9 +581,11 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open((save_path + '_metric_box_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
+            plt.savefig(save_path + '_metric_box_plot.pdf')
+
             texs = find_cwd_files(['.tex', '_metric_box_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
@@ -707,9 +710,11 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open((save_path + '_metric_avg_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
+            plt.savefig(save_path + '_metric_avg_bar_plot.pdf')
+
             texs = find_cwd_files(['.tex', '_metric_avg_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
@@ -834,9 +839,11 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open((save_path + '_metric_sum_bar_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
+            plt.savefig(save_path + '_metric_sum_bar_plot.pdf')
+
             texs = find_cwd_files(['.tex', '_metric_sum_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
@@ -962,9 +969,11 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
             # plt.savefig(save_path, dpi=1000, format='pdf')
-            fout = open((save_path + '_metric_violin_plot.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
+            plt.savefig(save_path + '_metric_violin_plot.pdf')
+
             texs = find_cwd_files(['.tex', '_metric_violin_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
