@@ -336,7 +336,7 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
-    @exception_handle
+    # @exception_handle
     def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -480,7 +480,7 @@ class MetricVisualizer:
         print('Traj plot finished')
         plt.close()
 
-    @exception_handle
+    # @exception_handle
     def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -602,7 +602,7 @@ class MetricVisualizer:
         print('Box plot finished')
         plt.close()
 
-    @exception_handle
+    # @exception_handle
     def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -729,7 +729,7 @@ class MetricVisualizer:
         print('Avg Bar plot finished')
         plt.close()
 
-    @exception_handle
+    # @exception_handle
     def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -856,7 +856,7 @@ class MetricVisualizer:
         print('Sum Bar plot finished')
         plt.close()
 
-    @exception_handle
+    # @exception_handle
     def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
@@ -985,7 +985,7 @@ class MetricVisualizer:
 
         plt.close()
 
-    @exception_handle
+    # @exception_handle
     def transpose(self):
         transposed_metrics = OrderedDict()
         for metric_name in self.metrics.keys():
@@ -995,22 +995,22 @@ class MetricVisualizer:
                 transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
         return transposed_metrics
 
-    @exception_handle
+    # @exception_handle
     def A12_plot(self):
         raise NotImplementedError()
 
-    @exception_handle
+    # @exception_handle
     def sk_rank_plot(self):
         raise NotImplementedError()
 
-    @exception_handle
+    # @exception_handle
     def wilconxon_rank_test(self):
         raise NotImplementedError()
 
     # @exception_handle
     def summary(self, save_path=None, **kwargs):
         summary_str = ' -------------------- Metric Summary --------------------\n'
-        header = ['Metric', self.trial_tag, 'Values', 'Summary']
+        header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
         table_data = []
 
@@ -1025,7 +1025,7 @@ class MetricVisualizer:
                 trial_tag_list = self.trial_tag_list
             for i, trial in enumerate(metrics.keys()):
                 _data = []
-                _data += [[mn, trial_tag_list[i], metrics[trial]]]
+                _data += [[mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]]
                 _data[-1].append(
                     ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
                         round(np.average(metrics[trial]), 2),

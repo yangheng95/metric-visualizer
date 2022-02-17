@@ -11,14 +11,14 @@ import numpy as np
 MV = MetricVisualizer(trial_tag='Trial ID', trial_tag_list=[0, 1, 2, 3, 4])
 
 trial_num = 5  # number of different trials,
-repeat = 10  # number of repeats
+repeat = 20  # number of repeats
 metric_num = 3  # number of metrics
 
 for trial in range(trial_num):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
-            MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))
+            MV.add_metric('Metric-{}'.format(i + 1), m)
     MV.next_trial()
 
 save_path = None
