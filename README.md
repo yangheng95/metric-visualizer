@@ -1,4 +1,9 @@
 # MetricVisualizer - for easy managing performance metric
+![PyPI - Python Version](https://img.shields.io/badge/python-3.6-blue.svg)
+[![PyPI](https://img.shields.io/pypi/v/metric-visualizer)](https://pypi.org/project/metric-visualizer/)
+[![Downloads](https://pepy.tech/badge/metric-visualizer)](https://pepy.tech/project/metric-visualizer)
+[![Downloads](https://pepy.tech/badge/metric-visualizer/month)](https://pepy.tech/project/metric-visualizer)
+[![Downloads](https://pepy.tech/badge/metric-visualizer/week)](https://pepy.tech/project/metric-visualizer)
 
 ## Install
 
