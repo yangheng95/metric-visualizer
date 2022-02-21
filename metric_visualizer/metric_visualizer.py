@@ -53,7 +53,7 @@ class MetricVisualizer:
                "p", "P", "*", "h", "H", "+",
                "x", "X", "D", "d", "|", "_",
                0, 1, 2, 4, 5, 6, 7, 8, 9, 10,
-               11, "None", " ", ""]
+               11]
 
     HATCHES = ['/', '\\', '|', '-', '+', 'x',
                'o', 'O', '.', '*']
@@ -73,7 +73,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\Large,
+            font=\normalsize,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             ylabel = {$ylabel$},
@@ -114,7 +114,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\Large,
+            font=\normalsize,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             ylabel = {$ylabel$},
@@ -156,7 +156,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\Large,
+            font=\normalsize,
             xticklabels={$xticklabel$},
             xtick={$xtick$},
             ylabel = {$ylabel$},
@@ -195,7 +195,7 @@ class MetricVisualizer:
         \pgfplotsset{every axis/.append style={
             grid = major,
             thick,
-            font=\Large,
+            font=\normalsize,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             xlabel = {$xlabel$},
@@ -336,8 +336,13 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
-    # @exception_handle
+    @exception_handle
     def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
@@ -359,7 +364,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 0.5)
 
-        hatches = kwargs.pop('hatches', None)
+        hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -391,8 +396,10 @@ class MetricVisualizer:
             y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
 
-            marker = random.choice(self.MARKERS)
-            color = random.choice(self.COLORS)
+            marker = random.choice(markers)
+            color = random.choice(colors)
+            markers.remove(marker)
+            colors.remove(color)
             for i in range(len(x)):
                 avg_point = ax.plot(x,
                                     y_avg,
@@ -481,8 +488,13 @@ class MetricVisualizer:
         print('Traj plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
@@ -503,7 +515,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', None)
+        hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -531,7 +543,8 @@ class MetricVisualizer:
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = self.trial_tag_list
-            color = random.choice(self.COLORS)
+            color = random.choice(colors)
+            colors.remove(color)
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
             data = [metrics[trial] for trial in metrics.keys()]
@@ -605,8 +618,13 @@ class MetricVisualizer:
         print('Box plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
@@ -628,7 +646,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', None)
+        hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -658,17 +676,20 @@ class MetricVisualizer:
                 trial_tag_list = self.trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
-            color = random.choice(self.COLORS)
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
             Y = np.array([np.average(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
+            hatch = random.choice(hatches)
+            hatches.remove(hatch)
+            color = random.choice(colors)
+            colors.remove(color)
             if save_path:
-                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
+                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
-                bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
+                bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
                 sum_bar_parts.append(bar[0])
                 legend_labels = list(plot_metrics.keys())
                 plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
@@ -734,8 +755,13 @@ class MetricVisualizer:
         print('Avg Bar plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
@@ -757,7 +783,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', None)
+        hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -787,17 +813,20 @@ class MetricVisualizer:
                 trial_tag_list = self.trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
-            color = random.choice(self.COLORS)
             width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
             Y = np.array([np.sum(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
+            hatch = random.choice(hatches)
+            hatches.remove(hatch)
+            color = random.choice(colors)
+            colors.remove(color)
             if save_path:
-                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
+                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
-                bar = plt.bar(x, Y, width=width, hatch=random.choice(self.HATCHES) if hatches is None else hatches, color=color)
+                bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
                 sum_bar_parts.append(bar[0])
                 legend_labels = list(plot_metrics.keys())
                 plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
@@ -863,8 +892,13 @@ class MetricVisualizer:
         print('Sum Bar plot finished')
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
         if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
@@ -872,9 +906,9 @@ class MetricVisualizer:
 
         legend_labels = []
 
-        def add_label(violin, label):
-            color = violin["bodies"][0].get_facecolor().flatten()
-            legend_labels.append((mpatches.Patch(color=color), label))
+        # def add_label(violin, label):
+        #     color = violin["bodies"][0].get_facecolor().flatten()
+        #     legend_labels.append((mpatches.Patch(color=color), label))
 
         ax = plt.subplot()
 
@@ -892,7 +926,7 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
-        hatches = kwargs.pop('hatches', None)
+        hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
 
@@ -994,7 +1028,7 @@ class MetricVisualizer:
 
         plt.close()
 
-    # @exception_handle
+    @exception_handle
     def transpose(self):
         transposed_metrics = OrderedDict()
         for metric_name in self.metrics.keys():
@@ -1004,21 +1038,21 @@ class MetricVisualizer:
                 transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
         return transposed_metrics
 
-    # @exception_handle
+    @exception_handle
     def A12_plot(self):
         raise NotImplementedError()
 
-    # @exception_handle
+    @exception_handle
     def sk_rank_plot(self):
         raise NotImplementedError()
 
-    # @exception_handle
+    @exception_handle
     def wilconxon_rank_test(self):
         raise NotImplementedError()
 
-    # @exception_handle
+    @exception_handle
     def summary(self, save_path=None, **kwargs):
-        summary_str = ' -------------------- Metric Summary --------------------\n'
+        summary_str = ' -------------------- Metric Visualizer --------------------\n'
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
         table_data = []
@@ -1050,7 +1084,7 @@ class MetricVisualizer:
                                 headers=header,
                                 numalign='center',
                                 tablefmt='fancy_grid')
-        summary_str += '\n -------------------- Metric Summary --------------------\n'
+        summary_str += '\n -------------------- Metric Visualizer --------------------\n'
 
         print(summary_str)
 
