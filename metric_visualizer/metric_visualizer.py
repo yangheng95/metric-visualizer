@@ -438,9 +438,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if not save_path:
-            plt.show()
-        else:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -465,11 +463,12 @@ class MetricVisualizer:
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
-            # plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.show()
             fout = open((save_path + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_path + '_metric_traj_plot.pdf')
+
             texs = find_cwd_files(['.tex', '_metric_traj_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
@@ -568,9 +567,7 @@ class MetricVisualizer:
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
-        if not save_path:
-            plt.show()
-        else:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -593,7 +590,8 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            # plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.show()
             fout = open((save_path + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -705,9 +703,8 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        if not save_path:
-            plt.show()
-        else:
+        
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -730,7 +727,8 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            # plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.show()
             fout = open((save_path + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -842,9 +840,8 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        if not save_path:
-            plt.show()
-        else:
+        
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -867,7 +864,8 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            # plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.show()
             fout = open((save_path + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -977,9 +975,8 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        if not save_path:
-            plt.show()
-        else:
+        
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -1002,7 +999,8 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            # plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.show()
             fout = open((save_path + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -1047,7 +1045,8 @@ class MetricVisualizer:
         raise NotImplementedError()
 
     @exception_handle
-    def wilconxon_rank_test(self):
+    def wilconxon_rank_test_by_trial(self, target_trial):
+
         raise NotImplementedError()
 
     @exception_handle
@@ -1093,6 +1092,8 @@ class MetricVisualizer:
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
+        
+        self.dump()
 
     def dump(self, filename='metric_visualizer.dat'):
         pickle.dump(self, open('{}-trial_id-{}-'.format(self.name, self.trial_id) + filename, mode='wb'))
