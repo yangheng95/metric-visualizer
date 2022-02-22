@@ -393,7 +393,8 @@ class MetricVisualizer:
             x = [i for i, label in enumerate(metrics)]
             y = np.array([metrics[metric_name] for metric_name in metrics])
 
-            y_avg = np.average(y, axis=1)
+            y_avg = np.median(y, axis=1)
+            # y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
 
             marker = random.choice(markers)
@@ -420,7 +421,6 @@ class MetricVisualizer:
                                                            y_avg - y_std,
                                                            y_avg + y_std,
                                                            color=color,
-                                                           hatch=hatches[i] if hatches else None,
                                                            alpha=alpha
                                                            )
 
