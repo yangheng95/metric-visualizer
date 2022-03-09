@@ -11,6 +11,7 @@ import shlex
 import subprocess
 from collections import OrderedDict
 from functools import wraps
+import time
 
 import matplotlib.colors
 import numpy as np
@@ -32,14 +33,16 @@ def legend_without_duplicate_labels(ax):
     ax.legend(*zip(*unique))
 
 
-def exception_handle(f):
+def exception_handle(f, disable=False):
     @wraps(f)
     def decorated(*args, **kwargs):
-
-        try:
+        if disable:
             return f(*args, **kwargs)
-        except Exception as e:
-            print('Exception <{}> found in function <{}>'.format(e, f))
+        else:
+            try:
+                return f(*args, **kwargs)
+            except Exception as e:
+                print('Exception <{}> found in function <{}>'.format(e, f))
 
     return decorated
 
@@ -234,7 +237,7 @@ class MetricVisualizer:
     def set_traj_plot_tex_template(self, traj_plot_tex_template):
         self.traj_plot_tex_template = traj_plot_tex_template
 
-    def __init__(self, name='unnamed', trial_tag='', trial_tag_list=None, metric_dict=None):
+    def __init__(self, name=None, trial_tag='', trial_tag_list=None, metric_dict=None):
         """
         Used for plotting, e.g.,
             'Metric1': {
@@ -296,48 +299,48 @@ class MetricVisualizer:
         else:
             self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
 
-    def traj_plot_by_metric(self, save_path=None, **kwargs):
+    def traj_plot_by_metric(self, save_name=None, **kwargs):
         plot_metrics = self.transpose()
-        self.traj_plot(plot_metrics, save_path, **kwargs)
+        self.traj_plot(plot_metrics, save_name, **kwargs)
 
-    def box_plot_by_metric(self, save_path=None, **kwargs):
+    def box_plot_by_metric(self, save_name=None, **kwargs):
         plot_metrics = self.transpose()
-        self.box_plot(plot_metrics, save_path, **kwargs)
+        self.box_plot(plot_metrics, save_name, **kwargs)
 
     def avg_bar_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
         self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
-    def sum_bar_plot_by_metric(self, save_path=None, **kwargs):
+    def sum_bar_plot_by_metric(self, save_name=None, **kwargs):
         plot_metrics = self.transpose()
-        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
+        self.sum_bar_plot(plot_metrics, save_name, **kwargs)
 
-    def violin_plot_by_metric(self, save_path=None, **kwargs):
+    def violin_plot_by_metric(self, save_name=None, **kwargs):
         plot_metrics = self.transpose()
-        self.violin_plot(plot_metrics, save_path, **kwargs)
+        self.violin_plot(plot_metrics, save_name, **kwargs)
 
-    def traj_plot_by_trial(self, save_path=None, **kwargs):
+    def traj_plot_by_trial(self, save_name=None, **kwargs):
         plot_metrics = self.metrics
-        self.traj_plot(plot_metrics, save_path, **kwargs)
+        self.traj_plot(plot_metrics, save_name, **kwargs)
 
-    def box_plot_by_trial(self, save_path=None, **kwargs):
+    def box_plot_by_trial(self, save_name=None, **kwargs):
         plot_metrics = self.metrics
-        self.box_plot(plot_metrics, save_path, **kwargs)
+        self.box_plot(plot_metrics, save_name, **kwargs)
 
-    def avg_bar_plot_by_trial(self, save_path=None, **kwargs):
+    def avg_bar_plot_by_trial(self, save_name=None, **kwargs):
         plot_metrics = self.metrics
-        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
+        self.avg_bar_plot(plot_metrics, save_name, **kwargs)
 
-    def sum_bar_plot_by_trial(self, save_path=None, **kwargs):
+    def sum_bar_plot_by_trial(self, save_name=None, **kwargs):
         plot_metrics = self.metrics
-        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
+        self.sum_bar_plot(plot_metrics, save_name, **kwargs)
 
-    def violin_plot_by_trial(self, save_path=None, **kwargs):
+    def violin_plot_by_trial(self, save_name=None, **kwargs):
         plot_metrics = self.metrics
-        self.violin_plot(plot_metrics, save_path, **kwargs)
+        self.violin_plot(plot_metrics, save_name, **kwargs)
 
     @exception_handle
-    def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def traj_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -438,7 +441,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if save_name:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -446,7 +449,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(save_name, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -463,9 +466,9 @@ class MetricVisualizer:
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
-            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -488,7 +491,7 @@ class MetricVisualizer:
         plt.close()
 
     @exception_handle
-    def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def box_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -567,7 +570,7 @@ class MetricVisualizer:
 
         plt.legend(box_parts, legend_labels, loc=legend_loc)
 
-        if save_path:
+        if save_name:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -575,7 +578,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(save_name, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -590,12 +593,12 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_path + '_metric_box_plot.pdf')
+            plt.savefig(save_name + '_metric_box_plot.pdf')
 
             texs = find_cwd_files(['.tex', '_metric_box_plot'])
             for pdf in texs:
@@ -617,7 +620,7 @@ class MetricVisualizer:
         plt.close()
 
     @exception_handle
-    def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def avg_bar_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -683,7 +686,7 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_path:
+            if save_name:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
@@ -704,7 +707,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         
-        if save_path:
+        if save_name:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -712,7 +715,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(save_name, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -727,12 +730,12 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_path + '_metric_avg_bar_plot.pdf')
+            plt.savefig(save_name + '_metric_avg_bar_plot.pdf')
 
             texs = find_cwd_files(['.tex', '_metric_avg_bar_plot'])
             for pdf in texs:
@@ -754,7 +757,7 @@ class MetricVisualizer:
         plt.close()
 
     @exception_handle
-    def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def sum_bar_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -820,7 +823,7 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_path:
+            if save_name:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
@@ -841,7 +844,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         
-        if save_path:
+        if save_name:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -849,7 +852,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(save_name, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -864,12 +867,12 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_path + '_metric_sum_bar_plot.pdf')
+            plt.savefig(save_name + '_metric_sum_bar_plot.pdf')
 
             texs = find_cwd_files(['.tex', '_metric_sum_bar_plot'])
             for pdf in texs:
@@ -891,7 +894,7 @@ class MetricVisualizer:
         plt.close()
 
     @exception_handle
-    def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def violin_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -955,7 +958,7 @@ class MetricVisualizer:
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
             data = [metrics[trial] for trial in metrics.keys()]
 
-            if save_path:
+            if save_name:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
@@ -976,7 +979,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
         
-        if save_path:
+        if save_name:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -984,7 +987,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(save_name, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -999,12 +1002,12 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path, dpi=1000, format='pdf')
+            plt.savefig(save_name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_path + '_metric_violin_plot.pdf')
+            plt.savefig(save_name + '_metric_violin_plot.pdf')
 
             texs = find_cwd_files(['.tex', '_metric_violin_plot'])
             for pdf in texs:
@@ -1050,8 +1053,8 @@ class MetricVisualizer:
         raise NotImplementedError()
 
     @exception_handle
-    def summary(self, save_path=None, **kwargs):
-        summary_str = ' -------------------- Metric Visualizer --------------------\n'
+    def summary(self, save_path=None, no_print=False, **kwargs):
+        summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
         table_data = []
@@ -1083,9 +1086,9 @@ class MetricVisualizer:
                                 headers=header,
                                 numalign='center',
                                 tablefmt='fancy_grid')
-        summary_str += '\n -------------------- Metric Visualizer --------------------\n'
-
-        print(summary_str)
+        summary_str += '\n -------------------- https://github.com/yangheng95/metric_visualizer --------------------\n'
+        if not no_print:
+            print(summary_str)
 
         if save_path:
             fout = open(save_path + '_summary.txt', mode='w', encoding='utf8')
@@ -1094,9 +1097,15 @@ class MetricVisualizer:
             fout.close()
         
         self.dump()
+        return summary_str
 
-    def dump(self, filename='metric_visualizer.dat'):
-        pickle.dump(self, open('{}-trial_id-{}-'.format(self.name, self.trial_id) + filename, mode='wb'))
+    def dump(self, filename='unnamed'):
+        filename = self.name if self.name else filename
+        time_tag = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+        trial_id = self.trial_id
+        postfix = 'mv'
+        fout_path = '{}_{}_id{}.{}'.format(filename, time_tag, trial_id, postfix)
+        pickle.dump(self, open(fout_path, mode='wb'))
 
     @staticmethod
     def load(filename='metric_visualizer.dat'):

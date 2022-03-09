@@ -18,6 +18,7 @@ If you need to run trial experiments, you can use this tool to make simple plots
 ```python3
 import numpy as np
 from metric_visualizer import MetricVisualizer
+
 MV = MetricVisualizer()
 
 trial_num = 5  # number of different trials,
@@ -33,18 +34,23 @@ for trial in range(trial_num):
 
 save_path = None
 MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot(save_path=save_path, xlabel='Trials')  # save fig into .tex and .pdf format
-MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.avg_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
+MV.traj_plot(save_name=save_path, xlabel='Trials')  # save fig into .tex and .pdf format
+MV.violin_plot(save_name=save_path)  # save fig into .tex and .pdf format
+MV.box_plot(save_name=save_path)  # save fig into .tex and .pdf format
+MV.avg_bar_plot(save_name=save_path)  # save fig into .tex and .pdf format
+MV.sum_bar_plot(save_name=save_path)  # save fig into .tex and .pdf format
 
 save_path = 'example'
-MV.traj_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.violin_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.box_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.avg_bar_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_path=save_path, xlabel='Trials', xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
+MV.traj_plot(save_name=save_path, xlabel='Trials',
+             xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.violin_plot(save_name=save_path, xlabel='Trials',
+               xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.box_plot(save_name=save_path, xlabel='Trials',
+            xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
+MV.avg_bar_plot(save_name=save_path, xlabel='Trials',
+                xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
+MV.sum_bar_plot(save_name=save_path, xlabel='Trials',
+                xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
 
 ```
 
@@ -157,13 +163,13 @@ for eta in max_seq_lens:
     apc_config_english.MV.next_trial()
 
 apc_config_english.MV.summary(save_path=None, xticks=max_seq_lens)
-apc_config_english.MV.traj_plot(save_path=None, xticks=max_seq_lens)
-apc_config_english.MV.violin_plot(save_path=None, xticks=max_seq_lens)
-apc_config_english.MV.box_plot(save_path=None, xticks=max_seq_lens)
+apc_config_english.MV.traj_plot(save_name=None, xticks=max_seq_lens)
+apc_config_english.MV.violin_plot(save_name=None, xticks=max_seq_lens)
+apc_config_english.MV.box_plot(save_name=None, xticks=max_seq_lens)
 
 save_path = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
 apc_config_english.MV.summary(save_path=save_path)
-apc_config_english.MV.traj_plot(save_path=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
-apc_config_english.MV.violin_plot(save_path=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
-apc_config_english.MV.box_plot(save_path=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
+apc_config_english.MV.traj_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
+apc_config_english.MV.violin_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
+apc_config_english.MV.box_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
 ```

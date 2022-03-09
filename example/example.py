@@ -21,21 +21,21 @@ for trial in range(trial_num):
             MV.add_metric('Metric-{}'.format(i + 1), m)
     MV.next_trial()
 
-save_path = None
-MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_path=save_path, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_path=save_path)  # save fig into .tex and .pdf format
+save_prefix = None
+MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
+MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
+MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
 
-save_path = 'example'
-MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot(save_path=save_path, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
-MV.violin_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.box_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.avg_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_path=save_path)  # save fig into .tex and .pdf format
+save_prefix = 'test'
+MV.summary(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.traj_plot(save_name=save_prefix, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
+MV.violin_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.box_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.avg_bar_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.sum_bar_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
 
 # save_path = None
 # MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
