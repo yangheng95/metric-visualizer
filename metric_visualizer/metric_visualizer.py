@@ -51,12 +51,9 @@ class MetricVisualizer:
     COLORS_DICT = matplotlib.colors.XKCD_COLORS
     COLORS_DICT.update(matplotlib.colors.CSS4_COLORS)
     COLORS = list(COLORS_DICT.values())
-    MARKERS = [".", "o", "v", "^", "<", ">",
-               "1", "2", "3", "4", "8", "s",
-               "p", "P", "*", "h", "H", "+",
-               "x", "X", "D", "d", "|", "_",
-               0, 1, 2, 4, 5, 6, 7, 8, 9, 10,
-               11]
+    MARKERS = [".", "o", "+", "P",
+               "x", "X", "D", "d",
+               ]
 
     HATCHES = ['/', '\\', '|', '-', '+', 'x',
                'o', 'O', '.', '*']
@@ -258,7 +255,7 @@ class MetricVisualizer:
             self.trial_tag = 'Trial'
         else:
             self.trial_tag = trial_tag
-            
+
         if not trial_tag_list:
             self.trial_tag_list = []
         else:
@@ -706,7 +703,7 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        
+
         if save_name:
             global retry_count
             try:
@@ -843,7 +840,7 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        
+
         if save_name:
             global retry_count
             try:
@@ -978,7 +975,7 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
-        
+
         if save_name:
             global retry_count
             try:
@@ -1095,7 +1092,7 @@ class MetricVisualizer:
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
-        
+
         self.dump()
         return summary_str
 
