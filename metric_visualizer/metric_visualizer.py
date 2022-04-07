@@ -426,11 +426,11 @@ class MetricVisualizer:
                                                        alpha=alpha
                                                        )
 
-        tex_xtick = list(trial_tag_list) if xticks is None else xticks
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
-        traj_parts.append(avg_point[0])
-        legend_labels.append(metric_name)
-        plt.legend(traj_parts, legend_labels, loc=legend_loc)
+            traj_parts.append(avg_point[0])
+            legend_labels.append(metric_name)
+            plt.legend(traj_parts, legend_labels, loc=legend_loc)
 
         plt.grid()
         plt.minorticks_on()
