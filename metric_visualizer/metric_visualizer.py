@@ -393,41 +393,43 @@ class MetricVisualizer:
             x = [i for i, label in enumerate(metrics)]
             y = np.array([metrics[metric_name] for metric_name in metrics])
 
-            y_avg = np.median(y, axis=1)
-            # y_avg = np.average(y, axis=1)
+            # y_avg = np.median(y, axis=1)
+            y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
 
             marker = random.choice(markers)
             color = random.choice(colors)
             markers.remove(marker)
             colors.remove(color)
-            for i in range(len(x)):
-                avg_point = ax.plot(x,
-                                    y_avg,
-                                    marker=marker,
-                                    color=color,
-                                    markersize=markersize,
-                                    linewidth=linewidth
-                                    )
 
-                if kwargs.pop('traj_point', True):
-                    traj_point = plt.subplot().scatter([x] * y.shape[1],
-                                                       y,
+            avg_point = ax.plot(x,
+                                y_avg,
+                                marker=marker,
+                                color=color,
+                                markersize=markersize,
+                                linewidth=linewidth
+                                )
+            if kwargs.pop('traj_point', True):
+                for _x_, _y_ in zip(x, y):
+                    a = _x_
+                    b = _y_
+                    traj_point = plt.subplot().scatter([_x_] * len(_y_),
+                                                       _y_,
                                                        marker=marker,
                                                        color=color
                                                        )
-                if kwargs.pop('traj_fill', True):
-                    traj_fill = plt.subplot().fill_between(x,
-                                                           y_avg - y_std,
-                                                           y_avg + y_std,
-                                                           color=color,
-                                                           alpha=alpha
-                                                           )
+            if kwargs.pop('traj_fill', True):
+                traj_fill = plt.subplot().fill_between(x,
+                                                       y_avg - y_std,
+                                                       y_avg + y_std,
+                                                       color=color,
+                                                       alpha=alpha
+                                                       )
 
-            tex_xtick = list(trial_tag_list) if xticks is None else xticks
+        tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
-            traj_parts.append(avg_point[0])
-            legend_labels.append(metric_name)
+        traj_parts.append(avg_point[0])
+        legend_labels.append(metric_name)
         plt.legend(traj_parts, legend_labels, loc=legend_loc)
 
         plt.grid()
