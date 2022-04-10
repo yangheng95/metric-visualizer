@@ -16,9 +16,8 @@ import time
 import matplotlib.colors
 import numpy as np
 import tikzplotlib
-from findfile import find_cwd_files, find_cwd_file
+from findfile import find_cwd_files
 from matplotlib import pyplot as plt
-import matplotlib.patches as mpatches
 from scipy.stats import iqr, wilcoxon
 from tabulate import tabulate
 
@@ -282,6 +281,7 @@ class MetricVisualizer:
             self.metrics = metric_dict
 
         self.trial_id = 0
+        self.dump_pointer = None
 
     def next_trial(self):
         self.trial_id += 1
@@ -348,7 +348,7 @@ class MetricVisualizer:
         if not plot_metrics:
             plot_metrics = self.metrics
 
-        alpha = kwargs.pop('alpha', 0.01)
+        alpha = kwargs.pop('alpha', 0.1)
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
@@ -398,8 +398,9 @@ class MetricVisualizer:
             y_std = np.std(y, axis=1)
 
             marker = random.choice(markers)
-            color = random.choice(colors)
             markers.remove(marker)
+
+            color = random.choice(colors)
             colors.remove(color)
 
             avg_point = ax.plot(x,
@@ -1098,13 +1099,18 @@ class MetricVisualizer:
         self.dump()
         return summary_str
 
-    def dump(self, filename='unnamed'):
-        filename = self.name if self.name else filename
-        time_tag = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-        trial_id = self.trial_id
-        postfix = 'mv'
-        fout_path = '{}_{}_id{}.{}'.format(filename, time_tag, trial_id, postfix)
-        pickle.dump(self, open(fout_path, mode='wb'))
+    def dump(self, filename=None):
+        if not filename:
+            if self.dump_pointer:
+                os.remove(self.dump_pointer)
+            time_tag = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+            trial_id = self.trial_id
+            postfix = 'mv'
+            self.dump_pointer = '{}_{}_id{}.{}'.format(self.name, time_tag, trial_id, postfix)
+        else:
+            self.dump_pointer = filename
+
+        pickle.dump(self, open(self.dump_pointer, mode='wb'))
 
     @staticmethod
     def load(filename='metric_visualizer.dat'):
