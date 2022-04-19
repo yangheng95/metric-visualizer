@@ -132,7 +132,7 @@ class MetricVisualizer:
         \begin{figure}
         \centering
 		\usetikzlibrary{patterns}
-		
+
         $tikz_code$
 
         \end{figure}
@@ -336,7 +336,7 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_name, **kwargs)
 
-    @exception_handle
+    # @exception_handle
     def traj_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
@@ -390,8 +390,8 @@ class MetricVisualizer:
                 trial_tag_list = self.trial_tag_list
             ax = plt.subplot()
 
-            x = [i for i, label in enumerate(metrics)]
             y = np.array([metrics[metric_name] for metric_name in metrics])
+            x = np.array([[i for i, label in enumerate(metrics)] for _ in range(y.shape[1])])
 
             # y_avg = np.median(y, axis=1)
             y_avg = np.average(y, axis=1)
@@ -403,30 +403,31 @@ class MetricVisualizer:
             color = random.choice(colors)
             colors.remove(color)
 
-            avg_point = ax.plot(x,
-                                y_avg,
-                                marker=marker,
-                                color=color,
-                                markersize=markersize,
-                                linewidth=linewidth
-                                )
-            if kwargs.pop('traj_point', True):
-                for _x_, _y_ in zip(x, y):
-                    a = _x_
-                    b = _y_
-                    traj_point = plt.subplot().scatter([_x_] * len(_y_),
-                                                       _y_,
-                                                       marker=marker,
-                                                       color=color
-                                                       )
+            if kwargs.pop('avg_point', True):
+                avg_point = ax.plot(x[0],
+                                    y_avg,
+                                    marker=marker,
+                                    color=color,
+                                    markersize=markersize,
+                                    linewidth=linewidth
+                                    )
+
             if kwargs.pop('traj_fill', True):
-                traj_fill = plt.subplot().fill_between(x,
+                traj_fill = plt.subplot().fill_between(x[0],
                                                        y_avg - y_std,
                                                        y_avg + y_std,
                                                        color=color,
                                                        alpha=alpha
                                                        )
 
+            if kwargs.pop('traj_point', True):
+                # color = random.choice(colors)
+                # colors.remove(color)
+                traj_point = plt.subplot().scatter(x,
+                                                   y,
+                                                   marker=marker,
+                                                   color=color
+                                                   )
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
             traj_parts.append(avg_point[0])
@@ -472,21 +473,21 @@ class MetricVisualizer:
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', '_metric_traj_plot'])
+            texs = find_cwd_files(['.tex', save_name, '_metric_traj_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', '_metric_traj_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', save_name, '_metric_traj_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files('_metric_traj_plot', exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', save_name], exclude_key='crop'))
         print('Traj plot finished')
         plt.close()
 
@@ -600,21 +601,21 @@ class MetricVisualizer:
             fout.close()
             plt.savefig(save_name + '_metric_box_plot.pdf')
 
-            texs = find_cwd_files(['.tex', '_metric_box_plot'])
+            texs = find_cwd_files(['.tex', save_name, '_metric_box_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', '_metric_box_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', save_name, '_metric_box_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files('_metric_box_plot', exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', save_name], exclude_key='crop'))
 
         print('Box plot finished')
         plt.close()
@@ -737,21 +738,21 @@ class MetricVisualizer:
             fout.close()
             plt.savefig(save_name + '_metric_avg_bar_plot.pdf')
 
-            texs = find_cwd_files(['.tex', '_metric_avg_bar_plot'])
+            texs = find_cwd_files(['.tex', save_name, '_metric_avg_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', '_metric_avg_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', save_name, '_metric_avg_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files('_metric_avg_bar_plot', exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', save_name], exclude_key='crop'))
 
         print('Avg Bar plot finished')
         plt.close()
@@ -874,21 +875,21 @@ class MetricVisualizer:
             fout.close()
             plt.savefig(save_name + '_metric_sum_bar_plot.pdf')
 
-            texs = find_cwd_files(['.tex', '_metric_sum_bar_plot'])
+            texs = find_cwd_files(['.tex', save_name, '_metric_sum_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', '_metric_sum_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', save_name, '_metric_sum_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files('_metric_sum_bar_plot', exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', save_name], exclude_key='crop'))
 
         print('Sum Bar plot finished')
         plt.close()
@@ -1009,21 +1010,21 @@ class MetricVisualizer:
             fout.close()
             plt.savefig(save_name + '_metric_violin_plot.pdf')
 
-            texs = find_cwd_files(['.tex', '_metric_violin_plot'])
+            texs = find_cwd_files(['.tex', save_name, '_metric_violin_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', '_metric_violin_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', save_name, '_metric_violin_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux']) + find_cwd_files(['.log']) + find_cwd_files(['crop']):
+            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files('_metric_violin_plot', exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', save_name], exclude_key='crop'))
 
         print('Violin plot finished')
 
