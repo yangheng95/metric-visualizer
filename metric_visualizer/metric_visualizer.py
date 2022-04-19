@@ -336,7 +336,7 @@ class MetricVisualizer:
         plot_metrics = self.metrics
         self.violin_plot(plot_metrics, save_name, **kwargs)
 
-    # @exception_handle
+    @exception_handle
     def traj_plot(self, plot_metrics=None, save_name=None, **kwargs):
 
         markers = self.MARKERS[:]
@@ -1073,9 +1073,10 @@ class MetricVisualizer:
                 _data = []
                 _data += [[mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]]
                 _data[-1].append(
-                    ['Avg:{}, Median: {}, IQR: {}, Max: {}, Min: {}'.format(
+                    ['Avg:{}, Median: {}, IQR: {}, STD:{}, Max: {}, Min: {}'.format(
                         round(np.average(metrics[trial]), 2),
                         round(np.median(metrics[trial]), 2),
+                        round(np.std(metrics[trial]), 2),
                         round(iqr(metrics[trial], rng=(25, 75), interpolation='midpoint'), 2),
                         round(np.max(metrics[trial]), 2),
                         round(np.min(metrics[trial]), 2)
