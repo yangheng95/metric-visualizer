@@ -488,6 +488,8 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', save_name], exclude_key='crop'))
+        else:
+            plt.show()
         print('Traj plot finished')
         plt.close()
 
@@ -616,7 +618,8 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', save_name], exclude_key='crop'))
-
+        else:
+            plt.show()
         print('Box plot finished')
         plt.close()
 
@@ -753,7 +756,8 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', save_name], exclude_key='crop'))
-
+        else:
+            plt.show()
         print('Avg Bar plot finished')
         plt.close()
 
@@ -890,7 +894,8 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', save_name], exclude_key='crop'))
-
+        else:
+            plt.show()
         print('Sum Bar plot finished')
         plt.close()
 
@@ -1025,9 +1030,9 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', save_name], exclude_key='crop'))
-
+        else:
+            plt.show()
         print('Violin plot finished')
-
         plt.close()
 
     @exception_handle
