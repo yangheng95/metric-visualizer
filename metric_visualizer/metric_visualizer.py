@@ -378,6 +378,8 @@ class MetricVisualizer:
 
         ytickshift = kwargs.pop('ytickshift', 1)
 
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
         traj_parts = []
         legend_labels = []
         for metric_name in plot_metrics.keys():
@@ -435,7 +437,8 @@ class MetricVisualizer:
             plt.legend(traj_parts, legend_labels, loc=legend_loc)
 
         plt.grid()
-        plt.minorticks_on()
+        if minorticks_on:
+            plt.minorticks_on()
 
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
@@ -538,6 +541,8 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.9)
 
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
         box_parts = []
         legend_labels = []
         for metric_name in plot_metrics.keys():
@@ -565,7 +570,8 @@ class MetricVisualizer:
             plt.setp(boxs_parts["fliers"], markeredgecolor=color)
 
         plt.grid()
-        plt.minorticks_on()
+        if minorticks_on:
+            plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
@@ -669,6 +675,8 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.9)
 
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
         sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(plot_metrics.keys()):
@@ -705,7 +713,8 @@ class MetricVisualizer:
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
         plt.grid()
-        plt.minorticks_on()
+        if minorticks_on:
+            plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
@@ -807,6 +816,8 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.9)
 
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
         sum_bar_parts = []
         total_width = 0.9
         for i, metric_name in enumerate(plot_metrics.keys()):
@@ -843,7 +854,8 @@ class MetricVisualizer:
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
         plt.grid()
-        plt.minorticks_on()
+        if minorticks_on:
+            plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
@@ -951,6 +963,8 @@ class MetricVisualizer:
 
         widths = kwargs.pop('widths', 0.9)
 
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
         violin_parts = []
         legend_labels = []
         for metric_name in plot_metrics.keys():
@@ -979,7 +993,8 @@ class MetricVisualizer:
                 pc.set_linewidth(linewidth)
 
         plt.grid()
-        plt.minorticks_on()
+        if minorticks_on:
+            plt.minorticks_on()
         plt.xticks(rotation=xrotation)
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
