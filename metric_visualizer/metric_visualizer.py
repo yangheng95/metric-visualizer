@@ -1118,7 +1118,8 @@ class MetricVisualizer:
             fout.write(summary_str)
             fout.close()
 
-        self.dump()
+            self.dump()
+
         return summary_str
 
     def dump(self, filename=None):
