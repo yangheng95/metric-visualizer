@@ -18,7 +18,8 @@ import numpy as np
 import tikzplotlib
 from findfile import find_cwd_files
 from matplotlib import pyplot as plt
-from scipy.stats import iqr, wilcoxon
+from scipy.stats import iqr
+from scipy.stats import ranksums
 from tabulate import tabulate
 
 from metric_visualizer import __version__
@@ -250,6 +251,7 @@ class MetricVisualizer:
         :param metric_dict: If you want to plot figure, it is recommended to add multiple trial experiments. In these trial, the experimental results
         are comparative, e.g., just minor different in these experiments.
         """
+
         if not trial_tag:
             self.trial_tag = 'Trial'
         else:
@@ -259,6 +261,9 @@ class MetricVisualizer:
             self.trial_tag_list = []
         else:
             self.trial_tag_list = [str(t) for t in trial_tag_list]
+
+        self.trial_rank_test_result = {}
+        self.metric_rank_test_result = {}
 
         self.version = __version__
         self.name = name
@@ -290,11 +295,11 @@ class MetricVisualizer:
     def add_metric(self, metric_name='Accuracy', value=0):
         if metric_name in self.metrics:
             if 'trial-{}'.format(self.trial_id) not in self.metrics[metric_name]:
-                self.metrics[metric_name]['trial-{}'.format(self.trial_id)] = [value]
+                self.metrics[metric_name]['trial{}'.format(self.trial_id)] = [value]
             else:
-                self.metrics[metric_name]['trial-{}'.format(self.trial_id)].append(value)
+                self.metrics[metric_name]['trial{}'.format(self.trial_id)].append(value)
         else:
-            self.metrics[metric_name] = {'trial-{}'.format(self.trial_id): [value]}
+            self.metrics[metric_name] = {'trial{}'.format(self.trial_id): [value]}
 
     def traj_plot_by_metric(self, save_name=None, **kwargs):
         plot_metrics = self.transpose()
@@ -1069,9 +1074,45 @@ class MetricVisualizer:
         raise NotImplementedError()
 
     @exception_handle
-    def wilconxon_rank_test_by_trial(self, target_trial):
+    def _rank_test_by_trial(self):
+        transposed_metrics = self.transpose()
+        for trial in transposed_metrics.keys():
+            self.trial_rank_test_result[trial] = {}
+            for metric1 in transposed_metrics[trial].keys():
+                for metric2 in transposed_metrics[trial].keys():
+                    if metric1 != metric2:
+                        result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2])
+                        self.trial_rank_test_result[trial]['{}-{}'.format(metric1, metric2)] = result
 
-        raise NotImplementedError()
+        return self.trial_rank_test_result
+
+    @exception_handle
+    def rank_test_by_trail(self, trial):
+        self._rank_test_by_trial()
+        try:
+            return self.trial_rank_test_result[trial]
+        except KeyError:
+            raise KeyError('Trial {} not found, please select trial in {}'.format(trial, list(self.transpose().keys())))
+
+    @exception_handle
+    def _rank_test_by_metric(self):
+        trial_tag_list = list(self.transpose().keys())
+        for metric in self.metrics.keys():
+            self.metric_rank_test_result[metric] = {}
+            for trial1 in trial_tag_list:
+                for trial2 in trial_tag_list:
+                    if trial1 != trial2:
+                        result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2])
+                        self.metric_rank_test_result[metric]['{}-{}'.format(trial1, trial2)] = result
+        return self.metric_rank_test_result
+
+    @exception_handle
+    def rank_test_by_metric(self, metric):
+        self._rank_test_by_metric()
+        try:
+            return self.metric_rank_test_result[metric]
+        except KeyError:
+            raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
     def summary(self, save_path=None, no_print=False, **kwargs):

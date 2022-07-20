@@ -18,16 +18,20 @@ for trial in range(trial_num):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
-            MV.add_metric('Metric-{}'.format(i + 1), m)
+            MV.add_metric('metric{}'.format(i + 1), m)
     MV.next_trial()
 
 save_prefix = None
 MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+# MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
+# MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+# MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+# MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+# MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+
+print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
+
+print(MV.rank_test_by_metric('Metric1'))  # save fig into .tex and .pdf format
 
 save_prefix = 'test'
 MV.summary(save_path=save_prefix)  # save fig into .tex and .pdf format
