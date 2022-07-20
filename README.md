@@ -5,6 +5,15 @@
 [![Downloads](https://pepy.tech/badge/metric-visualizer/month)](https://pepy.tech/project/metric-visualizer)
 [![Downloads](https://pepy.tech/badge/metric-visualizer/week)](https://pepy.tech/project/metric-visualizer)
 
+## Automated metric visualization for comparison experiments
+- Box plot
+- Trajectory plot
+- Scatter plot
+- Bar plot
+- Violin plot
+- Rank test
+- On the way
+
 ## Install
 
 ```bash
