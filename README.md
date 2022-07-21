@@ -15,16 +15,20 @@
 - On the way
 
 ## Install
+If you want to make tikz(latex) plots, you need to install texlive (other latex release version are not tested).
 
 ```bash
 pip install metric_visualizer
 ```
 
-## Usage
+## 用法说明 Usage
+假设存在多组对比实验(或者一组参数设置)，则称之为trial，每组实验存在多个metric(例如AUC，Accuracy，F1，Loss等)，
+每组参照实验重复n词，则使用以下方法监听实验结果：
+Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with multiple metrics (e.g., AUC, accuracy, F1, loss, etc.) for each set of experiments.
+Repeat n words for each set of reference experiments, and then listen to the results of the experiments using the following method.
 
-If you need to run trial experiments, you can use this tool to make simple plots then fix it manually.
 
-```python3
+```python
 import numpy as np
 from metric_visualizer import MetricVisualizer
 
@@ -38,28 +42,36 @@ for trial in range(trial_num):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
-            MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))
-    MV.next_trial()
+            MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))  # Add metric by metric name
+    MV.next_trial()  # move to next trial
 
-save_path = None
-MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-MV.traj_plot(save_name=save_path, xlabel='Trials')  # save fig into .tex and .pdf format
-MV.violin_plot(save_name=save_path)  # save fig into .tex and .pdf format
-MV.box_plot(save_name=save_path)  # save fig into .tex and .pdf format
-MV.avg_bar_plot(save_name=save_path)  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_name=save_path)  # save fig into .tex and .pdf format
+```
 
-save_path = 'example'
-MV.traj_plot(save_name=save_path, xlabel='Trials',
-             xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.violin_plot(save_name=save_path, xlabel='Trials',
-               xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.box_plot(save_name=save_path, xlabel='Trials',
-            xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # show the fig via matplotlib
-MV.avg_bar_plot(save_name=save_path, xlabel='Trials',
-                xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_name=save_path, xlabel='Trials',
-                xticks=['Trial-{}'.format(x + 1) for x in range(trial_num)])  # save fig into .tex and .pdf format
+画图代码如下：
+```python
+
+save_prefix = None
+MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
+MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
+MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+
+# 此函数适合对比不同模型性能，每个模型代表一个trial，综合多个metric进行Scott-Knott Rank Test，并绘制箱型图
+MV.scott_knott_plot(save_name=save_prefix, minorticks_on=False)  
+
+print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
+print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format
+
+
+# save_path = None
+# MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
+# MV.traj_plot_by_metric(save_path=save_path, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
+# MV.violin_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
+# MV.box_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
+# MV.avg_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
+# MV.sum_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
 
 ```
 

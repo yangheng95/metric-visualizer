@@ -4,47 +4,32 @@
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
+import random
 
 from metric_visualizer import MetricVisualizer
 import numpy as np
 
-MV = MetricVisualizer(trial_tag='Trial ID', trial_tag_list=[0, 1, 2, 3, 4])
+MV = MetricVisualizer(name='example', trial_tag='Trial ID', trial_tag_list=[0, 1, 2, 3, 4])
 
 trial_num = 5  # number of different trials,
 repeat = 20  # number of repeats
-metric_num = 3  # number of metrics
+metric_num = 5  # number of metrics
 
-for trial in range(trial_num):
+for n_trial in range(trial_num):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
-        metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
+        metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
             MV.add_metric('metric{}'.format(i + 1), m)
     MV.next_trial()
 
-save_prefix = None
+save_prefix = './'
 MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
+MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.scott_knott_plot(save_path=save_prefix, minorticks_on=False)  # save fig into .tex and .pdf format
 
 print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
-
-print(MV.rank_test_by_metric('Metric1'))  # save fig into .tex and .pdf format
-
-save_prefix = 'test'
-MV.summary(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.traj_plot(save_name=save_prefix, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
-MV.violin_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot(save_name=save_prefix)  # save fig into .tex and .pdf format
-
-# save_path = None
-# MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.traj_plot_by_metric(save_path=save_path, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
-# MV.violin_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.box_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.avg_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.sum_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
+print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format

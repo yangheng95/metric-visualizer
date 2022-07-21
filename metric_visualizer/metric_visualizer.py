@@ -294,55 +294,55 @@ class MetricVisualizer:
 
     def add_metric(self, metric_name='Accuracy', value=0):
         if metric_name in self.metrics:
-            if 'trial-{}'.format(self.trial_id) not in self.metrics[metric_name]:
+            if 'trial{}'.format(self.trial_id) not in self.metrics[metric_name]:
                 self.metrics[metric_name]['trial{}'.format(self.trial_id)] = [value]
             else:
                 self.metrics[metric_name]['trial{}'.format(self.trial_id)].append(value)
         else:
             self.metrics[metric_name] = {'trial{}'.format(self.trial_id): [value]}
 
-    def traj_plot_by_metric(self, save_name=None, **kwargs):
+    def traj_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
-        self.traj_plot(plot_metrics, save_name, **kwargs)
+        self.traj_plot(plot_metrics, save_path, **kwargs)
 
-    def box_plot_by_metric(self, save_name=None, **kwargs):
+    def box_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
-        self.box_plot(plot_metrics, save_name, **kwargs)
+        self.box_plot(plot_metrics, save_path, **kwargs)
 
     def avg_bar_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
         self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
-    def sum_bar_plot_by_metric(self, save_name=None, **kwargs):
+    def sum_bar_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
-        self.sum_bar_plot(plot_metrics, save_name, **kwargs)
+        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
-    def violin_plot_by_metric(self, save_name=None, **kwargs):
+    def violin_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
-        self.violin_plot(plot_metrics, save_name, **kwargs)
+        self.violin_plot(plot_metrics, save_path, **kwargs)
 
-    def traj_plot_by_trial(self, save_name=None, **kwargs):
+    def traj_plot_by_trial(self, save_path=None, **kwargs):
         plot_metrics = self.metrics
-        self.traj_plot(plot_metrics, save_name, **kwargs)
+        self.traj_plot(plot_metrics, save_path, **kwargs)
 
-    def box_plot_by_trial(self, save_name=None, **kwargs):
+    def box_plot_by_trial(self, save_path=None, **kwargs):
         plot_metrics = self.metrics
-        self.box_plot(plot_metrics, save_name, **kwargs)
+        self.box_plot(plot_metrics, save_path, **kwargs)
 
-    def avg_bar_plot_by_trial(self, save_name=None, **kwargs):
+    def avg_bar_plot_by_trial(self, save_path=None, **kwargs):
         plot_metrics = self.metrics
-        self.avg_bar_plot(plot_metrics, save_name, **kwargs)
+        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
-    def sum_bar_plot_by_trial(self, save_name=None, **kwargs):
+    def sum_bar_plot_by_trial(self, save_path=None, **kwargs):
         plot_metrics = self.metrics
-        self.sum_bar_plot(plot_metrics, save_name, **kwargs)
+        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
-    def violin_plot_by_trial(self, save_name=None, **kwargs):
+    def violin_plot_by_trial(self, save_path=None, **kwargs):
         plot_metrics = self.metrics
-        self.violin_plot(plot_metrics, save_name, **kwargs)
+        self.violin_plot(plot_metrics, save_path, **kwargs)
 
     @exception_handle
-    def traj_plot(self, plot_metrics=None, save_name=None, **kwargs):
+    def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -387,14 +387,15 @@ class MetricVisualizer:
 
         traj_parts = []
         legend_labels = []
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             ax = plt.subplot()
 
             y = np.array([metrics[metric_name] for metric_name in metrics])
@@ -403,10 +404,12 @@ class MetricVisualizer:
             # y_avg = np.median(y, axis=1)
             y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
-
+            if not markers:
+                markers = self.MARKERS[:]
             marker = random.choice(markers)
             markers.remove(marker)
-
+            if not colors:
+                colors = self.COLORS[:]
             color = random.choice(colors)
             colors.remove(color)
 
@@ -439,7 +442,8 @@ class MetricVisualizer:
 
             traj_parts.append(avg_point[0])
             legend_labels.append(metric_name)
-            plt.legend(traj_parts, legend_labels, loc=legend_loc)
+            if kwargs.get('legend', True):
+                plt.legend(traj_parts, legend_labels, loc=legend_loc)
 
         plt.grid()
         if minorticks_on:
@@ -450,7 +454,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_name:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -458,7 +462,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_name, **kwargs)
+                    self.traj_plot(save_path, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -475,34 +479,34 @@ class MetricVisualizer:
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
-            plt.savefig(save_name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', save_name, '_metric_traj_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_traj_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', save_name, '_metric_traj_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_traj_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', save_name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Traj plot finished')
         plt.close()
 
     @exception_handle
-    def box_plot(self, plot_metrics=None, save_name=None, **kwargs):
+    def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -550,14 +554,15 @@ class MetricVisualizer:
 
         box_parts = []
         legend_labels = []
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
+                if trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             color = random.choice(colors)
             colors.remove(color)
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
@@ -582,9 +587,10 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        plt.legend(box_parts, legend_labels, loc=legend_loc)
+        if kwargs.get('legend', True):
+            plt.legend(box_parts, legend_labels, loc=legend_loc)
 
-        if save_name:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -592,7 +598,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_name, **kwargs)
+                    self.traj_plot(save_path, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -607,35 +613,34 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_name + '_metric_box_plot.pdf')
 
-            texs = find_cwd_files(['.tex', save_name, '_metric_box_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_box_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', save_name, '_metric_box_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_box_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', save_name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Box plot finished')
         plt.close()
 
     @exception_handle
-    def avg_bar_plot(self, plot_metrics=None, save_name=None, **kwargs):
+    def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -684,14 +689,15 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
         for i, metric_name in enumerate(plot_metrics.keys()):
             metrics = plot_metrics[metric_name]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
+                if trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
             width = total_width / metric_num
@@ -703,14 +709,15 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_name:
+            if save_path:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
                 bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
                 sum_bar_parts.append(bar[0])
                 legend_labels = list(plot_metrics.keys())
-                plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
+                if kwargs.get('legend', True):
+                    plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
                 plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
@@ -725,7 +732,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_name:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -733,7 +740,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_name, **kwargs)
+                    self.traj_plot(save_path, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -748,35 +755,34 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_name + '_metric_avg_bar_plot.pdf')
 
-            texs = find_cwd_files(['.tex', save_name, '_metric_avg_bar_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_avg_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', save_name, '_metric_avg_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_avg_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', save_name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Avg Bar plot finished')
         plt.close()
 
     @exception_handle
-    def sum_bar_plot(self, plot_metrics=None, save_name=None, **kwargs):
+    def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -825,14 +831,15 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
         for i, metric_name in enumerate(plot_metrics.keys()):
             metrics = plot_metrics[metric_name]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
+                if trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             metric_num = len(plot_metrics.keys())
             trial_num = len(plot_metrics[metric_name])
             width = total_width / metric_num
@@ -844,14 +851,15 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_name:
+            if save_path:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
                 bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
                 sum_bar_parts.append(bar[0])
                 legend_labels = list(plot_metrics.keys())
-                plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
+                if kwargs.get('legend', True):
+                    plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
 
             for i, j in zip(x, Y):
                 plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
@@ -866,7 +874,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_name:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -874,7 +882,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_name, **kwargs)
+                    self.traj_plot(save_path, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -889,35 +897,34 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_name + '_metric_sum_bar_plot.pdf')
 
-            texs = find_cwd_files(['.tex', save_name, '_metric_sum_bar_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_sum_bar_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', save_name, '_metric_sum_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_sum_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', save_name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Sum Bar plot finished')
         plt.close()
 
     @exception_handle
-    def violin_plot(self, plot_metrics=None, save_name=None, **kwargs):
+    def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -972,27 +979,31 @@ class MetricVisualizer:
 
         violin_parts = []
         legend_labels = []
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', self.trial_tag_list, '<->', list(metrics.keys()))
+
+            if not kwargs.get('trial_tag_list ', trial_tag_list) or len(trial_tag_list) != len(metrics.keys()):
+                if trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
             data = [metrics[trial] for trial in metrics.keys()]
 
-            if save_name:
+            if save_path:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
-                plt.legend(violin_parts, legend_labels, loc=0)
+                if kwargs.get('legend', True):
+                    plt.legend(violin_parts, legend_labels, loc=0)
             else:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
-                plt.legend(violin_parts, legend_labels, loc=legend_loc)
+                if kwargs.get('legend', True):
+                    plt.legend(violin_parts, legend_labels, loc=legend_loc)
 
             for pc in violin['bodies']:
                 pc.set_linewidth(linewidth)
@@ -1005,7 +1016,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_name:
+        if save_path:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -1013,7 +1024,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_name, **kwargs)
+                    self.traj_plot(save_path, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -1028,28 +1039,27 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
             fout.write(tex_src)
             fout.close()
-            plt.savefig(save_name + '_metric_violin_plot.pdf')
 
-            texs = find_cwd_files(['.tex', save_name, '_metric_violin_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_violin_plot'])
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', save_name, '_metric_violin_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_violin_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', save_name]) + find_cwd_files(['.log', save_name]) + find_cwd_files(['crop', save_name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', save_name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Violin plot finished')
@@ -1069,9 +1079,13 @@ class MetricVisualizer:
     def A12_plot(self):
         raise NotImplementedError()
 
-    @exception_handle
-    def sk_rank_plot(self):
-        raise NotImplementedError()
+    # @exception_handle
+    # def trial_sk_rank_test_plot(self, save_path=None, **kwargs):
+    #     raise NotImplementedError()
+
+    # @exception_handle
+    # def metric_sk_rank_test_plot(self, save_path=None, **kwargs):
+    #     raise NotImplementedError()
 
     @exception_handle
     def _rank_test_by_trial(self):
@@ -1082,7 +1096,7 @@ class MetricVisualizer:
                 for metric2 in transposed_metrics[trial].keys():
                     if metric1 != metric2:
                         result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2])
-                        self.trial_rank_test_result[trial]['{}-{}'.format(metric1, metric2)] = result
+                        self.trial_rank_test_result[trial]['{}<->{}'.format(metric1, metric2)] = result
 
         return self.trial_rank_test_result
 
@@ -1103,7 +1117,7 @@ class MetricVisualizer:
                 for trial2 in trial_tag_list:
                     if trial1 != trial2:
                         result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2])
-                        self.metric_rank_test_result[metric]['{}-{}'.format(trial1, trial2)] = result
+                        self.metric_rank_test_result[metric]['{}<->{}'.format(trial1, trial2)] = result
         return self.metric_rank_test_result
 
     @exception_handle
@@ -1115,21 +1129,36 @@ class MetricVisualizer:
             raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
+    def scott_knott_plot(self, save_path=None, **kwargs):
+        from metric_visualizer.external import Rx
+        data_dict = {'Scott-Knott Rank Test': {}}
+
+        for metric in self.metrics:
+            Rx.data(**self.metrics[metric])
+            for i, d in enumerate(Rx.list_algorithm_rank):
+                data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
+                data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
+
+        trial_tag_list = sorted(list(data_dict['Scott-Knott Rank Test'].keys()))
+        mv = MetricVisualizer(trial_tag='Scott-Knott Rank Test', trial_tag_list=trial_tag_list, metric_dict=data_dict)
+        mv.box_plot_by_trial(save_path='./sk_rank', ylabel='Scott-Knott Rank Test', xlabel='Model', **kwargs)
+
+    @exception_handle
     def summary(self, save_path=None, no_print=False, **kwargs):
         summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
         table_data = []
-
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
-            if not self.trial_tag_list or len(self.trial_tag_list) != len(metrics.keys()):
-                if len(self.trial_tag_list) > len(metrics.keys()):
-                    trial_tag_list = self.trial_tag_list[:len(metrics.keys())]
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
+                if len(trial_tag_list) > len(metrics.keys()):
+                    trial_tag_list = trial_tag_list[:len(metrics.keys())]
                 else:
                     trial_tag_list = list(metrics.keys())
             else:
-                trial_tag_list = self.trial_tag_list
+                trial_tag_list = trial_tag_list
             for i, trial in enumerate(metrics.keys()):
                 _data = []
                 _data += [[mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]]
@@ -1154,7 +1183,7 @@ class MetricVisualizer:
             print(summary_str)
 
         if save_path:
-            fout = open(save_path + '_summary.txt', mode='w', encoding='utf8')
+            fout = open(save_path + '/' + self.name + '_summary.txt', mode='w', encoding='utf8')
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
