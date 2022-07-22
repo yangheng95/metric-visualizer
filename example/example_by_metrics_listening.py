@@ -4,6 +4,7 @@
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
+import os
 import random
 
 from metric_visualizer import MetricVisualizer
@@ -15,6 +16,8 @@ trial_num = 5  # number of different trials,
 repeat = 20  # number of repeats
 metric_num = 5  # number of metrics
 
+#  利用metric_visualizer监听实验吧并保存实验结果，随时重新绘制图像
+
 for n_trial in range(trial_num):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in range(metric_num)]  # n is metric scale factor
@@ -22,7 +25,7 @@ for n_trial in range(trial_num):
             MV.add_metric('metric{}'.format(i + 1), m)
     MV.next_trial()
 
-save_prefix = None
+save_prefix = os.getcwd()
 MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
 MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
 MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format

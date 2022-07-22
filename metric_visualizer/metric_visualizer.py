@@ -1140,8 +1140,8 @@ class MetricVisualizer:
                 data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
 
         trial_tag_list = sorted(list(data_dict['Scott-Knott Rank Test'].keys()))
-        mv = MetricVisualizer(trial_tag='Scott-Knott Rank Test', trial_tag_list=trial_tag_list, metric_dict=data_dict)
-        mv.box_plot_by_trial(save_path='./sk_rank', ylabel='Scott-Knott Rank Test', xlabel='Model', **kwargs)
+        mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', trial_tag_list=trial_tag_list, metric_dict=data_dict)
+        mv.box_plot_by_trial(save_path=None, ylabel='Scott-Knott Rank Test', xlabel='Model', **kwargs)
 
     @exception_handle
     def summary(self, save_path=None, no_print=False, **kwargs):
