@@ -22,7 +22,7 @@ for n_trial in range(trial_num):
             MV.add_metric('metric{}'.format(i + 1), m)
     MV.next_trial()
 
-save_prefix = './'
+save_prefix = None
 MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
 MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
 MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format

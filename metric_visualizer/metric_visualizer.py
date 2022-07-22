@@ -234,7 +234,7 @@ class MetricVisualizer:
     def set_traj_plot_tex_template(self, traj_plot_tex_template):
         self.traj_plot_tex_template = traj_plot_tex_template
 
-    def __init__(self, name=None, trial_tag='', trial_tag_list=None, metric_dict=None):
+    def __init__(self, name='', trial_tag='', trial_tag_list=None, metric_dict=None):
         """
         Used for plotting, e.g.,
             'Metric1': {
