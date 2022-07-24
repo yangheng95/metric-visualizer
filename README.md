@@ -143,9 +143,8 @@ pip install pyabsa  # install pyabsa
 ```
 
 ```python3
-import autocuda
 import random
-
+import os
 from metric_visualizer import MetricVisualizer
 
 from pyabsa.functional import Trainer
@@ -153,44 +152,34 @@ from pyabsa.functional import APCConfigManager
 from pyabsa.functional import ABSADatasetList
 from pyabsa.functional import APCModelList
 
-import warnings
+config = APCConfigManager.get_config()
+config.model = APCModelList.FAST_LCF_BERT
+config.lcf = 'cdw'
+config.seed = [random.randint(0, 10000) for _ in range(3)] # each trial repeats with different seed
 
-device = autocuda.auto_cuda()
-warnings.filterwarnings('ignore')
-
-seeds = [random.randint(0, 10000) for _ in range(3)]
+MV = MetricVisualizer()
+config.MV = MV
 
 max_seq_lens = [60, 70, 80, 90, 100]
 
-apc_config_english = APCConfigManager.get_apc_config_english()
-apc_config_english.model = APCModelList.FAST_LCF_BERT
-apc_config_english.lcf = 'cdw'
-apc_config_english.max_seq_len = 80
-apc_config_english.cache_dataset = False
-apc_config_english.patience = 10
-apc_config_english.seed = seeds
-
-MV = MetricVisualizer()
-apc_config_english.MV = MV
-
-for eta in max_seq_lens:
-    apc_config_english.eta = eta
+for max_seq_len in max_seq_lens:
+    config.max_seq_len = max_seq_len
     dataset = ABSADatasetList.Laptop14
-    Trainer(config=apc_config_english,
+    Trainer(config=config,
             dataset=dataset,  # train set and test set will be automatically detected
-            checkpoint_save_mode=0,  # =None to avoid save model
-            auto_device=device  # automatic choose CUDA or CPU
+            auto_device=True  # automatic choose CUDA or CPU
             )
-    apc_config_english.MV.next_trial()
+    config.MV.next_trial()
 
-apc_config_english.MV.summary(save_path=None, xticks=max_seq_lens)
-apc_config_english.MV.traj_plot(save_name=None, xticks=max_seq_lens)
-apc_config_english.MV.violin_plot(save_name=None, xticks=max_seq_lens)
-apc_config_english.MV.box_plot(save_name=None, xticks=max_seq_lens)
+save_prefix = os.getcwd()
+MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
 
-save_path = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
-apc_config_english.MV.summary(save_path=save_path)
-apc_config_english.MV.traj_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
-apc_config_english.MV.violin_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
-apc_config_english.MV.box_plot(save_name=save_path, xticks=max_seq_lens, xlabel=r'$\eta$')
+ # save fig into .tex and .pdf format
+MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
+MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
+MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
+MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
+MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
+MV.scott_knott_plot(save_path=save_prefix, xticks=max_seq_lens, minorticks_on=False)  
+
 ```

@@ -548,7 +548,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.9)
+        widths = kwargs.pop('widths', 0.8)
 
         minorticks_on = kwargs.pop('minorticks_on', False)
 
@@ -586,6 +586,8 @@ class MetricVisualizer:
         plt.yticks(rotation=yrotation)
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
+
+        plt.xlim(-len(trial_tag_list)/8, len(trial_tag_list)-1+len(trial_tag_list)/8)
 
         if kwargs.get('legend', True):
             plt.legend(box_parts, legend_labels, loc=legend_loc)
@@ -683,7 +685,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.9)
+        widths = kwargs.pop('widths', 0.8)
 
         minorticks_on = kwargs.pop('minorticks_on', False)
 
@@ -825,7 +827,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.9)
+        widths = kwargs.pop('widths', 0.8)
 
         minorticks_on = kwargs.pop('minorticks_on', False)
 
@@ -973,7 +975,7 @@ class MetricVisualizer:
 
         linewidth = kwargs.pop('linewidth', 3)
 
-        widths = kwargs.pop('widths', 0.9)
+        widths = kwargs.pop('widths', 0.8)
 
         minorticks_on = kwargs.pop('minorticks_on', False)
 
