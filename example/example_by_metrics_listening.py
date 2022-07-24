@@ -10,11 +10,11 @@ import random
 from metric_visualizer import MetricVisualizer
 import numpy as np
 
-MV = MetricVisualizer(name='example', trial_tag='Trial ID', trial_tag_list=[0, 1, 2, 3, 4])
+MV = MetricVisualizer(name='example', trial_tag='Trial ID')
 
-trial_num = 5  # number of different trials,
+trial_num = 10  # number of different trials,
 repeat = 20  # number of repeats
-metric_num = 5  # number of metrics
+metric_num = 3  # number of metrics
 
 #  利用metric_visualizer监听实验吧并保存实验结果，随时重新绘制图像
 

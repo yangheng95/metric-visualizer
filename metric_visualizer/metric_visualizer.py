@@ -359,11 +359,11 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', None)
+        xlabel = kwargs.pop('xlabel', 'xlabel')
 
         xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', None)
+        ylabel = kwargs.pop('ylabel', 'ylabel')
 
         yticks = kwargs.pop('yticks', None)
 
@@ -392,7 +392,8 @@ class MetricVisualizer:
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if self.trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = trial_tag_list
@@ -470,7 +471,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join(str(x) for x in tex_xtick))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -481,7 +482,8 @@ class MetricVisualizer:
 
             plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -491,13 +493,14 @@ class MetricVisualizer:
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_traj_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_traj_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', self.name], exclude_key='crop'))
         else:
@@ -522,11 +525,11 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', None)
+        xlabel = kwargs.pop('xlabel', 'xlabel')
 
         xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', None)
+        ylabel = kwargs.pop('ylabel', 'ylabel')
 
         yticks = kwargs.pop('yticks', None)
 
@@ -559,7 +562,8 @@ class MetricVisualizer:
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = trial_tag_list
@@ -587,7 +591,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        plt.xlim(-len(trial_tag_list)/8, len(trial_tag_list)-1+len(trial_tag_list)/8)
+        plt.xlim(-0.6, len(trial_tag_list) - 0.4)
 
         if kwargs.get('legend', True):
             plt.legend(box_parts, legend_labels, loc=legend_loc)
@@ -608,7 +612,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -617,7 +621,8 @@ class MetricVisualizer:
 
             plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -627,13 +632,14 @@ class MetricVisualizer:
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_box_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_box_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', self.name], exclude_key='crop'))
         else:
@@ -659,11 +665,11 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', None)
+        xlabel = kwargs.pop('xlabel', 'xlabel')
 
         xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', None)
+        ylabel = kwargs.pop('ylabel', 'ylabel')
 
         yticks = kwargs.pop('yticks', None)
 
@@ -696,7 +702,8 @@ class MetricVisualizer:
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = trial_tag_list
@@ -706,7 +713,8 @@ class MetricVisualizer:
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.average(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
+            Y = np.array([np.average(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in
+                          plot_metrics[m_name] if metric_name == m_name])
             hatch = random.choice(hatches)
             hatches.remove(hatch)
             color = random.choice(colors)
@@ -750,7 +758,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -759,7 +767,8 @@ class MetricVisualizer:
 
             plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -769,13 +778,14 @@ class MetricVisualizer:
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_avg_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_avg_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', self.name], exclude_key='crop'))
         else:
@@ -801,11 +811,11 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', None)
+        xlabel = kwargs.pop('xlabel', 'xlabel')
 
         xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', None)
+        ylabel = kwargs.pop('ylabel', 'ylabel')
 
         yticks = kwargs.pop('yticks', None)
 
@@ -838,7 +848,8 @@ class MetricVisualizer:
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = trial_tag_list
@@ -848,7 +859,9 @@ class MetricVisualizer:
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
-            Y = np.array([np.sum(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name] if metric_name == m_name])
+            Y = np.array(
+                [np.sum(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in plot_metrics[m_name]
+                 if metric_name == m_name])
             hatch = random.choice(hatches)
             hatches.remove(hatch)
             color = random.choice(colors)
@@ -892,7 +905,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -901,7 +914,8 @@ class MetricVisualizer:
 
             plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -911,13 +925,14 @@ class MetricVisualizer:
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name,  '_metric_sum_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_sum_bar_plot'], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', self.name], exclude_key='crop'))
         else:
@@ -949,11 +964,11 @@ class MetricVisualizer:
 
         markersize = kwargs.pop('markersize', 3)
 
-        xlabel = kwargs.pop('xlabel', None)
+        xlabel = kwargs.pop('xlabel', 'xlabel')
 
         xticks = kwargs.pop('xticks', None)
 
-        ylabel = kwargs.pop('ylabel', None)
+        ylabel = kwargs.pop('ylabel', 'ylabel')
 
         yticks = kwargs.pop('yticks', None)
 
@@ -987,7 +1002,8 @@ class MetricVisualizer:
 
             if not kwargs.get('trial_tag_list ', trial_tag_list) or len(trial_tag_list) != len(metrics.keys()):
                 if trial_tag_list:
-                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->', list(metrics.keys()))
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
                 trial_tag_list = list(metrics.keys())
             else:
                 trial_tag_list = trial_tag_list
@@ -995,13 +1011,15 @@ class MetricVisualizer:
             data = [metrics[trial] for trial in metrics.keys()]
 
             if save_path:
-                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True,
+                                       showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
                 if kwargs.get('legend', True):
                     plt.legend(violin_parts, legend_labels, loc=0)
             else:
-                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True, showmedians=True, showextrema=True)
+                violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True,
+                                       showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
                 legend_labels = list(plot_metrics.keys())
                 if kwargs.get('legend', True):
@@ -1034,7 +1052,7 @@ class MetricVisualizer:
 
             tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
             tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
-            tex_src = tex_src.replace('$xlabel$', ', '.join(list(trial_tag_list)) if xlabel is None else xlabel)
+            tex_src = tex_src.replace('$xlabel$', xlabel)
             tex_src = tex_src.replace('$ylabel$', ', '.join(list(plot_metrics)) if ylabel is None else ylabel)
             tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
@@ -1043,7 +1061,8 @@ class MetricVisualizer:
 
             plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w', encoding='utf8')
+            fout = open((save_path + '/' + self.name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
@@ -1059,7 +1078,8 @@ class MetricVisualizer:
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log',  self.name]) + find_cwd_files(['crop',  self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', self.name], exclude_key='crop'))
         else:
@@ -1141,9 +1161,13 @@ class MetricVisualizer:
                 data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
                 data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
 
-        trial_tag_list = sorted(list(data_dict['Scott-Knott Rank Test'].keys()))
-        mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', trial_tag_list=trial_tag_list, metric_dict=data_dict)
-        mv.box_plot_by_trial(save_path=None, ylabel='Scott-Knott Rank Test', xlabel='Model', **kwargs)
+        mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
+        mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
+                             trial_tag_list=self.metrics[metric].keys(),
+                             xticks=self.metrics[metric].keys(),
+                             yticks=list(range(len(self.metrics))),
+                             **kwargs)
+
 
     @exception_handle
     def summary(self, save_path=None, no_print=False, **kwargs):
