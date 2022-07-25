@@ -1151,7 +1151,7 @@ class MetricVisualizer:
             raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
-    def scott_knott_plot(self, save_path=None, **kwargs):
+    def scott_knott_plot(self, save_path=None, plot_type='box', **kwargs):
         from metric_visualizer.external import Rx
         data_dict = {'Scott-Knott Rank Test': {}}
 
@@ -1162,12 +1162,18 @@ class MetricVisualizer:
                 data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
 
         mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
-        mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
-                             trial_tag_list=self.metrics[metric].keys(),
-                             xticks=self.metrics[metric].keys(),
-                             yticks=list(range(len(self.metrics))),
-                             **kwargs)
-
+        if plot_type == 'box':
+            mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
+                                 trial_tag_list=self.metrics[metric].keys(),
+                                 xticks=self.metrics[metric].keys(),
+                                 yticks=list(range(len(self.metrics))),
+                                 **kwargs)
+        else:
+            mv.violin_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
+                                    trial_tag_list=self.metrics[metric].keys(),
+                                    xticks=self.metrics[metric].keys(),
+                                    yticks=list(range(len(self.metrics))),
+                                    **kwargs)
 
     @exception_handle
     def summary(self, save_path=None, no_print=False, **kwargs):
