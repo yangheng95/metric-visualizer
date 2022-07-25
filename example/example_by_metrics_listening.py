@@ -12,7 +12,7 @@ import numpy as np
 
 MV = MetricVisualizer(name='example', trial_tag='Trial ID')
 
-trial_num = 10  # number of different trials,
+trial_num = 3  # number of different trials,
 repeat = 20  # number of repeats
 metric_num = 3  # number of metrics
 
@@ -34,6 +34,9 @@ MV.avg_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf f
 MV.sum_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
 MV.scott_knott_plot(save_path=save_prefix, plot_type='box', minorticks_on=False)  # save fig into .tex and .pdf format
 MV.scott_knott_plot(save_path=save_prefix, plot_type='violin', minorticks_on=False)  # save fig into .tex and .pdf format
+
+MV.A12_bar_plot(save_path=save_prefix)  # save fig into .tex and .pdf format
+
 
 print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
 print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format

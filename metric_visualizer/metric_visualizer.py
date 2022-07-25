@@ -1097,17 +1097,215 @@ class MetricVisualizer:
                 transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
         return transposed_metrics
 
-    @exception_handle
-    def A12_plot(self):
-        raise NotImplementedError()
-
     # @exception_handle
-    # def trial_sk_rank_test_plot(self, save_path=None, **kwargs):
-    #     raise NotImplementedError()
+    def A12_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+        print('You need to install R programming language and install effsize package to use this function')
+        from rpy2 import robjects
+        from rpy2.robjects import pandas2ri
+        pandas2ri.activate()
+        r_cmd = """
+        require(effsize)
 
-    # @exception_handle
-    # def metric_sk_rank_test_plot(self, save_path=None, **kwargs):
-    #     raise NotImplementedError()
+        method1<-c($data1$)
+        method2<-c($data2$)
+
+        categs <- rep(c("method1", "method2"), each=$num$)
+        VD.A(c(method1,method2), categs)
+
+        """
+        plot_metrics = self.transpose()
+        new_plot_metrics = {
+            'large': {trial: [0] for trial in plot_metrics.keys()},
+            'small': {trial: [0] for trial in plot_metrics.keys()},
+            'equal': {trial: [0] for trial in plot_metrics.keys()},
+            'medium': {trial: [0] for trial in plot_metrics.keys()}
+        }
+        count = 0
+        for trial1 in plot_metrics.keys():
+            for trial2 in plot_metrics.keys():
+                for metric in plot_metrics[trial1].keys():
+                    if trial1 != trial2:
+                        cmd = r_cmd.replace('$data1$', ', '.join([str(x) for x in plot_metrics[trial1][metric]]))
+                        cmd = cmd.replace('$data2$', ', '.join([str(x) for x in plot_metrics[trial2][metric]]))
+                        cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
+                        res = robjects.r(cmd)
+                        if 'large' in str(res):
+                            new_plot_metrics['large'][trial1][0] += 1
+                        elif 'medium' in str(res):
+                            new_plot_metrics['medium'][trial1][0] += 1
+                        elif 'small' in str(res):
+                            new_plot_metrics['small'][trial1][0] += 1
+                        elif 'equal' in str(res):
+                            new_plot_metrics['equal'][trial1][0] += 1
+                        elif 'negligible' in str(res):
+                            new_plot_metrics['equal'][trial1][0] += 1
+                        else:
+                            print(res)
+                            raise RuntimeError('Unknown Error')
+        for metric in new_plot_metrics.keys():
+            for trial in new_plot_metrics[metric].keys():
+                new_plot_metrics[metric][trial][0] = round(
+                    new_plot_metrics[metric][trial][0] / (len(plot_metrics) * (len(plot_metrics) - 1)) * 100,
+                    2
+                )
+        plot_metrics = new_plot_metrics
+
+        markers = self.MARKERS[:]
+        colors = self.COLORS[:]
+        hatches = self.HATCHES[:]
+
+        if isinstance(plot_metrics, str):  # warning for early version (<0.4.0)
+            print('Please do not use this function directly for version (<0.4.0)')
+        if not plot_metrics:
+            plot_metrics = self.metrics
+
+        ax = plt.subplot()
+
+        alpha = kwargs.pop('alpha', 1)
+
+        markersize = kwargs.pop('markersize', 3)
+
+        xlabel = kwargs.pop('xlabel', 'xlabel')
+
+        xticks = kwargs.pop('xticks', None)
+
+        ylabel = kwargs.pop('ylabel', 'Percentage or $A_{12}$ effect size')
+
+        yticks = kwargs.pop('yticks', None)
+
+        legend_loc = kwargs.pop('legend_loc', 2)
+
+        hatches = kwargs.pop('hatches', hatches)
+
+        xrotation = kwargs.pop('xrotation', 0)
+
+        yrotation = kwargs.pop('yrotation', 0)
+
+        xlabelshift = kwargs.pop('xlabelshift', 1)
+
+        ylabelshift = kwargs.pop('ylabelshift', 1)
+
+        xtickshift = kwargs.pop('xtickshift', 1)
+
+        ytickshift = kwargs.pop('ytickshift', 1)
+
+        linewidth = kwargs.pop('linewidth', 3)
+
+        widths = kwargs.pop('widths', 0.8)
+
+        minorticks_on = kwargs.pop('minorticks_on', False)
+
+        a12_bar_parts = []
+        total_width = 0.9
+        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            metrics = plot_metrics[metric_name]
+            if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
+                if trial_tag_list:
+                    print('Unequal length of trial_tag_list and trial_num:', trial_tag_list, '<->',
+                          list(metrics.keys()))
+                trial_tag_list = list(metrics.keys())
+            else:
+                trial_tag_list = trial_tag_list
+            metric_num = len(plot_metrics.keys())
+            trial_num = len(plot_metrics[metric_name])
+            width = total_width / metric_num
+            x = np.arange(trial_num)
+            x = x - (total_width - width) / 2
+            x = x + i * width
+            Y = np.array(
+                [np.sum(plot_metrics[m_name][trial]) for m_name in plot_metrics.keys() for trial in
+                 plot_metrics[m_name]
+                 if metric_name == m_name])
+            hatch = random.choice(hatches)
+            hatches.remove(hatch)
+            color = random.choice(colors)
+            colors.remove(color)
+            if save_path:
+                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
+                plt.legend()
+            else:
+                bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
+                a12_bar_parts.append(bar[0])
+                legend_labels = list(plot_metrics.keys())
+                if kwargs.get('legend', True):
+                    plt.legend(a12_bar_parts, legend_labels, loc=legend_loc)
+
+            for i, j in zip(x, Y):
+                plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
+
+            tex_xtick = list(trial_tag_list) if xticks is None else xticks
+
+        plt.grid()
+        if minorticks_on:
+            plt.minorticks_on()
+        plt.xticks(rotation=xrotation)
+        plt.yticks(rotation=yrotation)
+        plt.xlabel('' if xlabel is None else xlabel)
+        plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
+
+        if save_path:
+            global retry_count
+            try:
+                tikz_code = tikzplotlib.get_tikz_code()
+            except ValueError as e:
+                if retry_count > 0:
+                    retry_count -= 1
+
+                    self.traj_plot(save_path, **kwargs)
+                else:
+                    raise RuntimeError(e)
+
+            tex_src = self.bar_plot_tex_template.replace('$tikz_code$', tikz_code)
+
+            tex_src = tex_src.replace('$xticklabel$', ','.join([str(x) for x in tex_xtick]))
+            tex_src = tex_src.replace('$xtick$', ','.join([str(x) for x in range(len(tex_xtick))]))
+            tex_src = tex_src.replace('$xlabel$', xlabel)
+            tex_src = tex_src.replace('$ylabel$',
+                                      ', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
+            tex_src = tex_src.replace('$xtickshift$', str(xtickshift))
+            tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
+            tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
+            tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
+            tex_src = tex_src.replace('ytick style={color=black}',
+                                      'ytick style={color=black},\nlegend columns=-1,'
+                                      '\nwidth=\\textwidth,\nheight=0.5\\textwidth')
+            # print(tex_src[tex_src[len('[\n'):].find(']') + 1:])
+            # tex_src = tex_src[:tex_src.find('[\n') + len('[\n')] + """
+            # enlargelimits=0.1,
+            # legend style={at={(0.7,0.95)},fill=none,draw=none,anchor=north,legend columns=-1},
+            # ybar,
+            # bar width=10pt,
+            # width=\\textwidth,
+            # height=0.5\\textwidth]\n""" + tex_src[tex_src.find(']\n') + 1:]
+
+            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.show()
+            fout = open((save_path + '/' + self.name + '_metric_a12_bar_plot.tikz.tex').lstrip('_'), mode='w',
+                        encoding='utf8')
+            fout.write(tex_src)
+            fout.close()
+
+            texs = find_cwd_files(['.tex', self.name, '_metric_a12_bar_plot'])
+            for pdf in texs:
+                cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_a12_bar_plot'], exclude_key='crop')
+            for pdf in pdfs:
+                cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
+                subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+                # os.system(cmd)
+
+            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
+                    ['crop', self.name]):
+                os.remove(f)
+            print('Tikz plot saved at ', find_cwd_files(['_metric_a12_bar_plot', self.name], exclude_key='crop'))
+        else:
+            plt.show()
+        print('Sum Bar plot finished')
+        plt.close()
 
     @exception_handle
     def _rank_test_by_trial(self):
@@ -1164,14 +1362,10 @@ class MetricVisualizer:
         mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
         if plot_type == 'box':
             mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
-                                 trial_tag_list=self.metrics[metric].keys(),
-                                 xticks=self.metrics[metric].keys(),
                                  yticks=list(range(len(self.metrics))),
                                  **kwargs)
         else:
             mv.violin_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
-                                    trial_tag_list=self.metrics[metric].keys(),
-                                    xticks=self.metrics[metric].keys(),
                                     yticks=list(range(len(self.metrics))),
                                     **kwargs)
 
