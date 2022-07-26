@@ -51,6 +51,7 @@ MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf fo
 MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
 MV.avg_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
 MV.sum_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+MV.A12_bar_plot(save_path=save_prefix)  # save fig into .tex and .pdf format
 MV.scott_knott_plot(save_path=save_prefix, minorticks_on=False)  # save fig into .tex and .pdf format
 
 print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format

@@ -34,23 +34,23 @@ for n_trial in range(trial_num):
 
 
 save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
-
-MV.traj_plot_by_metric(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
-
-MV.scott_knott_plot(save_path=save_prefix, trial_tag_list=['0','1','2','3','4'], plot_type='box', minorticks_on=False)  # save fig into .tex and .pdf format
-MV.scott_knott_plot(save_path=save_prefix, plot_type='violin', minorticks_on=False)  # save fig into .tex and .pdf format
+# MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
+# MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
+# MV.violin_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.box_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.avg_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.sum_bar_plot_by_trial(save_path=save_prefix)  # save fig into .tex and .pdf format
+#
+# MV.traj_plot_by_metric(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
+# MV.violin_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.box_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.box_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.avg_bar_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
+# MV.sum_bar_plot_by_metric(save_path=save_prefix)  # save fig into .tex and .pdf format
+#
+# MV.scott_knott_plot(save_path=save_prefix, trial_tag_list=['0','1','2','3','4'], plot_type='box', minorticks_on=False)  # save fig into .tex and .pdf format
+# MV.scott_knott_plot(save_path=save_prefix, plot_type='violin', minorticks_on=False)  # save fig into .tex and .pdf format
 
 MV.A12_bar_plot(save_path=save_prefix)  # save fig into .tex and .pdf format
 

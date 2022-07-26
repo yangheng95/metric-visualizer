@@ -7,6 +7,7 @@
 import os.path
 import pickle
 import random
+import re
 import shlex
 import subprocess
 from collections import OrderedDict
@@ -1270,6 +1271,10 @@ class MetricVisualizer:
             tex_src = tex_src.replace('ytick style={color=black}',
                                       'ytick style={color=black},\nlegend columns=-1,'
                                       '\nwidth=\\textwidth,\nheight=0.5\\textwidth')
+            tex_src = tex_src.replace('xmajorgrids,\n', '')
+            tex_src = tex_src.replace('ymajorgrids,\n', '')
+            tex_src = tex_src.replace('draw=none,', '')
+            tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
             # print(tex_src[tex_src[len('[\n'):].find(']') + 1:])
             # tex_src = tex_src[:tex_src.find('[\n') + len('[\n')] + """
             # enlargelimits=0.1,
