@@ -11,7 +11,9 @@
 - Scatter plot
 - Bar plot
 - Violin plot
-- Rank test
+- Scott-Knott rank test plot
+- A12 effect size plot
+- Wilconxon Rank test
 - On the way
 
 ## Install
