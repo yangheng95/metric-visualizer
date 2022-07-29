@@ -37,13 +37,14 @@ def legend_without_duplicate_labels(ax):
 def exception_handle(f, disable=False):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if disable:
-            return f(*args, **kwargs)
-        else:
-            try:
-                return f(*args, **kwargs)
-            except Exception as e:
-                print('Exception <{}> found in function <{}>'.format(e, f))
+        # if disable:
+        return f(*args, **kwargs)
+
+    # else:
+    #     try:
+    #         return f(*args, **kwargs)
+    #     except Exception as e:
+    #         print('Exception <{}> found in function <{}>'.format(e, f))
 
     return decorated
 
@@ -304,42 +305,77 @@ class MetricVisualizer:
 
     def traj_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
+        if not kwargs.get('legend_label_list'):
+            kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.traj_plot(plot_metrics, save_path, **kwargs)
 
     def box_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
+        if not kwargs.get('legend_label_list'):
+            kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.box_plot(plot_metrics, save_path, **kwargs)
 
     def avg_bar_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
+        if not kwargs.get('legend_label_list'):
+            kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
     def sum_bar_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
+        if not kwargs.get('legend_label_list'):
+            kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
     def violin_plot_by_metric(self, save_path=None, **kwargs):
         plot_metrics = self.transpose()
+        if not kwargs.get('legend_label_list'):
+            kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
     def traj_plot_by_trial(self, save_path=None, **kwargs):
+        if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
+            kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
+        if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
+            kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
+        kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.traj_plot(plot_metrics, save_path, **kwargs)
 
     def box_plot_by_trial(self, save_path=None, **kwargs):
+        if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
+            kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
+        if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
+            kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
+        kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.box_plot(plot_metrics, save_path, **kwargs)
 
     def avg_bar_plot_by_trial(self, save_path=None, **kwargs):
+        if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
+            kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
+        if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
+            kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
+        kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.avg_bar_plot(plot_metrics, save_path, **kwargs)
 
     def sum_bar_plot_by_trial(self, save_path=None, **kwargs):
+        if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
+            kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
+        if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
+            kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
+        kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.sum_bar_plot(plot_metrics, save_path, **kwargs)
 
     def violin_plot_by_trial(self, save_path=None, **kwargs):
+        if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
+            kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
+        if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
+            kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
+        kwargs.update({'legend_label_list': list(plot_metrics.keys())})
         self.violin_plot(plot_metrics, save_path, **kwargs)
 
     @exception_handle
@@ -357,6 +393,8 @@ class MetricVisualizer:
         alpha = kwargs.pop('alpha', 0.1)
 
         legend_loc = kwargs.pop('legend_loc', 2)
+
+        legend_label_list = kwargs.pop('legend_label_list', [])
 
         markersize = kwargs.pop('markersize', 3)
 
@@ -387,8 +425,7 @@ class MetricVisualizer:
         minorticks_on = kwargs.pop('minorticks_on', False)
 
         traj_parts = []
-        legend_labels = []
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
@@ -443,9 +480,9 @@ class MetricVisualizer:
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
 
             traj_parts.append(avg_point[0])
-            legend_labels.append(metric_name)
-            if kwargs.get('legend', True):
-                plt.legend(traj_parts, legend_labels, loc=legend_loc)
+
+        if kwargs.get('legend', True):
+            plt.legend(traj_parts, legend_label_list, loc=legend_loc)
 
         plt.grid()
         if minorticks_on:
@@ -481,7 +518,7 @@ class MetricVisualizer:
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
@@ -501,7 +538,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', self.name], exclude_key='crop'))
         else:
@@ -536,6 +573,8 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
+        legend_label_list = kwargs.pop('legend_label_list', [])
+
         hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
@@ -557,7 +596,6 @@ class MetricVisualizer:
         minorticks_on = kwargs.pop('minorticks_on', False)
 
         box_parts = []
-        legend_labels = []
         trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
@@ -577,7 +615,6 @@ class MetricVisualizer:
             boxs_parts = ax.boxplot(data, positions=list(range(len(trial_tag_list))), widths=widths, meanline=True)
 
             box_parts.append(boxs_parts['boxes'][0])
-            legend_labels.append(metric_name)
 
             for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
                 plt.setp(boxs_parts[item], color=color)
@@ -595,7 +632,7 @@ class MetricVisualizer:
         plt.xlim(-0.6, len(trial_tag_list) - 0.4)
 
         if kwargs.get('legend', True):
-            plt.legend(box_parts, legend_labels, loc=legend_loc)
+            plt.legend(box_parts, legend_label_list, loc=legend_loc)
 
         if save_path:
             global retry_count
@@ -620,7 +657,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
@@ -640,7 +677,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', self.name], exclude_key='crop'))
         else:
@@ -676,6 +713,8 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
+        legend_label_list = kwargs.pop('legend_label_list', [])
+
         hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
@@ -698,7 +737,7 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for i, metric_name in enumerate(plot_metrics.keys()):
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
@@ -720,20 +759,20 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_path:
-                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
-                plt.legend()
-            else:
-                bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
-                sum_bar_parts.append(bar[0])
-                legend_labels = list(plot_metrics.keys())
-                if kwargs.get('legend', True):
-                    plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
+            bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
+            sum_bar_parts.append(bar[0])
 
-            for i, j in zip(x, Y):
-                plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
+            for i_x, j_x in zip(x, Y):
+                plt.text(i_x, j_x + max(Y) // 100, '%.1f' % j_x, ha='center', va='bottom')
 
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
+
+        if kwargs.get('legend', True):
+            if legend_label_list:
+                plt.legend(sum_bar_parts, legend_label_list, loc=legend_loc)
+            else:
+                legend_label_list = list(plot_metrics.keys())
+                plt.legend(sum_bar_parts, legend_label_list, loc=legend_loc)
 
         plt.grid()
         if minorticks_on:
@@ -765,28 +804,35 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
+            # tex_src = tex_src.replace('ytick style={color=black}',
+            #                           'ytick style={color=black},\nlegend columns=-1,'
+            #                           '\nwidth=\\textwidth,\nheight=0.6\\textwidth')
+            # tex_src = tex_src.replace('xmajorgrids,\n', '')
+            # tex_src = tex_src.replace('ymajorgrids,\n', '')
+            # tex_src = tex_src.replace('draw=none,', '')
+            # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_avg_bar_plot'])
+            texs = find_cwd_files(['.tex', self.name, '_metric_avg_bar_plot'], recursive=1)
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_avg_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, '_metric_avg_bar_plot'], exclude_key='crop', recursive=1)
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', self.name], exclude_key='crop'))
         else:
@@ -822,6 +868,8 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
+        legend_label_list = kwargs.pop('legend_label_list', [])
+
         hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
@@ -844,7 +892,7 @@ class MetricVisualizer:
 
         sum_bar_parts = []
         total_width = 0.9
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for i, metric_name in enumerate(plot_metrics.keys()):
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
@@ -867,20 +915,20 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_path:
-                bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
-                plt.legend()
-            else:
-                bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
-                sum_bar_parts.append(bar[0])
-                legend_labels = list(plot_metrics.keys())
-                if kwargs.get('legend', True):
-                    plt.legend(sum_bar_parts, legend_labels, loc=legend_loc)
+            bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
+            sum_bar_parts.append(bar[0])
 
-            for i, j in zip(x, Y):
-                plt.text(i, j + max(Y) // 100, '%.1f' % j, ha='center', va='bottom')
+            for i_x, j_x in zip(x, Y):
+                plt.text(i_x, j_x + max(Y) // 100, '%.1f' % j_x, ha='center', va='bottom')
 
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
+
+        if kwargs.get('legend', True):
+            if legend_label_list:
+                plt.legend(sum_bar_parts, legend_label_list, loc=legend_loc)
+            else:
+                legend_label_list = list(plot_metrics.keys())
+                plt.legend(sum_bar_parts, legend_label_list, loc=legend_loc)
 
         plt.grid()
         if minorticks_on:
@@ -912,8 +960,15 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
+            # tex_src = tex_src.replace('ytick style={color=black}',
+            #                           'ytick style={color=black},\nlegend columns=-1,'
+            #                           '\nwidth=\\textwidth,\nheight=0.6\\textwidth')
+            # tex_src = tex_src.replace('xmajorgrids,\n', '')
+            # tex_src = tex_src.replace('ymajorgrids,\n', '')
+            # tex_src = tex_src.replace('draw=none,', '')
+            # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
@@ -933,7 +988,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', self.name], exclude_key='crop'))
         else:
@@ -952,9 +1007,6 @@ class MetricVisualizer:
             print('Please do not use this function directly for version (<0.4.0)')
         if not plot_metrics:
             plot_metrics = self.metrics
-
-        legend_labels = []
-
         # def add_label(violin, label):
         #     color = violin["bodies"][0].get_facecolor().flatten()
         #     legend_labels.append((mpatches.Patch(color=color), label))
@@ -974,6 +1026,8 @@ class MetricVisualizer:
         yticks = kwargs.pop('yticks', None)
 
         legend_loc = kwargs.pop('legend_loc', 2)
+
+        legend_label_list = kwargs.pop('legend_label_list', [])
 
         hatches = kwargs.pop('hatches', hatches)
 
@@ -997,7 +1051,7 @@ class MetricVisualizer:
 
         violin_parts = []
         legend_labels = []
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for metric_name in plot_metrics.keys():
             metrics = plot_metrics[metric_name]
 
@@ -1015,16 +1069,14 @@ class MetricVisualizer:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True,
                                        showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
-                legend_labels = list(plot_metrics.keys())
                 if kwargs.get('legend', True):
-                    plt.legend(violin_parts, legend_labels, loc=0)
+                    plt.legend(violin_parts, legend_label_list, loc=0)
             else:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True,
                                        showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
-                legend_labels = list(plot_metrics.keys())
                 if kwargs.get('legend', True):
-                    plt.legend(violin_parts, legend_labels, loc=legend_loc)
+                    plt.legend(violin_parts, legend_label_list, loc=legend_loc)
 
             for pc in violin['bodies']:
                 pc.set_linewidth(linewidth)
@@ -1060,7 +1112,7 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
@@ -1080,7 +1132,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', self.name], exclude_key='crop'))
         else:
@@ -1098,7 +1150,7 @@ class MetricVisualizer:
                 transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
         return transposed_metrics
 
-    # @exception_handle
+    @exception_handle
     def A12_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
         print('You need to install R programming language and install effsize package to use this function')
         from rpy2 import robjects
@@ -1182,6 +1234,8 @@ class MetricVisualizer:
 
         legend_loc = kwargs.pop('legend_loc', 2)
 
+        legend_label_list = kwargs.pop('legend_label_list', [])
+
         hatches = kwargs.pop('hatches', hatches)
 
         xrotation = kwargs.pop('xrotation', 0)
@@ -1204,7 +1258,7 @@ class MetricVisualizer:
 
         a12_bar_parts = []
         total_width = 0.9
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for i, metric_name in enumerate(plot_metrics.keys()):
             metrics = plot_metrics[metric_name]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
@@ -1234,7 +1288,7 @@ class MetricVisualizer:
             else:
                 bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
                 a12_bar_parts.append(bar[0])
-                legend_labels = list(plot_metrics.keys())
+                legend_labels = list(plot_metrics.keys()) if not trial_tag_list else trial_tag_list
                 if kwargs.get('legend', True):
                     plt.legend(a12_bar_parts, legend_labels, loc=legend_loc)
 
@@ -1274,23 +1328,15 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$ytickshift$', str(ytickshift))
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
-            tex_src = tex_src.replace('ytick style={color=black}',
-                                      'ytick style={color=black},\nlegend columns=-1,'
-                                      '\nwidth=\\textwidth,\nheight=0.5\\textwidth')
-            tex_src = tex_src.replace('xmajorgrids,\n', '')
-            tex_src = tex_src.replace('ymajorgrids,\n', '')
-            tex_src = tex_src.replace('draw=none,', '')
-            tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
-            # print(tex_src[tex_src[len('[\n'):].find(']') + 1:])
-            # tex_src = tex_src[:tex_src.find('[\n') + len('[\n')] + """
-            # enlargelimits=0.1,
-            # legend style={at={(0.7,0.95)},fill=none,draw=none,anchor=north,legend columns=-1},
-            # ybar,
-            # bar width=10pt,
-            # width=\\textwidth,
-            # height=0.5\\textwidth]\n""" + tex_src[tex_src.find(']\n') + 1:]
+            # tex_src = tex_src.replace('ytick style={color=black}',
+            #                           'ytick style={color=black},\nlegend columns=-1,'
+            #                           '\nwidth=\\textwidth,\nheight=0.6\\textwidth')
+            # tex_src = tex_src.replace('xmajorgrids,\n', '')
+            # tex_src = tex_src.replace('ymajorgrids,\n', '')
+            # tex_src = tex_src.replace('draw=none,', '')
+            # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/' + self.name + '.pdf', dpi=1000)
+            plt.savefig(save_path + '/A12-' + self.name + '.pdf', dpi=1000)
             plt.show()
             fout = open((save_path + '/' + self.name + '_metric_a12_bar_plot.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
@@ -1310,7 +1356,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files(['_metric_a12_bar_plot', self.name], exclude_key='crop'))
         else:
@@ -1372,11 +1418,11 @@ class MetricVisualizer:
 
         mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
         if plot_type == 'box':
-            mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
+            mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test',
                                  yticks=list(range(len(self.metrics))),
                                  **kwargs)
         else:
-            mv.violin_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test', xlabel='Model',
+            mv.violin_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test',
                                     yticks=list(range(len(self.metrics))),
                                     **kwargs)
 
@@ -1386,7 +1432,7 @@ class MetricVisualizer:
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
         table_data = []
-        trial_tag_list = kwargs.get('trial_tag_list ', self.trial_tag_list)
+        trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
         for mn in self.metrics.keys():
             metrics = self.metrics[mn]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):

@@ -16,7 +16,7 @@ long_description = (cwd / "README.md").read_text(encoding='utf8')
 setup(
     name=__name__,
     version=__version__,
-    description='',
+    description='For easy managing performance metric',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/yangheng95/metric_visualizer',
