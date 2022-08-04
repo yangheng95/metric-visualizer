@@ -7,7 +7,6 @@
 import os.path
 import pickle
 import random
-import re
 import shlex
 import subprocess
 from collections import OrderedDict
@@ -15,6 +14,7 @@ from functools import wraps
 import time
 
 import matplotlib.colors
+import natsort
 import numpy as np
 import tikzplotlib
 from findfile import find_cwd_files
@@ -1179,8 +1179,8 @@ class MetricVisualizer:
             for metric in plot_metrics[trial1].keys():
                 for trial2 in plot_metrics.keys():
                     if trial1 != trial2:
-                        cmd = r_cmd.replace('$data1$', ', '.join([str(x) for x in plot_metrics[trial1][metric]]))
-                        cmd = cmd.replace('$data2$', ', '.join([str(x) for x in plot_metrics[trial2][metric]]))
+                        cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
+                        cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
                         cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
                         res = robjects.r(cmd)
 

@@ -1,5 +1,6 @@
 from copy import deepcopy as kopy
 import random
+import natsort
 from termcolor import colored
 from metric_visualizer import MetricVisualizer
 
@@ -229,7 +230,7 @@ class Rx(Mine):
     @staticmethod
     def data(**d):
         "convert dictionary to list of treatments"
-        ranks = Rx.sk([Rx(k, v) for k, v in d.items()])
+        ranks = Rx.sk(natsort.natsorted([Rx(k, v) for k, v in d.items()]))
         for rx in sorted(ranks):
             Rx.list_algorithm_rank.append([rx.rx, rx.rank])
         return ranks
@@ -250,30 +251,6 @@ class Rx(Mine):
         lo, hi = tmp.vals[0], tmp.vals[-1]
         for rx in sorted(rxs):
             print(THE.rx.show % (rx.rank, rx.rx, rx.tiles()))
-
-    @staticmethod
-    def write(rxs, f):
-        originPath = f.split('/')
-        outputPath = originPath[0] + '/' + originPath[1] + '/' + originPath[2] + '/' + '/' + 'sk_test.txt'
-        "pretty write set of treatments"
-        tmp = Rx.sum(rxs)
-        lo, hi = tmp.vals[0], tmp.vals[-1]
-        with open(outputPath, 'w') as write_f:
-            for rx in sorted(rxs):
-                write_f.write(THE.rx.show % (rx.rank, rx.rx, rx.tiles()) + '\r\n')
-                # print(THE.rx.show % (rx.rank, rx.rx, rx.tiles()) + '\r\n')
-                if rx.rx == 'DaNuoYi_GRU':
-                    Rx.list_algorithm_rank.append(['DaNuoYi-GRU', rx.rank])
-                elif rx.rx == 'DaNuoYi_RNN':
-                    Rx.list_algorithm_rank.append(['DaNuoYi-RNN', rx.rank])
-                elif rx.rx == 'DaNuoYi_LSTM':
-                    Rx.list_algorithm_rank.append(['DaNuoYi-LSTM', rx.rank])
-                elif rx.rx == 'STEA_GRU':
-                    Rx.list_algorithm_rank.append(['STEA-GRU', rx.rank])
-                elif rx.rx == 'STEA_RNN':
-                    Rx.list_algorithm_rank.append(['STEA-RNN', rx.rank])
-                elif rx.rx == 'STEA_LSTM':
-                    Rx.list_algorithm_rank.append(['STEA-LSTM', rx.rank])
 
     @staticmethod
     def sk(rxs):

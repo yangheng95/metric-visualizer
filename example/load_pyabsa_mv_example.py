@@ -20,12 +20,12 @@ max_seq_lens = [50, 60, 70, 80, 90]
 save_prefix = os.getcwd()
 MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
 
-# # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
-MV.violin_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
-MV.box_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
-MV.avg_bar_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
-MV.sum_bar_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
+# # # save fig into .tex and .pdf format
+# MV.traj_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
+# MV.violin_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
+# MV.box_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
+# MV.avg_bar_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
+# MV.sum_bar_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
 
 # MV.traj_plot_by_metric(save_path=save_prefix, xlabel='Metric name', ylabel='', xticks=['Max-Test-Acc', 'Max-Test-F1'], legend_label_list=[50, 60, 70, 80, 90])
 # MV.violin_plot_by_metric(save_path=save_prefix, xlabel='Metric name', ylabel='', xticks=['Max-Test-Acc', 'Max-Test-F1'], legend_label_list=[50, 60, 70, 80, 90])
