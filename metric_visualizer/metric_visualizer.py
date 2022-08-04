@@ -1151,7 +1151,16 @@ class MetricVisualizer:
         return transposed_metrics
 
     @exception_handle
-    def A12_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def A12_bar_plot(self, plot_metrics=None, save_path=None, target_trial=0, **kwargs):
+        """
+
+        :param plot_metrics:
+        :param save_path:
+        :param target_trial: If the target_trial is not 0, plot A12 comparison compared to target_trial.
+        Or plot sum A12 comparison of all trials.
+        :param kwargs:
+        :return:
+        """
         print('You need to install R programming language and install effsize package to use this function')
         from rpy2 import robjects
         from rpy2.robjects import pandas2ri
@@ -1167,47 +1176,90 @@ class MetricVisualizer:
 
         """
         plot_metrics = self.transpose()
-        new_plot_metrics = {
-            'large': {trial: [0] for trial in plot_metrics.keys()},
-            'small': {trial: [0] for trial in plot_metrics.keys()},
-            'equal': {trial: [0] for trial in plot_metrics.keys()},
-            'medium': {trial: [0] for trial in plot_metrics.keys()}
-        }
-        max_num = 0
-        count = 0
-        for trial1 in plot_metrics.keys():
-            for metric in plot_metrics[trial1].keys():
-                for trial2 in plot_metrics.keys():
-                    if trial1 != trial2:
-                        cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
-                        cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
-                        cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
-                        res = robjects.r(cmd)
+        if not target_trial:
+            new_plot_metrics = {
+                'large': {trial: [0] for trial in plot_metrics.keys()},
+                'small': {trial: [0] for trial in plot_metrics.keys()},
+                'equal': {trial: [0] for trial in plot_metrics.keys()},
+                'medium': {trial: [0] for trial in plot_metrics.keys()}
+            }
+            max_num = 0
+            count = 0
+            for trial1 in plot_metrics.keys():
+                for metric in plot_metrics[trial1].keys():
+                    for trial2 in plot_metrics.keys():
+                        if trial1 != trial2:
+                            cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
+                            cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
+                            cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
+                            res = robjects.r(cmd)
 
-                        if 'large' in str(res):
-                            new_plot_metrics['large'][trial1][0] += 1
-                        elif 'medium' in str(res):
-                            new_plot_metrics['medium'][trial1][0] += 1
-                        elif 'small' in str(res):
-                            new_plot_metrics['small'][trial1][0] += 1
-                        elif 'equal' in str(res):
-                            new_plot_metrics['equal'][trial1][0] += 1
-                        elif 'negligible' in str(res):
-                            new_plot_metrics['equal'][trial1][0] += 1
-                        else:
-                            print(res)
-                            raise RuntimeError('Unknown Error')
-                        max_num = max(max_num, new_plot_metrics['large'][trial1][0], new_plot_metrics['medium'][trial1][0],
-                                      new_plot_metrics['small'][trial1][0], new_plot_metrics['equal'][trial1][0])
-                        count += 1
-        count /= len(plot_metrics.keys())
-        for metric in new_plot_metrics.keys():
-            for trial in new_plot_metrics[metric].keys():
-                new_plot_metrics[metric][trial][0] = max(round(
-                    new_plot_metrics[metric][trial][0] / count * 100,
-                    2
-                ), new_plot_metrics[metric][trial][0] / count * 5)
-        plot_metrics = new_plot_metrics
+                            if 'large' in str(res):
+                                new_plot_metrics['large'][trial1][0] += 1
+                            elif 'medium' in str(res):
+                                new_plot_metrics['medium'][trial1][0] += 1
+                            elif 'small' in str(res):
+                                new_plot_metrics['small'][trial1][0] += 1
+                            elif 'equal' in str(res):
+                                new_plot_metrics['equal'][trial1][0] += 1
+                            elif 'negligible' in str(res):
+                                new_plot_metrics['equal'][trial1][0] += 1
+                            else:
+                                print(res)
+                                raise RuntimeError('Unknown Error')
+                            max_num = max(max_num, new_plot_metrics['large'][trial1][0], new_plot_metrics['medium'][trial1][0],
+                                          new_plot_metrics['small'][trial1][0], new_plot_metrics['equal'][trial1][0])
+                            count += 1
+            count /= len(plot_metrics.keys())
+            for metric in new_plot_metrics.keys():
+                for trial in new_plot_metrics[metric].keys():
+                    new_plot_metrics[metric][trial][0] = max(round(
+                        new_plot_metrics[metric][trial][0] / count * 100,
+                        2
+                    ), new_plot_metrics[metric][trial][0] / count * 5)
+            plot_metrics = new_plot_metrics
+
+        elif target_trial:
+            new_plot_metrics = {
+                'large': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
+                'small': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
+                'equal': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
+                'medium': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
+            }
+            max_num = 0
+            count = 0
+            trial1 = list(plot_metrics.keys())[target_trial]
+            for trial2 in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]:
+                for metric in plot_metrics[trial2].keys():
+                    cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
+                    cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
+                    cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
+                    res = robjects.r(cmd)
+
+                    if 'large' in str(res):
+                        new_plot_metrics['large'][trial2][0] += 1
+                    elif 'medium' in str(res):
+                        new_plot_metrics['medium'][trial2][0] += 1
+                    elif 'small' in str(res):
+                        new_plot_metrics['small'][trial2][0] += 1
+                    elif 'equal' in str(res):
+                        new_plot_metrics['equal'][trial2][0] += 1
+                    elif 'negligible' in str(res):
+                        new_plot_metrics['equal'][trial2][0] += 1
+                    else:
+                        print(res)
+                        raise RuntimeError('Unknown Error')
+                    max_num = max(max_num, new_plot_metrics['large'][trial2][0], new_plot_metrics['medium'][trial2][0],
+                                  new_plot_metrics['small'][trial2][0], new_plot_metrics['equal'][trial2][0])
+                    count += 1
+            count /= (len(plot_metrics.keys()) - 1)
+            for metric in new_plot_metrics.keys():
+                for trial in new_plot_metrics[metric].keys():
+                    new_plot_metrics[metric][trial][0] = max(round(
+                        new_plot_metrics[metric][trial][0] / count * 100,
+                        2
+                    ), new_plot_metrics[metric][trial][0] / count * 5)
+            plot_metrics = new_plot_metrics
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]

@@ -34,4 +34,5 @@ MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf 
 # MV.sum_bar_plot_by_metric(save_path=save_prefix, xlabel='Metric name', ylabel='', xticks=['Max-Test-Acc', 'Max-Test-F1'], legend_label_list=[50, 60, 70, 80, 90])
 
 MV.scott_knott_plot(save_path=save_prefix, xticks=max_seq_lens, xlabel='Max modeling length', minorticks_on=False)
-MV.A12_bar_plot(save_path=save_prefix, xticks=max_seq_lens, xlabel='Max modeling length', minorticks_on=False)
+MV.A12_bar_plot(save_path=save_prefix, target_trial=0, xticks=max_seq_lens, xlabel='Max modeling length', minorticks_on=False)
+MV.A12_bar_plot(save_path=save_prefix, target_trial=1, xticks=max_seq_lens, xlabel='Max modeling length', minorticks_on=False)
