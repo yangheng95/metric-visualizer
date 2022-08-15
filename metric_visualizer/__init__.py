@@ -5,7 +5,16 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 __name__ = 'metric_visualizer'
 
+
 from .metric_visualizer import MetricVisualizer
+
+from update_checker import UpdateChecker
+
+checker = UpdateChecker()
+check_result = checker.check(__name__, __version__)
+
+if check_result:
+    print(check_result)

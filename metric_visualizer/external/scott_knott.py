@@ -369,4 +369,3 @@ def bsTest(n=1000, mu1=10, sigma1=1, mu2=10.2, sigma2=1):
     y = [g(mu2, sigma2) for i in range(n)]
     return n, mu1, sigma1, mu2, sigma2, \
            'same' if bootstrap(x, y) else 'different'
-

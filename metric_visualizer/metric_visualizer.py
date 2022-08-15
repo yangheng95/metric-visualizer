@@ -37,14 +37,10 @@ def legend_without_duplicate_labels(ax):
 def exception_handle(f, disable=False):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # if disable:
-        return f(*args, **kwargs)
-
-    # else:
-    #     try:
-    #         return f(*args, **kwargs)
-    #     except Exception as e:
-    #         print('Exception <{}> found in function <{}>'.format(e, f))
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            print('Exception <{}> found in function <{}>, you can retry which may work'.format(e, f))
 
     return decorated
 
@@ -75,7 +71,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\normalsize,
+            font=\Large,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             ylabel = {$ylabel$},
@@ -116,7 +112,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\normalsize,
+            font=\Large,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             ylabel = {$ylabel$},
@@ -158,7 +154,7 @@ class MetricVisualizer:
         \pgfplotsset{ compat=1.3,every axis/.append style={
             grid = major,
             thick,
-            font=\normalsize,
+            font=\Large,
             xticklabels={$xticklabel$},
             xtick={$xtick$},
             ylabel = {$ylabel$},
@@ -197,7 +193,7 @@ class MetricVisualizer:
         \pgfplotsset{every axis/.append style={
             grid = major,
             thick,
-            font=\normalsize,
+            font=\Large,
             xtick={$xtick$},
             xticklabels={$xticklabel$},
             xlabel = {$xlabel$},
@@ -236,18 +232,18 @@ class MetricVisualizer:
     def set_traj_plot_tex_template(self, traj_plot_tex_template):
         self.traj_plot_tex_template = traj_plot_tex_template
 
-    def __init__(self, name='', trial_tag='', trial_tag_list=None, metric_dict=None):
+    def __init__(self, name='unnamed', trial_tag='', trial_tag_list=None, metric_dict=None):
         """
         Used for plotting, e.g.,
             'Metric1': {
-                'trial-0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
-                'train-1': [64.53, 58.33, 97.89, 68.12, 88.6, 60.33, 70.99, 75.91, 42.49, 15.03],
-                'train-2': [97.74, 86.05, 41.34, 81.66, 75.08, 1.76, 94.63, 27.26, 47.11, 42.06],
+                'trial0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
+                'train1': [64.53, 58.33, 97.89, 68.12, 88.6, 60.33, 70.99, 75.91, 42.49, 15.03],
+                'train2': [97.74, 86.05, 41.34, 81.66, 75.08, 1.76, 94.63, 27.26, 47.11, 42.06],
             },
             'Metric2': {
-                'trial-0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44] ,
-                'train-1': [187.58, 106.35, 134.22, 167.68, 188.24, 196.54, 154.21, 193.71, 183.34, 150.18],
-                'train-2': [159.24, 148.44, 119.49, 160.24, 169.6, 133.27, 129.36, 180.36, 165.24, 152.38],
+                'trial0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44] ,
+                'train1': [187.58, 106.35, 134.22, 167.68, 188.24, 196.54, 154.21, 193.71, 183.34, 150.18],
+                'train2': [159.24, 148.44, 119.49, 160.24, 169.6, 133.27, 129.36, 180.36, 165.24, 152.38],
             }
 
         :param metric_dict: If you want to plot figure, it is recommended to add multiple trial experiments. In these trial, the experimental results
@@ -273,15 +269,16 @@ class MetricVisualizer:
 
             self.metrics = OrderedDict(
                 {
+                    # Example data:
                     # 'Metric1': {
-                    #     'trial-0': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                    #     'train-1': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
-                    #     'train-2': [80.41, 79.78, 81.03, 80.09, 79.62, 80.56, 80.88, 79.94, 79.47, 79.78, 80.72, 79.78, 81.35, 80.88, 81.03],
+                    #     'trial0': [77.06, 2.52, 35.14, 3.04, 77.29, 3.8, 57.4, 38.52, 60.36, 22.45],
+                    #     'train1': [64.53, 58.33, 97.89, 68.12, 88.6, 60.33, 70.99, 75.91, 42.49, 15.03],
+                    #     'train2': [97.74, 86.05, 41.34, 81.66, 75.08, 1.76, 94.63, 27.26, 47.11, 42.06],
                     # },
                     # 'Metric2': {
-                    #     'trial-0': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                    #     'train-1': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
-                    #     'train-2': [76.79, 75.49, 77.92, 77.21, 75.63, 76.96, 77.44, 76.26, 76.35, 76.12, 76.12, 76.78, 75.64, 77.31, 73.79],
+                    #     'trial0': [111.5, 105.61, 179.08, 167.25, 181.85, 152.75, 194.82, 130.86, 108.51, 151.44],
+                    #     'train1': [187.58, 106.35, 134.22, 167.68, 188.24, 196.54, 154.21, 193.71, 183.34, 150.18],
+                    #     'train2': [159.24, 148.44, 119.49, 160.24, 169.6, 133.27, 129.36, 180.36, 165.24, 152.38],
                     # }
                 })
         else:
@@ -303,83 +300,103 @@ class MetricVisualizer:
         else:
             self.metrics[metric_name] = {'trial{}'.format(self.trial_id): [value]}
 
-    def traj_plot_by_metric(self, save_path=None, **kwargs):
+    def traj_plot_by_metric(self, filename='traj_plot_by_metric', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.traj_plot(plot_metrics, save_path, **kwargs)
+        self.traj_plot(plot_metrics, filename, **kwargs)
 
-    def box_plot_by_metric(self, save_path=None, **kwargs):
+    def box_plot_by_metric(self, filename='box_plot_by_metric', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.box_plot(plot_metrics, save_path, **kwargs)
+        self.box_plot(plot_metrics, filename, **kwargs)
 
-    def avg_bar_plot_by_metric(self, save_path=None, **kwargs):
+    def avg_bar_plot_by_metric(self, filename='avg_bar_plot_by_metric', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
+        self.avg_bar_plot(plot_metrics, filename, **kwargs)
 
-    def sum_bar_plot_by_metric(self, save_path=None, **kwargs):
+    def sum_bar_plot_by_metric(self, filename='sum_bar_plot_by_metric', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
+        self.sum_bar_plot(plot_metrics, filename, **kwargs)
 
-    def violin_plot_by_metric(self, save_path=None, **kwargs):
+    def violin_plot_by_metric(self, filename='violin_plot_by_metric', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.violin_plot(plot_metrics, save_path, **kwargs)
+        self.violin_plot(plot_metrics, filename, **kwargs)
 
-    def traj_plot_by_trial(self, save_path=None, **kwargs):
+    def traj_plot_by_trial(self, filename='traj_plot_by_trial', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
             kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
         kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.traj_plot(plot_metrics, save_path, **kwargs)
+        self.traj_plot(plot_metrics, filename, **kwargs)
 
-    def box_plot_by_trial(self, save_path=None, **kwargs):
+    def box_plot_by_trial(self, filename='box_plot_by_trial', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
             kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
         kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.box_plot(plot_metrics, save_path, **kwargs)
+        self.box_plot(plot_metrics, filename, **kwargs)
 
-    def avg_bar_plot_by_trial(self, save_path=None, **kwargs):
+    def avg_bar_plot_by_trial(self, filename='avg_bar_plot_by_trial', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
             kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
         kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.avg_bar_plot(plot_metrics, save_path, **kwargs)
+        self.avg_bar_plot(plot_metrics, filename, **kwargs)
 
-    def sum_bar_plot_by_trial(self, save_path=None, **kwargs):
+    def sum_bar_plot_by_trial(self, filename='sum_bar_plot_by_trial', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
             kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
         kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.sum_bar_plot(plot_metrics, save_path, **kwargs)
+        self.sum_bar_plot(plot_metrics, filename, **kwargs)
 
-    def violin_plot_by_trial(self, save_path=None, **kwargs):
+    def violin_plot_by_trial(self, filename='violin_plot_by_trial', **kwargs):
+        if kwargs.pop('save_path', None):
+            print('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
             kwargs.update({'xticks': kwargs.get('trial_tag_list', [])})
         plot_metrics = self.metrics
         kwargs.update({'legend_label_list': list(plot_metrics.keys())})
-        self.violin_plot(plot_metrics, save_path, **kwargs)
+        self.violin_plot(plot_metrics, filename, **kwargs)
 
     @exception_handle
-    def traj_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def traj_plot(self, plot_metrics=None, filename=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -493,7 +510,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -501,7 +518,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -518,20 +535,21 @@ class MetricVisualizer:
 
             # tex_src = fix_tex_traj_plot_legend(tex_src, self.metrics)
 
-            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_traj_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_traj_plot'])
+            texs = find_cwd_files(['.tex', self.name, filename])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_traj_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -540,14 +558,14 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
                 ['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_traj_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Traj plot finished')
         plt.close()
 
     @exception_handle
-    def box_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def box_plot(self, plot_metrics=None, filename=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -634,7 +652,7 @@ class MetricVisualizer:
         if kwargs.get('legend', True):
             plt.legend(box_parts, legend_label_list, loc=legend_loc)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -642,7 +660,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -657,20 +675,21 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_box_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_box_plot'])
+            texs = find_cwd_files(['.tex', self.name, filename])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_box_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -679,14 +698,14 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
                 ['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_box_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Box plot finished')
         plt.close()
 
     @exception_handle
-    def avg_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def avg_bar_plot(self, plot_metrics=None, filename=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -782,7 +801,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -790,7 +809,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -812,20 +831,21 @@ class MetricVisualizer:
             # tex_src = tex_src.replace('draw=none,', '')
             # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_avg_bar_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_avg_bar_plot'], recursive=1)
+            texs = find_cwd_files(['.tex', self.name, filename], recursive=1)
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_avg_bar_plot'], exclude_key='crop', recursive=1)
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop', recursive=1)
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -834,14 +854,14 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
                 ['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_avg_bar_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Avg Bar plot finished')
         plt.close()
 
     @exception_handle
-    def sum_bar_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def sum_bar_plot(self, plot_metrics=None, filename=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -938,7 +958,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -946,7 +966,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -968,20 +988,21 @@ class MetricVisualizer:
             # tex_src = tex_src.replace('draw=none,', '')
             # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_sum_bar_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_sum_bar_plot'])
+            texs = find_cwd_files(['.tex', self.name, filename])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_sum_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -990,14 +1011,14 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
                 ['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_sum_bar_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Sum Bar plot finished')
         plt.close()
 
     @exception_handle
-    def violin_plot(self, plot_metrics=None, save_path=None, **kwargs):
+    def violin_plot(self, plot_metrics=None, filename=None, **kwargs):
 
         markers = self.MARKERS[:]
         colors = self.COLORS[:]
@@ -1065,7 +1086,7 @@ class MetricVisualizer:
             tex_xtick = list(trial_tag_list) if xticks is None else xticks
             data = [metrics[trial] for trial in metrics.keys()]
 
-            if save_path:
+            if filename:
                 violin = ax.violinplot(data, widths=widths, positions=list(range(len(trial_tag_list))), showmeans=True,
                                        showmedians=True, showextrema=True)
                 violin_parts.append(violin['bodies'][0])
@@ -1089,7 +1110,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -1097,7 +1118,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -1112,20 +1133,21 @@ class MetricVisualizer:
             tex_src = tex_src.replace('$xlabelshift$', str(xlabelshift))
             tex_src = tex_src.replace('$ylabelshift$', str(ylabelshift))
 
-            plt.savefig(save_path + '/' + self.name + '.matplotlib.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_violin_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_violin_plot'])
+            texs = find_cwd_files(['.tex', self.name, filename])
             for pdf in texs:
                 cmd = 'pdflatex "{}"'.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_violin_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}"'.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -1134,34 +1156,23 @@ class MetricVisualizer:
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
                 ['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_violin_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Violin plot finished')
         plt.close()
 
     @exception_handle
-    def transpose(self):
-        transposed_metrics = OrderedDict()
-        for metric_name in self.metrics.keys():
-            for trial_tag_list in self.metrics[metric_name].keys():
-                if trial_tag_list not in transposed_metrics:
-                    transposed_metrics[trial_tag_list] = {}
-                transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
-        return transposed_metrics
-
-    @exception_handle
-    def A12_bar_plot(self, plot_metrics=None, save_path=None, target_trial=0, **kwargs):
+    def A12_bar_plot(self, filename='A12_bar_plot', target_trial=0, **kwargs):
         """
-
-        :param plot_metrics:
-        :param save_path:
+        :param filename:
         :param target_trial: If the target_trial is not 0, plot A12 comparison compared to target_trial.
         Or plot sum A12 comparison of all trials.
         :param kwargs:
         :return:
         """
-        print('You need to install R programming language and install effsize package to use this function')
+        print('You need to install R programming language (https://cran.r-project.org/mirrors.html).'
+              'Moreover, you need to install "effsize" by R prompt: \ninstall.packages("effsize")\n')
         from rpy2 import robjects
         from rpy2.robjects import pandas2ri
         pandas2ri.activate()
@@ -1334,7 +1345,7 @@ class MetricVisualizer:
             hatches.remove(hatch)
             color = random.choice(colors)
             colors.remove(color)
-            if save_path:
+            if filename:
                 bar = plt.bar(x, Y, width=width, label=metric_name, hatch=hatch, color=color)
                 plt.legend()
             else:
@@ -1357,7 +1368,7 @@ class MetricVisualizer:
         plt.xlabel('' if xlabel is None else xlabel)
         plt.ylabel(', '.join(list(plot_metrics.keys())) if ylabel is None else ylabel)
 
-        if save_path:
+        if filename:
             global retry_count
             try:
                 tikz_code = tikzplotlib.get_tikz_code()
@@ -1365,7 +1376,7 @@ class MetricVisualizer:
                 if retry_count > 0:
                     retry_count -= 1
 
-                    self.traj_plot(save_path, **kwargs)
+                    self.traj_plot(filename, **kwargs)
                 else:
                     raise RuntimeError(e)
 
@@ -1388,33 +1399,67 @@ class MetricVisualizer:
             # tex_src = tex_src.replace('draw=none,', '')
             # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
-            plt.savefig(save_path + '/A12-' + self.name + '.pdf', dpi=1000)
+            prefix = self.name + '.' if self.name else ''
+            plt.savefig(filename + prefix + 'matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((save_path + '/' + self.name + '_metric_a12_bar_plot.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
 
-            texs = find_cwd_files(['.tex', self.name, '_metric_a12_bar_plot'])
+            texs = find_cwd_files(['.tex', self.name, filename])
             for pdf in texs:
                 cmd = 'pdflatex "{}" '.format(pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            pdfs = find_cwd_files(['.pdf', self.name, '_metric_a12_bar_plot'], exclude_key='crop')
+            pdfs = find_cwd_files(['.pdf', self.name, filename], exclude_key='crop')
             for pdf in pdfs:
                 cmd = 'pdfcrop "{}" "{}" '.format(pdf, pdf).replace(os.path.sep, '/')
                 subprocess.check_call(shlex.split(cmd), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
                 # os.system(cmd)
 
-            for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+            for f in find_cwd_files(['.aux', self.name]) + \
+                     find_cwd_files(['.log', self.name]) + \
+                     find_cwd_files(['crop', self.name]):
                 os.remove(f)
-            print('Tikz plot saved at ', find_cwd_files(['_metric_a12_bar_plot', self.name], exclude_key='crop'))
+            print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
             plt.show()
         print('Sum Bar plot finished')
         plt.close()
+
+    @exception_handle
+    def scott_knott_plot(self, filename='scott_knott_plot', plot_type='box', **kwargs):
+        from metric_visualizer.external import Rx
+        data_dict = {'Scott-Knott Rank Test': {}}
+
+        for metric in self.metrics:
+            Rx.data(**self.metrics[metric])
+            for i, d in enumerate(Rx.list_algorithm_rank):
+                data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
+                data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
+
+        mv = MetricVisualizer(name=self.name+'.sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
+        filename += '.' + plot_type
+        if plot_type == 'box':
+            mv.box_plot_by_trial(filename=filename, ylabel='Scott-Knott Rank Test',
+                                 yticks=list(range(len(self.metrics))),
+                                 **kwargs)
+        else:
+            mv.violin_plot_by_trial(filename=filename, ylabel='Scott-Knott Rank Test',
+                                    yticks=list(range(len(self.metrics))),
+                                    **kwargs)
+
+    @exception_handle
+    def transpose(self):
+        transposed_metrics = OrderedDict()
+        for metric_name in self.metrics.keys():
+            for trial_tag_list in self.metrics[metric_name].keys():
+                if trial_tag_list not in transposed_metrics:
+                    transposed_metrics[trial_tag_list] = {}
+                transposed_metrics[trial_tag_list][metric_name] = self.metrics[metric_name][trial_tag_list]
+        return transposed_metrics
 
     @exception_handle
     def _rank_test_by_trial(self):
@@ -1458,28 +1503,7 @@ class MetricVisualizer:
             raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
-    def scott_knott_plot(self, save_path=None, plot_type='box', **kwargs):
-        from metric_visualizer.external import Rx
-        data_dict = {'Scott-Knott Rank Test': {}}
-
-        for metric in self.metrics:
-            Rx.data(**self.metrics[metric])
-            for i, d in enumerate(Rx.list_algorithm_rank):
-                data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
-                data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
-
-        mv = MetricVisualizer(name='sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
-        if plot_type == 'box':
-            mv.box_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test',
-                                 yticks=list(range(len(self.metrics))),
-                                 **kwargs)
-        else:
-            mv.violin_plot_by_trial(save_path=save_path, ylabel='Scott-Knott Rank Test',
-                                    yticks=list(range(len(self.metrics))),
-                                    **kwargs)
-
-    @exception_handle
-    def summary(self, save_path=None, no_print=False, **kwargs):
+    def summary(self, filename=None, no_print=False, **kwargs):
         summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
@@ -1517,8 +1541,9 @@ class MetricVisualizer:
         if not no_print:
             print(summary_str)
 
-        if save_path:
-            fout = open(save_path + '/' + self.name + '_summary.txt', mode='w', encoding='utf8')
+        if filename:
+            prefix = self.name + '.' if self.name else ''
+            fout = open(prefix + filename + '_summary.txt', mode='w', encoding='utf8')
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()

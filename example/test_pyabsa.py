@@ -49,13 +49,13 @@ for eta in max_seq_lens:
 
 save_prefix = '{}_{}'.format(apc_config_english.model_name, apc_config_english.dataset_name)
 
-MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig into .tex and .pdf format
-MV.scott_knott_plot(save_path=save_prefix, minorticks_on=False, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig into .tex and .pdf format
+MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
+MV.traj_plot_by_trial(save_path=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig_preview into .tex and .pdf format
+MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig_preview into .tex and .pdf format
+MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig_preview into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig_preview into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig_preview into .tex and .pdf format
+MV.scott_knott_plot(save_path=save_prefix, minorticks_on=False, xticks=max_seq_lens, xlabel=r'$\eta$')  # save fig_preview into .tex and .pdf format
 
-# print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
-# print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format
+# print(MV.rank_test_by_trail('trial0'))  # save fig_preview into .tex and .pdf format
+# print(MV.rank_test_by_metric('metric1'))  # save fig_preview into .tex and .pdf format

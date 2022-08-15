@@ -29,5 +29,12 @@ setup(
     exclude_package_date={'': ['.gitignore']},
     # Choose your license
     license='MIT',
-    install_requires=['matplotlib', 'tikzplotlib', 'findfile', 'scipy', 'tabulate', 'natsort'],
+    install_requires=['matplotlib',
+                      'tikzplotlib',
+                      'findfile',
+                      'scipy',
+                      'tabulate',
+                      'natsort',
+                      'numpy',
+                      ],
 )

@@ -18,9 +18,9 @@ MV = MetricVisualizer(name='example', metric_dict=metric_dict)
 #
 max_seq_lens = [50, 60, 70, 80, 90]
 save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
+MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
 
-# # # save fig into .tex and .pdf format
+# # # save fig_preview into .tex and .pdf format
 # MV.traj_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
 # MV.violin_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)
 # MV.box_plot_by_trial(save_path=save_prefix, xlabel='Max modeling length', ylabel='Metric', xticks=max_seq_lens)

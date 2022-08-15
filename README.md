@@ -1,4 +1,5 @@
 # MetricVisualizer - for easy managing performance metric
+
 ![PyPI - Python Version](https://img.shields.io/badge/python-3.6-blue.svg)
 [![PyPI](https://img.shields.io/pypi/v/metric-visualizer)](https://pypi.org/project/metric-visualizer/)
 [![Downloads](https://pepy.tech/badge/metric-visualizer)](https://pepy.tech/project/metric-visualizer)
@@ -6,6 +7,7 @@
 [![Downloads](https://pepy.tech/badge/metric-visualizer/week)](https://pepy.tech/project/metric-visualizer)
 
 ## Automated metric visualization for comparison experiments
+
 - Box plot
 - Trajectory plot
 - Scatter plot
@@ -17,6 +19,7 @@
 - On the way
 
 ## Install
+
 If you want to make tikz(latex) plots, you need to install texlive (other latex release version are not tested).
 
 ```bash
@@ -24,11 +27,13 @@ pip install metric_visualizer
 ```
 
 ## 用法说明 Usage
+
 假设存在多组对比实验(或者一组参数设置)，则称之为trial，每组实验存在多个metric(例如AUC，Accuracy，F1，Loss等)，
 每组参照实验重复n词，则使用以下方法监听实验结果：
-Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with multiple metrics (e.g., AUC, accuracy, F1, loss, etc.) for each set of experiments.
-Repeat n words for each set of reference experiments, and then listen to the results of the experiments using the following method.
-
+Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with
+multiple metrics (e.g., AUC, accuracy, F1, loss, etc.) for each set of experiments.
+Repeat n words for each set of reference experiments, and then listen to the results of the experiments using the
+following method.
 
 ```python
 import numpy as np
@@ -50,30 +55,31 @@ for trial in range(trial_num):
 ```
 
 画图代码如下：
+
 ```python
 
 save_prefix = None
-MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
-MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig into .tex and .pdf format
-MV.violin_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.box_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig into .tex and .pdf format
+MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
+MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig_preview into .tex and .pdf format
+MV.violin_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
+MV.box_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
+MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
+MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
 
 # 此函数适合对比不同模型性能，每个模型代表一个trial，综合多个metric进行Scott-Knott Rank Test，并绘制箱型图
 MV.scott_knott_plot(save_name=save_prefix, minorticks_on=False)  
 
-print(MV.rank_test_by_trail('trial0'))  # save fig into .tex and .pdf format
-print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format
+print(MV.rank_test_by_trail('trial0'))  # save fig_preview into .tex and .pdf format
+print(MV.rank_test_by_metric('metric1'))  # save fig_preview into .tex and .pdf format
 
 
 # save_path = None
-# MV.summary(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.traj_plot_by_metric(save_path=save_path, xlabel='', xrotation=30)  # save fig into .tex and .pdf format
-# MV.violin_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.box_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.avg_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
-# MV.sum_bar_plot_by_metric(save_path=save_path)  # save fig into .tex and .pdf format
+# MV.summary(save_path=save_path)  # save fig_preview into .tex and .pdf format
+# MV.traj_plot_by_metric(save_path=save_path, xlabel='', xrotation=30)  # save fig_preview into .tex and .pdf format
+# MV.violin_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
+# MV.box_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
+# MV.avg_bar_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
+# MV.sum_bar_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
 
 ```
 
@@ -114,27 +120,28 @@ print(MV.rank_test_by_metric('metric1'))  # save fig into .tex and .pdf format
 ╘══════════╧═════════╧══════════════════════════════════════════════════════════════╧═════════════════════════════════════════════════════════════╛
  -------------------- Metric Summary --------------------
 ```
+
 ## Plot via Matplotlib (or Tikz)
 
-### Traj Plot [tikz version](fig/example_metric_traj_plot.pdf)
+### Traj Plot [tikz version](fig_preview/example_metric_traj_plot.pdf)
 
-![traj_plot_example](fig/traj_plot_example.png)
+![traj_plot_example](fig_preview/traj_plot_example.png)
 
-### Box Plot [tikz version](fig/example_metric_box_plot.pdf)
+### Box Plot [tikz version](fig_preview/example_metric_box_plot.pdf)
 
-![box_plot_example](fig/box_plot_example.png)
+![box_plot_example](fig_preview/box_plot_example.png)
 
-### Violin Plot [tikz version](fig/example_metric_violin_plot.pdf)
+### Violin Plot [tikz version](fig_preview/example_metric_violin_plot.pdf)
 
-![violin_plot_example](fig/violin_plot_example.png)
+![violin_plot_example](fig_preview/violin_plot_example.png)
 
-### Average Bar Plot [tikz version](fig/example_metric_avg_bar_plot.pdf)
+### Average Bar Plot [tikz version](fig_preview/example_metric_avg_bar_plot.pdf)
 
-![violin_plot_example](fig/avg_bar_plot_example.png)
+![violin_plot_example](fig_preview/avg_bar_plot_example.png)
 
-### Sum Bar Plot [tikz version](fig/example_metric_sum_bar_plot.pdf)
+### Sum Bar Plot [tikz version](fig_preview/example_metric_sum_bar_plot.pdf)
 
-![violin_plot_example](fig/sum_bar_plot_example.png)
+![violin_plot_example](fig_preview/sum_bar_plot_example.png)
 
 ## Real Usage Example in PyABSA
 
@@ -174,9 +181,9 @@ for max_seq_len in max_seq_lens:
     config.MV.next_trial()
 
 save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)  # save fig into .tex and .pdf format
+MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
 
- # save fig into .tex and .pdf format
+ # save fig_preview into .tex and .pdf format
 MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
 MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
 MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
