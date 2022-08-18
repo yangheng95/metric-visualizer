@@ -1163,7 +1163,7 @@ class MetricVisualizer:
         plt.close()
 
     @exception_handle
-    def A12_bar_plot(self, filename='A12_bar_plot', target_trial=0, **kwargs):
+    def A12_bar_plot(self, filename='A12_bar_plot', target_trial=None, **kwargs):
         """
         :param filename:
         :param target_trial: If the target_trial is not 0, plot A12 comparison compared to target_trial.
@@ -1190,9 +1190,9 @@ class MetricVisualizer:
         if not target_trial:
             new_plot_metrics = {
                 'large': {trial: [0] for trial in plot_metrics.keys()},
+                'medium': {trial: [0] for trial in plot_metrics.keys()},
                 'small': {trial: [0] for trial in plot_metrics.keys()},
                 'equal': {trial: [0] for trial in plot_metrics.keys()},
-                'medium': {trial: [0] for trial in plot_metrics.keys()}
             }
             max_num = 0
             count = 0
@@ -1230,17 +1230,17 @@ class MetricVisualizer:
                     ), new_plot_metrics[metric][trial][0] / count * 5)
             plot_metrics = new_plot_metrics
 
-        elif target_trial:
+        elif target_trial >= 0:
             new_plot_metrics = {
-                'large': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
-                'small': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
-                'equal': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
-                'medium': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]},
+                'large': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'medium': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'small': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'equal': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
             }
             max_num = 0
             count = 0
             trial1 = list(plot_metrics.keys())[target_trial]
-            for trial2 in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial:]:
+            for trial2 in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]:
                 for metric in plot_metrics[trial2].keys():
                     cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
                     cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
@@ -1440,7 +1440,7 @@ class MetricVisualizer:
                 data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
                 data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
 
-        mv = MetricVisualizer(name=self.name+'.sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
+        mv = MetricVisualizer(name=self.name + '.sk_rank', trial_tag='Scott-Knott Rank Test', metric_dict=data_dict)
         filename += '.' + plot_type
         if plot_type == 'box':
             mv.box_plot_by_trial(filename=filename, ylabel='Scott-Knott Rank Test',
