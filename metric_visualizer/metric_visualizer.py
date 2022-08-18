@@ -1187,7 +1187,7 @@ class MetricVisualizer:
 
         """
         plot_metrics = self.transpose()
-        if not target_trial:
+        if target_trial is None:
             new_plot_metrics = {
                 'large': {trial: [0] for trial in plot_metrics.keys()},
                 'medium': {trial: [0] for trial in plot_metrics.keys()},
