@@ -5,7 +5,7 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = '0.5.6'
+__version__ = '0.5.7'
 __name__ = 'metric_visualizer'
 
 

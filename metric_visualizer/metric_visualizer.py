@@ -19,6 +19,7 @@ import numpy as np
 import tikzplotlib
 from findfile import find_cwd_files
 from matplotlib import pyplot as plt
+from numpy import ndarray
 from scipy.stats import iqr
 from scipy.stats import ranksums
 from tabulate import tabulate
@@ -286,6 +287,21 @@ class MetricVisualizer:
 
         self.trial_id = 0
         self.dump_pointer = None
+
+    def remove_outliers(self, outlier_constant=1.5):
+        try:
+            from pandas import DataFrame
+        except ImportError:
+            raise ImportError('Please install pandas to remove outliers: pip install pandas')
+        for metric_name, metric_data in self.metrics.items():
+            for trial_name, trial_data in metric_data.items():
+                data = DataFrame(trial_data)
+                a = data.quantile(0.75)
+                b = data.quantile(0.25)
+                c = data
+                c[(c >= (a - b) * 1.5 + a) | (c <= b - (a - b) * outlier_constant)] = np.nan
+                c.fillna(c.median(), inplace=True)
+                self.metrics[metric_name][trial_name] = [x[0] for x in c.values.tolist()]
 
     def next_trial(self):
         self.trial_id += 1
