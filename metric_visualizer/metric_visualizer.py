@@ -1462,45 +1462,47 @@ class MetricVisualizer:
         return transposed_metrics
 
     @exception_handle
-    def _rank_test_by_trial(self):
+    def _rank_test_by_trial(self, **kwargs):
         transposed_metrics = self.transpose()
         for trial in transposed_metrics.keys():
             self.trial_rank_test_result[trial] = {}
             for metric1 in transposed_metrics[trial].keys():
                 for metric2 in transposed_metrics[trial].keys():
                     if metric1 != metric2:
-                        result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2])
+                        result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2], kwargs.pop('rank_type', 'two-sided'))
                         self.trial_rank_test_result[trial]['{}<->{}'.format(metric1, metric2)] = result
 
         return self.trial_rank_test_result
 
     @exception_handle
-    def rank_test_by_trail(self, trial):
-        self._rank_test_by_trial()
+    def rank_test_by_trail(self, trial, **kwargs):
+        self._rank_test_by_trial(**kwargs)
         try:
             return self.trial_rank_test_result[trial]
         except KeyError:
-            raise KeyError('Trial {} not found, please select trial in {}'.format(trial, list(self.transpose().keys())))
+            return self.metric_rank_test_result
+            # raise KeyError('Trial {} not found, please select trial in {}'.format(trial, list(self.transpose().keys())))
 
     @exception_handle
-    def _rank_test_by_metric(self):
+    def _rank_test_by_metric(self, **kwargs):
         trial_tag_list = list(self.transpose().keys())
         for metric in self.metrics.keys():
             self.metric_rank_test_result[metric] = {}
             for trial1 in trial_tag_list:
                 for trial2 in trial_tag_list:
                     if trial1 != trial2:
-                        result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2])
+                        result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2], kwargs.pop('rank_type', 'two-sided'))
                         self.metric_rank_test_result[metric]['{}<->{}'.format(trial1, trial2)] = result
         return self.metric_rank_test_result
 
     @exception_handle
-    def rank_test_by_metric(self, metric):
-        self._rank_test_by_metric()
+    def rank_test_by_metric(self, metric=None, **kwargs):
+        self._rank_test_by_metric(**kwargs)
         try:
             return self.metric_rank_test_result[metric]
         except KeyError:
-            raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
+            return self.metric_rank_test_result
+            # raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
     def summary(self, filename=None, no_print=False, **kwargs):
