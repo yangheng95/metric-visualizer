@@ -36,5 +36,6 @@ setup(
                       'tabulate',
                       'natsort',
                       'numpy',
+                      'update_checker',
                       ],
 )
