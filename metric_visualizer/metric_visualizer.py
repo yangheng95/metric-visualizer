@@ -26,7 +26,7 @@ from tabulate import tabulate
 
 from metric_visualizer import __version__
 
-retry_count = 100
+retry_count = 1
 
 
 def legend_without_duplicate_labels(ax):
@@ -308,6 +308,13 @@ class MetricVisualizer:
         self.dump()
 
     def add_metric(self, metric_name='Accuracy', value=0):
+        """
+        Add a metric to the metric dict.
+        :param metric_name:
+        :param value:
+        :return:
+        """
+        print('Deprecated: use log_metric() instead.')
         if metric_name in self.metrics:
             if 'trial{}'.format(self.trial_id) not in self.metrics[metric_name]:
                 self.metrics[metric_name]['trial{}'.format(self.trial_id)] = [value]
@@ -315,6 +322,27 @@ class MetricVisualizer:
                 self.metrics[metric_name]['trial{}'.format(self.trial_id)].append(value)
         else:
             self.metrics[metric_name] = {'trial{}'.format(self.trial_id): [value]}
+
+    def log_metric(self, trial_name=None, metric_name=None, value=0):
+        """
+        Add a metric to the metric dict based on the trial name and metric name.
+        :param trial_name:
+        :param metric_name:
+        :param value:
+        :return:
+        """
+        assert metric_name is not None
+
+        if not trial_name:
+            trial_name = 'trial{}'.format(self.trial_id)
+
+        if metric_name in self.metrics:
+            if trial_name not in self.metrics[metric_name]:
+                self.metrics[metric_name][trial_name] = [value]
+            else:
+                self.metrics[metric_name][trial_name].append(value)
+        else:
+            self.metrics[metric_name] = {trial_name: [value]}
 
     def traj_plot_by_metric(self, filename='traj_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
@@ -572,7 +600,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -712,7 +740,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -868,7 +896,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1025,7 +1053,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1170,7 +1198,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                ['crop', self.name]):
+                    ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1216,8 +1244,10 @@ class MetricVisualizer:
                 for metric in plot_metrics[trial1].keys():
                     for trial2 in plot_metrics.keys():
                         if trial1 != trial2:
-                            cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
-                            cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
+                            cmd = r_cmd.replace('$data1$', ', '.join(
+                                natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
+                            cmd = cmd.replace('$data2$', ', '.join(
+                                natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
                             cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
                             res = robjects.r(cmd)
 
@@ -1234,7 +1264,8 @@ class MetricVisualizer:
                             else:
                                 print(res)
                                 raise RuntimeError('Unknown Error')
-                            max_num = max(max_num, new_plot_metrics['large'][trial1][0], new_plot_metrics['medium'][trial1][0],
+                            max_num = max(max_num, new_plot_metrics['large'][trial1][0],
+                                          new_plot_metrics['medium'][trial1][0],
                                           new_plot_metrics['small'][trial1][0], new_plot_metrics['equal'][trial1][0])
                             count += 1
             count /= len(plot_metrics.keys())
@@ -1248,18 +1279,24 @@ class MetricVisualizer:
 
         elif target_trial >= 0:
             new_plot_metrics = {
-                'large': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
-                'medium': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
-                'small': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
-                'equal': {trial: [0] for trial in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'large': {trial: [0] for trial in
+                          list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'medium': {trial: [0] for trial in
+                           list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'small': {trial: [0] for trial in
+                          list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
+                'equal': {trial: [0] for trial in
+                          list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]},
             }
             max_num = 0
             count = 0
             trial1 = list(plot_metrics.keys())[target_trial]
             for trial2 in list(plot_metrics.keys())[:target_trial] + list(plot_metrics.keys())[target_trial + 1:]:
                 for metric in plot_metrics[trial2].keys():
-                    cmd = r_cmd.replace('$data1$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
-                    cmd = cmd.replace('$data2$', ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
+                    cmd = r_cmd.replace('$data1$',
+                                        ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial1][metric]])))
+                    cmd = cmd.replace('$data2$',
+                                      ', '.join(natsort.natsorted([str(x) for x in plot_metrics[trial2][metric]])))
                     cmd = cmd.replace('$num$', str(len(plot_metrics[trial1][metric])))
                     res = robjects.r(cmd)
 
@@ -1418,7 +1455,7 @@ class MetricVisualizer:
             prefix = self.name + '.' if self.name else ''
             plt.savefig(filename + prefix + 'matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
+            fout = open((filename + prefix + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -1485,7 +1522,8 @@ class MetricVisualizer:
             for metric1 in transposed_metrics[trial].keys():
                 for metric2 in transposed_metrics[trial].keys():
                     if metric1 != metric2:
-                        result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2], kwargs.pop('rank_type', 'two-sided'))
+                        result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2],
+                                          kwargs.pop('rank_type', 'two-sided'))
                         self.trial_rank_test_result[trial]['{}<->{}'.format(metric1, metric2)] = result
 
         return self.trial_rank_test_result
@@ -1507,7 +1545,8 @@ class MetricVisualizer:
             for trial1 in trial_tag_list:
                 for trial2 in trial_tag_list:
                     if trial1 != trial2:
-                        result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2], kwargs.pop('rank_type', 'two-sided'))
+                        result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2],
+                                          kwargs.pop('rank_type', 'two-sided'))
                         self.metric_rank_test_result[metric]['{}<->{}'.format(trial1, trial2)] = result
         return self.metric_rank_test_result
 
@@ -1521,7 +1560,7 @@ class MetricVisualizer:
             # raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
     @exception_handle
-    def summary(self, filename=None, no_print=False, **kwargs):
+    def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
         summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
         header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
 
@@ -1559,9 +1598,11 @@ class MetricVisualizer:
         if not no_print:
             print(summary_str)
 
-        if filename:
-            prefix = self.name + '.' if self.name else ''
-            fout = open(prefix + filename + '_summary.txt', mode='w', encoding='utf8')
+        if dump_path:
+            prefix = os.path.join(dump_path, self.name + '.' if self.name else '')
+            if filename:
+                prefix = os.path.join(prefix, filename)
+            fout = open(prefix + '.summary.txt', mode='w', encoding='utf8')
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
             fout.close()

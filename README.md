@@ -29,57 +29,63 @@ pip install metric_visualizer
 ## 用法说明 Usage
 
 假设存在多组对比实验(或者一组参数设置)，则称之为trial，每组实验存在多个metric(例如AUC，Accuracy，F1，Loss等)，
-每组参照实验重复n词，则使用以下方法监听实验结果：
+每组参照实验重复n词，则使用以下方法监听实验结果(监听结束后可自动绘制图形)：
 Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with
 multiple metrics (e.g., AUC, accuracy, F1, loss, etc.) for each set of experiments.
 Repeat n words for each set of reference experiments, and then listen to the results of the experiments using the
 following method.
 
+
 ```python
-import numpy as np
+import random
 from metric_visualizer import MetricVisualizer
+import numpy as np
 
-MV = MetricVisualizer()
+MV = MetricVisualizer(name='example', trial_tag='Model')
 
-trial_num = 5  # number of different trials,
-repeat = 10  # number of repeats
+repeat = 100  # number of repeats
 metric_num = 3  # number of metrics
 
-for trial in range(trial_num):
+#  利用metric_visualizer监听实验吧并保存实验结果，随时重新绘制图像
+trial_names = ['LSTM', 'CNN', 'BERT']  # fake trial names
+# trial_names = ['NSGA-II', 'NSGA-III', 'MOEA/D']  # fake trial names
+# trial_names = ['Hyperparameter Setting 1', 'Hyperparameter Setting 2', 'Hyperparameter Setting 3']  # fake trial names
+
+for n_trial in range(len(trial_names)):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
-        metrics = [(np.random.random() + n) for n in range(metric_num)]  # n is metric scale factor
+        metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
-            MV.add_metric('Metric-{}'.format(i + 1), round(m, 2))  # Add metric by metric name
-    MV.next_trial()  # move to next trial
+            # MV.add_metric(metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
+            MV.log_metric(trial_name=trial_names[n_trial], metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
+    # MV.next_trial()  # next_trial() should be used with add_metric() to add metrics of different trials
 
-```
+# MV.remove_outliers()  # remove outliers
 
-画图代码如下：
+MV.summary(no_print=True)  
+MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)  
+MV.violin_plot_by_trial()  
+MV.box_plot_by_trial()  
+MV.box_plot_by_trial()  
+MV.avg_bar_plot_by_trial()  
+MV.sum_bar_plot_by_trial()  
 
-```python
+MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)  
+MV.violin_plot_by_metric()  
+MV.box_plot_by_metric()  
+MV.box_plot_by_metric()  
+MV.avg_bar_plot_by_metric()  
+MV.sum_bar_plot_by_metric()  
 
-save_prefix = None
-MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
-MV.traj_plot_by_trial(save_name=save_prefix, xlabel='', xrotation=30, minorticks_on=True)  # save fig_preview into .tex and .pdf format
-MV.violin_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
-MV.box_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
-MV.avg_bar_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
-MV.sum_bar_plot_by_trial(save_name=save_prefix)  # save fig_preview into .tex and .pdf format
+MV.scott_knott_plot(plot_type='box', minorticks_on=False)  
+MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save fig_preview into .texg and .pdf format
 
-# 此函数适合对比不同模型性能，每个模型代表一个trial，综合多个metric进行Scott-Knott Rank Test，并绘制箱型图
-MV.scott_knott_plot(save_name=save_prefix, minorticks_on=False)  
+# MV.A12_bar_plot()  # need to install R language and rpy2 package
 
-print(MV.rank_test_by_trail('trial0'))  # save fig_preview into .tex and .pdf format
-print(MV.rank_test_by_metric('metric1'))  # save fig_preview into .tex and .pdf format
+rank_test_result = MV.rank_test_by_trail('trial1')
+rank_test_result = MV.rank_test_by_metric('metric1')
 
-
-# save_path = None
-# MV.summary(save_path=save_path)  # save fig_preview into .tex and .pdf format
-# MV.traj_plot_by_metric(save_path=save_path, xlabel='', xrotation=30)  # save fig_preview into .tex and .pdf format
-# MV.violin_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
-# MV.box_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
-# MV.avg_bar_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
-# MV.sum_bar_plot_by_metric(save_path=save_path)  # save fig_preview into .tex and .pdf format
+print(MV.rank_test_by_trail('trial0'))  
+print(MV.rank_test_by_metric('metric1'))  
 
 ```
 
@@ -121,27 +127,37 @@ print(MV.rank_test_by_metric('metric1'))  # save fig_preview into .tex and .pdf 
  -------------------- Metric Summary --------------------
 ```
 
-## Plot via Matplotlib (or Tikz)
+## Auto-Plot in Tikz and Matplotlib format
 
-### Traj Plot [tikz version](fig_preview/example_metric_traj_plot.pdf)
+see more auto-previews in [fig_preview](fig_preview)
 
-![traj_plot_example](fig_preview/traj_plot_example.png)
+### Traj Plot [matplotlib version](fig_preview/example.traj_plot_by_metric.matplotlib.pdf)
 
-### Box Plot [tikz version](fig_preview/example_metric_box_plot.pdf)
+![traj_plot_example](fig_preview/example.traj_plot_by_metric.tikz.pdf)
 
-![box_plot_example](fig_preview/box_plot_example.png)
+### Box Plot [matplotlib version](fig_preview/example.box_plot_by_trial.matplotlib.pdf)
 
-### Violin Plot [tikz version](fig_preview/example_metric_violin_plot.pdf)
+![box_plot_example](fig_preview/example.box_plot_by_trial.tikz.pdf)
 
-![violin_plot_example](fig_preview/violin_plot_example.png)
+### Violin Plot [matplotlib version](fig_preview/example.violin_plot_by_trial.matplotlib.pdf)
 
-### Average Bar Plot [tikz version](fig_preview/example_metric_avg_bar_plot.pdf)
+![violin_plot_example](fig_preview/example.violin_plot_by_trial.tikz.pdf)
 
-![violin_plot_example](fig_preview/avg_bar_plot_example.png)
+### A12 Plot [matplotlib version](fig_preview/example.A12_bar_plot.matplotlib.pdf)
 
-### Sum Bar Plot [tikz version](fig_preview/example_metric_sum_bar_plot.pdf)
+![A12_plot_example](fig_preview/example.A12_bar_plot.tikz.pdf)
 
-![violin_plot_example](fig_preview/sum_bar_plot_example.png)
+### Scott-knot Plot [matplotlib version](fig_preview/example.sk_rank.scott_knott_plot.box.matplotlib.pdf)
+
+![Scott-knot_plot_example](fig_preview/example.sk_rank.scott_knott_plot.box.tikz.pdf)
+
+### Average Bar Plot [matplotlib version](fig_preview/example.avg_bar_plot_by_trial.matplotlib.pdf)
+
+![average_plot_example](fig_preview/example.avg_bar_plot_by_trial.tikz.pdf)
+
+### Sum Bar Plot [matplotlib version](fig_preview/example.sum_bar_plot_by_trial.matplotlib.pdf)
+
+![sum bar_plot_example](fig_preview/example.sum_bar_plot_by_trial.tikz.pdf)
 
 ## Real Usage Example in PyABSA
 
@@ -181,9 +197,9 @@ for max_seq_len in max_seq_lens:
     config.MV.next_trial()
 
 save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)  # save fig_preview into .tex and .pdf format
+MV.summary(save_path=save_prefix, no_print=True)  
 
- # save fig_preview into .tex and .pdf format
+ 
 MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
 MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
 MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
