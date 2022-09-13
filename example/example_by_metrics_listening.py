@@ -23,9 +23,9 @@ for n_trial in range(len(trial_names)):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
         metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
-            # MV.add_metric(metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
-            MV.log_metric(trial_name=trial_names[n_trial], metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
-    # MV.next_trial()  # next_trial() should be used with add_metric() to add metrics of different trials
+            MV.add_metric(metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
+            # MV.log_metric(trial_name=trial_names[n_trial], metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
+    MV.next_trial()  # next_trial() should be used with add_metric() to add metrics of different trials
 
 # MV.remove_outliers()  # remove outliers
 

@@ -77,7 +77,7 @@ MV.avg_bar_plot_by_metric()
 MV.sum_bar_plot_by_metric()  
 
 MV.scott_knott_plot(plot_type='box', minorticks_on=False)  
-MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save fig_preview into .texg and .pdf format
+MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save example into .texg and .pdf format
 
 # MV.A12_bar_plot()  # need to install R language and rpy2 package
 
@@ -129,35 +129,35 @@ print(MV.rank_test_by_metric('metric1'))
 
 ## Auto-Plot in Tikz and Matplotlib format
 
-see more auto-previews in [fig_preview](fig_preview)
+see more auto-previews in [example](example)
 
-### Traj Plot [matplotlib version](fig_preview/example.traj_plot_by_metric.matplotlib.pdf)
+### Traj Plot [matplotlib version](example/example.traj_plot_by_metric.matplotlib.pdf)
 
-![traj_plot_example](fig_preview/example.traj_plot_by_metric.tikz.pdf)
+![traj_plot_example](example/example.traj_plot_by_metric.tikz.pdf)
 
-### Box Plot [matplotlib version](fig_preview/example.box_plot_by_trial.matplotlib.pdf)
+### Box Plot [matplotlib version](example/example.box_plot_by_trial.matplotlib.pdf)
 
-![box_plot_example](fig_preview/example.box_plot_by_trial.tikz.pdf)
+![box_plot_example](example/example.box_plot_by_trial.tikz.pdf)
 
-### Violin Plot [matplotlib version](fig_preview/example.violin_plot_by_trial.matplotlib.pdf)
+### Violin Plot [matplotlib version](example/example.violin_plot_by_trial.matplotlib.pdf)
 
-![violin_plot_example](fig_preview/example.violin_plot_by_trial.tikz.pdf)
+![violin_plot_example](example/example.violin_plot_by_trial.tikz.pdf)
 
-### A12 Plot [matplotlib version](fig_preview/example.A12_bar_plot.matplotlib.pdf)
+### A12 Plot [matplotlib version](example/example.A12_bar_plot.matplotlib.pdf)
 
-![A12_plot_example](fig_preview/example.A12_bar_plot.tikz.pdf)
+![A12_plot_example](example/example.A12_bar_plot.tikz.pdf)
 
-### Scott-knot Plot [matplotlib version](fig_preview/example.sk_rank.scott_knott_plot.box.matplotlib.pdf)
+### Scott-knot Plot [matplotlib version](example/example.sk_rank.scott_knott_plot.box.matplotlib.pdf)
 
-![Scott-knot_plot_example](fig_preview/example.sk_rank.scott_knott_plot.box.tikz.pdf)
+![Scott-knot_plot_example](example/example.sk_rank.scott_knott_plot.box.tikz.pdf)
 
-### Average Bar Plot [matplotlib version](fig_preview/example.avg_bar_plot_by_trial.matplotlib.pdf)
+### Average Bar Plot [matplotlib version](example/example.avg_bar_plot_by_trial.matplotlib.pdf)
 
-![average_plot_example](fig_preview/example.avg_bar_plot_by_trial.tikz.pdf)
+![average_plot_example](example/example.avg_bar_plot_by_trial.tikz.pdf)
 
-### Sum Bar Plot [matplotlib version](fig_preview/example.sum_bar_plot_by_trial.matplotlib.pdf)
+### Sum Bar Plot [matplotlib version](example/example.sum_bar_plot_by_trial.matplotlib.pdf)
 
-![sum bar_plot_example](fig_preview/example.sum_bar_plot_by_trial.tikz.pdf)
+![sum bar_plot_example](example/example.sum_bar_plot_by_trial.tikz.pdf)
 
 ## Real Usage Example in PyABSA
 

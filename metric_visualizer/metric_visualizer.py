@@ -19,10 +19,11 @@ import numpy as np
 import tikzplotlib
 from findfile import find_cwd_files
 from matplotlib import pyplot as plt
-from numpy import ndarray
 from scipy.stats import iqr
 from scipy.stats import ranksums
 from tabulate import tabulate
+
+import warnings
 
 from metric_visualizer import __version__
 
@@ -314,7 +315,6 @@ class MetricVisualizer:
         :param value:
         :return:
         """
-        print('Deprecated: use log_metric() instead.')
         if metric_name in self.metrics:
             if 'trial{}'.format(self.trial_id) not in self.metrics[metric_name]:
                 self.metrics[metric_name]['trial{}'.format(self.trial_id)] = [value]
@@ -346,7 +346,7 @@ class MetricVisualizer:
 
     def traj_plot_by_metric(self, filename='traj_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
@@ -354,7 +354,7 @@ class MetricVisualizer:
 
     def box_plot_by_metric(self, filename='box_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
@@ -362,7 +362,7 @@ class MetricVisualizer:
 
     def avg_bar_plot_by_metric(self, filename='avg_bar_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
@@ -370,7 +370,7 @@ class MetricVisualizer:
 
     def sum_bar_plot_by_metric(self, filename='sum_bar_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
@@ -378,7 +378,7 @@ class MetricVisualizer:
 
     def violin_plot_by_metric(self, filename='violin_plot_by_metric', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         plot_metrics = self.transpose()
         if not kwargs.get('legend_label_list'):
             kwargs.update({'legend_label_list': list(plot_metrics.keys())})
@@ -386,7 +386,7 @@ class MetricVisualizer:
 
     def traj_plot_by_trial(self, filename='traj_plot_by_trial', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
@@ -397,7 +397,7 @@ class MetricVisualizer:
 
     def box_plot_by_trial(self, filename='box_plot_by_trial', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
@@ -408,7 +408,7 @@ class MetricVisualizer:
 
     def avg_bar_plot_by_trial(self, filename='avg_bar_plot_by_trial', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
@@ -419,7 +419,7 @@ class MetricVisualizer:
 
     def sum_bar_plot_by_trial(self, filename='sum_bar_plot_by_trial', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
@@ -430,7 +430,7 @@ class MetricVisualizer:
 
     def violin_plot_by_trial(self, filename='violin_plot_by_trial', **kwargs):
         if kwargs.pop('save_path', None):
-            print('save_path is deprecated, use filename instead')
+            warnings.warn('save_path is deprecated, use filename instead')
         if not kwargs.get('trial_tag_list', []) and kwargs.get('xticks', []):
             kwargs.update({'trial_tag_list': kwargs.get('xticks', [])})
         if not kwargs.get('xticks', []) and kwargs.get('trial_tag_list', []):
@@ -600,7 +600,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -740,7 +740,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -896,7 +896,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1053,7 +1053,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1198,7 +1198,7 @@ class MetricVisualizer:
                 # os.system(cmd)
 
             for f in find_cwd_files(['.aux', self.name]) + find_cwd_files(['.log', self.name]) + find_cwd_files(
-                    ['crop', self.name]):
+                ['crop', self.name]):
                 os.remove(f)
             print('Tikz plot saved at ', find_cwd_files([filename, self.name], exclude_key='crop'))
         else:
@@ -1453,9 +1453,9 @@ class MetricVisualizer:
             # tex_src = re.sub('fill=[\da-zA-Z]+,postaction', 'postaction', tex_src)
 
             prefix = self.name + '.' if self.name else ''
-            plt.savefig(filename + prefix + 'matplotlib.pdf', dpi=1000)
+            plt.savefig(prefix + filename + 'matplotlib.pdf', dpi=1000)
             plt.show()
-            fout = open((filename + prefix + '.tikz.tex').lstrip('_'), mode='w',
+            fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')
             fout.write(tex_src)
             fout.close()
@@ -1601,7 +1601,7 @@ class MetricVisualizer:
         if dump_path:
             prefix = os.path.join(dump_path, self.name + '.' if self.name else '')
             if filename:
-                prefix = os.path.join(prefix, filename)
+                prefix = prefix + filename
             fout = open(prefix + '.summary.txt', mode='w', encoding='utf8')
             summary_str += '\n{}\n'.format(str(self.metrics))
             fout.write(summary_str)
