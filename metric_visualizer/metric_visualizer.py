@@ -1523,7 +1523,7 @@ class MetricVisualizer:
                 for metric2 in transposed_metrics[trial].keys():
                     if metric1 != metric2:
                         result = ranksums(transposed_metrics[trial][metric1], transposed_metrics[trial][metric2],
-                                          kwargs.pop('rank_type', 'two-sided'))
+                                          kwargs.get('rank_type', 'two-sided'))
                         self.trial_rank_test_result[trial]['{}<->{}'.format(metric1, metric2)] = result
 
         return self.trial_rank_test_result
@@ -1546,7 +1546,7 @@ class MetricVisualizer:
                 for trial2 in trial_tag_list:
                     if trial1 != trial2:
                         result = ranksums(self.metrics[metric][trial1], self.metrics[metric][trial2],
-                                          kwargs.pop('rank_type', 'two-sided'))
+                                          kwargs.get('rank_type', 'two-sided'))
                         self.metric_rank_test_result[metric]['{}<->{}'.format(trial1, trial2)] = result
         return self.metric_rank_test_result
 
