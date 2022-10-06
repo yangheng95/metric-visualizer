@@ -4,6 +4,7 @@
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
+import multiprocessing
 import os.path
 import pickle
 import random
@@ -721,6 +722,7 @@ class MetricVisualizer:
 
             prefix = self.name + '.' if self.name else ''
             plt.savefig(prefix + filename + '.matplotlib.pdf', dpi=1000)
+
             plt.show()
             fout = open((prefix + filename + '.tikz.tex').lstrip('_'), mode='w',
                         encoding='utf8')

@@ -11,7 +11,7 @@ import os
 import click
 
 from metric_visualizer.metric_visualizer import MetricVisualizer
-
+import multiprocessing
 
 @click.command()
 @click.argument('mv')
@@ -22,28 +22,48 @@ def instant_visualize(mv=None, **kwargs):
 
     MV.summary(dump_path=os.getcwd(), filename='file_name', no_print=True)
 
-    MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)
-    MV.violin_plot_by_trial()
-    MV.box_plot_by_trial()
-    MV.box_plot_by_trial()
-    MV.avg_bar_plot_by_trial()
-    MV.sum_bar_plot_by_trial()
-
-    MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)
-    MV.violin_plot_by_metric()
-    MV.box_plot_by_metric()
-    MV.box_plot_by_metric()
-    MV.avg_bar_plot_by_metric()
-    MV.sum_bar_plot_by_metric()
-
-    MV.scott_knott_plot(plot_type='box', minorticks_on=False)
-    MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save fig_preview into .texg and .pdf format
-
     print('Rank test results by trial: ')
     print(MV._rank_test_by_trial(**kwargs))
 
     print('Rank test results by_metric: ')
     print(MV._rank_test_by_metric(**kwargs))
+
+    # MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)
+    # MV.violin_plot_by_trial()
+    # MV.box_plot_by_trial()
+    # MV.box_plot_by_trial()
+    # MV.avg_bar_plot_by_trial()
+    # MV.sum_bar_plot_by_trial()
+
+    # MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)
+    # MV.violin_plot_by_metric()
+    # MV.box_plot_by_metric()
+    # MV.box_plot_by_metric()
+    # MV.avg_bar_plot_by_metric()
+    # MV.sum_bar_plot_by_metric()
+
+    # MV.scott_knott_plot(plot_type='box', minorticks_on=False)
+    # MV.scott_knott_plot(plot_type='violin', minorticks_on=False)
+
+    pool = multiprocessing.Pool(os.cpu_count())
+    pool.apply_async(MV.traj_plot_by_trial, args=dict(xlabel='', xrotation=30, minorticks_on=True))
+    pool.apply_async(MV.violin_plot_by_trial)
+    pool.apply_async(MV.box_plot_by_trial)
+    pool.apply_async(MV.box_plot_by_trial)
+    pool.apply_async(MV.avg_bar_plot_by_trial)
+    pool.apply_async(MV.sum_bar_plot_by_trial)
+
+    pool.apply_async(MV.traj_plot_by_metric, args=dict(xlabel='', xrotation=30, minorticks_on=True))
+    pool.apply_async(MV.violin_plot_by_metric)
+    pool.apply_async(MV.box_plot_by_metric)
+    pool.apply_async(MV.box_plot_by_metric)
+    pool.apply_async(MV.avg_bar_plot_by_metric)
+    pool.apply_async(MV.sum_bar_plot_by_metric)
+
+    pool.apply_async(MV.scott_knott_plot, args=dict(plot_type='box', minorticks_on=False))
+    pool.apply_async(MV.scott_knott_plot, args=dict(plot_type='violin', minorticks_on=False))
+    pool.close()
+    pool.join()
 
 
 if __name__ == '__main__':
