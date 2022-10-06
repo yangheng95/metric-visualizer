@@ -28,13 +28,20 @@ pip install metric_visualizer
 
 ## 用法说明 Usage
 
+### [Bash] Instant Visualization of MetricVisualizer file (named example.mv)
+
+```bash
+mvis example.mv
+```
+
+```python 
+
 假设存在多组对比实验(或者一组参数设置)，则称之为trial，每组实验存在多个metric(例如AUC，Accuracy，F1，Loss等)，
 每组参照实验重复n词，则使用以下方法监听实验结果(监听结束后可自动绘制图形)：
 Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with
 multiple metrics (e.g., AUC, accuracy, F1, loss, etc.) for each set of experiments.
 Repeat n words for each set of reference experiments, and then listen to the results of the experiments using the
 following method.
-
 
 ```python
 import random
@@ -53,30 +60,32 @@ trial_names = ['LSTM', 'CNN', 'BERT']  # fake trial names
 
 for n_trial in range(len(trial_names)):
     for r in range(repeat):  # repeat the experiments to plot violin or box figure
-        metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in range(metric_num)]  # n is metric scale factor
+        metrics = [(np.random.random() + n + (1 if random.random() > 0.5 else -1)) for n in
+                   range(metric_num)]  # n is metric scale factor
         for i, m in enumerate(metrics):
             # MV.add_metric(metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
-            MV.log_metric(trial_name=trial_names[n_trial], metric_name='metric{}'.format(i + 1), value=m)  # add metric by custom name and value
+            MV.log_metric(trial_name=trial_names[n_trial], metric_name='metric{}'.format(i + 1),
+                          value=m)  # add metric by custom name and value
     # MV.next_trial()  # next_trial() should be used with add_metric() to add metrics of different trials
 
 # MV.remove_outliers()  # remove outliers
 
-MV.summary(no_print=True)  
-MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)  
-MV.violin_plot_by_trial()  
-MV.box_plot_by_trial()  
-MV.box_plot_by_trial()  
-MV.avg_bar_plot_by_trial()  
-MV.sum_bar_plot_by_trial()  
+MV.summary(no_print=True)
+MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)
+MV.violin_plot_by_trial()
+MV.box_plot_by_trial()
+MV.box_plot_by_trial()
+MV.avg_bar_plot_by_trial()
+MV.sum_bar_plot_by_trial()
 
-MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)  
-MV.violin_plot_by_metric()  
-MV.box_plot_by_metric()  
-MV.box_plot_by_metric()  
-MV.avg_bar_plot_by_metric()  
-MV.sum_bar_plot_by_metric()  
+MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)
+MV.violin_plot_by_metric()
+MV.box_plot_by_metric()
+MV.box_plot_by_metric()
+MV.avg_bar_plot_by_metric()
+MV.sum_bar_plot_by_metric()
 
-MV.scott_knott_plot(plot_type='box', minorticks_on=False)  
+MV.scott_knott_plot(plot_type='box', minorticks_on=False)
 MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save example into .texg and .pdf format
 
 # MV.A12_bar_plot()  # need to install R language and rpy2 package
@@ -84,8 +93,8 @@ MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save example int
 rank_test_result = MV.rank_test_by_trail('trial1')
 rank_test_result = MV.rank_test_by_metric('metric1')
 
-print(MV.rank_test_by_trail('trial0'))  
-print(MV.rank_test_by_metric('metric1'))  
+print(MV.rank_test_by_trail('trial0'))
+print(MV.rank_test_by_metric('metric1'))
 
 ```
 
@@ -124,7 +133,7 @@ print(MV.rank_test_by_metric('metric1'))
 ├──────────┼─────────┼──────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┤
 │ Metric-3 │ trial-4 │ [2.41, 2.12, 2.31, 2.29, 2.46, 2.95, 2.74, 2.66, 2.34, 2.65] │ ['Avg:2.49, Median: 2.44, IQR: 0.33, Max: 2.95, Min: 2.12'] │
 ╘══════════╧═════════╧══════════════════════════════════════════════════════════════╧═════════════════════════════════════════════════════════════╛
- -------------------- Metric Summary --------------------
+-------------------- Metric Summary --------------------
 ```
 
 ## Auto-Plot in Tikz and Matplotlib format
@@ -180,7 +189,7 @@ from pyabsa.functional import APCModelList
 config = APCConfigManager.get_config()
 config.model = APCModelList.FAST_LCF_BERT
 config.lcf = 'cdw'
-config.seed = [random.randint(0, 10000) for _ in range(3)] # each trial repeats with different seed
+config.seed = [random.randint(0, 10000) for _ in range(3)]  # each trial repeats with different seed
 
 MV = MetricVisualizer()
 config.MV = MV
@@ -197,14 +206,13 @@ for max_seq_len in max_seq_lens:
     config.MV.next_trial()
 
 save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)  
+MV.summary(save_path=save_prefix, no_print=True)
 
- 
-MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
-MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
-MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
-MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
-MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens) 
-MV.scott_knott_plot(save_path=save_prefix, xticks=max_seq_lens, minorticks_on=False)  
+MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
+MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
+MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
+MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
+MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
+MV.scott_knott_plot(save_path=save_prefix, xticks=max_seq_lens, minorticks_on=False)
 
 ```

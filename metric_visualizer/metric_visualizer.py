@@ -13,7 +13,7 @@ from collections import OrderedDict
 from functools import wraps
 import time
 
-import matplotlib.colors
+import matplotlib
 import natsort
 import numpy as np
 import tikzplotlib
@@ -25,7 +25,7 @@ from tabulate import tabulate
 
 import warnings
 
-from metric_visualizer import __version__
+import metric_visualizer
 
 retry_count = 1
 
@@ -265,7 +265,7 @@ class MetricVisualizer:
         self.trial_rank_test_result = {}
         self.metric_rank_test_result = {}
 
-        self.version = __version__
+        self.version = metric_visualizer.__version__
         self.name = name
         if metric_dict is None:
 
@@ -1562,7 +1562,8 @@ class MetricVisualizer:
     @exception_handle
     def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
         summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
-        header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
+
+        header = ['Metric', self.trial_tag, 'Values', 'Summary']
 
         table_data = []
         trial_tag_list = kwargs.get('trial_tag_list', self.trial_tag_list)
@@ -1589,7 +1590,8 @@ class MetricVisualizer:
                     )]
                 )
                 table_data += _data
-
+        if len(self.metrics[mn]) > 10:
+            header = ['Metric', self.trial_tag, 'Values (First 10 values)', 'Summary']
         summary_str += tabulate(table_data,
                                 headers=header,
                                 numalign='center',
@@ -1614,7 +1616,10 @@ class MetricVisualizer:
     def dump(self, filename=None):
         if not filename:
             if self.dump_pointer:
-                os.remove(self.dump_pointer)
+                try:
+                    os.remove(self.dump_pointer)
+                except FileNotFoundError:
+                    pass
             time_tag = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
             trial_id = self.trial_id
             postfix = 'mv'

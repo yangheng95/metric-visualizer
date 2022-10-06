@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: cli.py
+# file: cli_command.py
 # time: 06/10/2022 16:59
 # author: yangheng <hy345@exeter.ac.uk>
 # github: https://github.com/yangheng95
@@ -16,7 +16,7 @@ from metric_visualizer.metric_visualizer import MetricVisualizer
 @click.command()
 @click.argument('mv')
 @click.option('--save', '-s', default=True, help='Save the figure')
-def vis(mv=None, **kwargs):
+def instant_visualize(mv=None, **kwargs):
     print('Metric Visualizer file: ', mv)
     MV = MetricVisualizer.load(mv)
 
@@ -39,6 +39,12 @@ def vis(mv=None, **kwargs):
     MV.scott_knott_plot(plot_type='box', minorticks_on=False)
     MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save fig_preview into .texg and .pdf format
 
+    print('Rank test results by trial: ')
+    print(MV._rank_test_by_trial(**kwargs))
+
+    print('Rank test results by_metric: ')
+    print(MV._rank_test_by_metric(**kwargs))
+
 
 if __name__ == '__main__':
-    vis()
+    instant_visualize()

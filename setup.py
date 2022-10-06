@@ -21,15 +21,15 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/yangheng95/metric_visualizer',
     # Author details
-    author='Heng, Yang',
-    author_email='yangheng@m.scnu.edu.cn',
+    author='yang, Heng',
+    author_email='hy345@exeter.ac.uk',
     python_requires=">=3.6",
     packages=find_packages(),
     include_package_data=True,
     exclude_package_date={'': ['.gitignore']},
     # Choose your license
     license='MIT',
-    install_requires=['matplotlib',
+    install_requires=['matplotlib<3.6.0',
                       'tikzplotlib',
                       'findfile',
                       'scipy',
@@ -37,5 +37,10 @@ setup(
                       'natsort',
                       'numpy',
                       'update_checker',
+                      'click',
                       ],
+    entry_points='''
+      [console_scripts]
+      mvis=metric_visualizer.cli_command:instant_visualize
+  ''',
 )
