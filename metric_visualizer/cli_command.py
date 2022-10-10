@@ -65,6 +65,7 @@ def instant_visualize(mv=None, **kwargs):
     pool.close()
     pool.join()
 
+    pool.terminate()
 
 if __name__ == '__main__':
     instant_visualize()

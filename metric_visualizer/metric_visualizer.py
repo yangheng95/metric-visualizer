@@ -1487,11 +1487,12 @@ class MetricVisualizer:
     @exception_handle
     def scott_knott_plot(self, filename='scott_knott_plot', plot_type='box', **kwargs):
         from metric_visualizer.external import Rx
+        Rx.list_algorithm_rank = []
         data_dict = {'Scott-Knott Rank Test': {}}
 
         for metric in self.metrics:
             Rx.data(**self.metrics[metric])
-            for i, d in enumerate(Rx.list_algorithm_rank):
+            for i, d in enumerate(natsort.natsorted(Rx.list_algorithm_rank)):
                 data_dict['Scott-Knott Rank Test'][d[0]] = data_dict['Scott-Knott Rank Test'].get(d[0], [])
                 data_dict['Scott-Knott Rank Test'][d[0]].append(d[1])
 
