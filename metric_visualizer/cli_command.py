@@ -9,6 +9,7 @@
 import os
 
 import click
+import findfile
 
 from metric_visualizer.metric_visualizer import MetricVisualizer
 import multiprocessing

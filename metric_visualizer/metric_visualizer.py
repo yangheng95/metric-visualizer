@@ -1600,6 +1600,7 @@ class MetricVisualizer:
                                 numalign='center',
                                 tablefmt='fancy_grid')
         summary_str += '\n -------------------- https://github.com/yangheng95/metric_visualizer --------------------\n'
+        summary_str += '\n -------------- You can use: mvis *.mv to visualize the metrics in any bash --------------\n'
         if not no_print:
             print(summary_str)
 
