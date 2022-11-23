@@ -4,6 +4,7 @@
 # author: yangheng <yangheng@m.scnu.edu.cn>
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
+
 import multiprocessing
 import os.path
 import pickle
@@ -1605,7 +1606,7 @@ class MetricVisualizer:
             print(summary_str)
 
         if dump_path:
-            prefix = os.path.join(dump_path, self.name + '.' if self.name else '')
+            prefix = os.path.join(dump_path, self.name if self.name else '')
             if filename:
                 prefix = prefix + filename
             fout = open(prefix + '.summary.txt', mode='w', encoding='utf8')

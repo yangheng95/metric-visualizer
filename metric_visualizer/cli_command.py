@@ -16,12 +16,12 @@ import multiprocessing
 
 @click.command()
 @click.argument('mv')
-@click.option('--save', '-s', default=True, help='Save the figure')
+# @click.option('--save', '-s', default=True, help='Save the figure')
 def instant_visualize(mv=None, **kwargs):
     print('Metric Visualizer file: ', mv)
     MV = MetricVisualizer.load(mv)
 
-    MV.summary(dump_path=os.getcwd(), filename='file_name', no_print=True)
+    MV.summary(dump_path=os.getcwd(), filename='file_name', no_print=False)
 
     print('Rank test results by trial: ')
     print(MV._rank_test_by_trial(**kwargs))
