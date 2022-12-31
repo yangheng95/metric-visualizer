@@ -1563,6 +1563,7 @@ class MetricVisualizer:
             return self.metric_rank_test_result
             # raise KeyError('Metric {} not found, please select metric in {}'.format(metric, list(self.metrics.keys())))
 
+
     @exception_handle
     def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
         summary_str = ' ------------------------------------- Metric Visualizer ------------------------------------- \n'
@@ -1617,6 +1618,7 @@ class MetricVisualizer:
             self.dump()
 
         return summary_str
+
 
     def dump(self, filename=None):
         if not filename:

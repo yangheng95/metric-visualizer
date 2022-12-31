@@ -12,10 +12,10 @@ import random
 
 from metric_visualizer import MetricVisualizer
 
-from pyabsa.functional import Trainer
-from pyabsa.functional import APCConfigManager
-from pyabsa.functional import ABSADatasetList
-from pyabsa.functional import APCModelList
+from pyabsa import Trainer
+from pyabsa import APCConfigManager
+from pyabsa import ABSADatasetList
+from pyabsa import APCModelList
 
 import warnings
 
