@@ -25,13 +25,16 @@ For a demo of this code, just run
 # -----------------------------------------------------
 # Examples
 
+
 def skDemo(n=5):
     # Rx.data is one way to run the code
-    return Rx.data(x1=[0.34, 0.49, 0.51, 0.6] * n,
-                   x2=[0.6, 0.7, 0.8, 0.89] * n,
-                   x3=[0.13, 0.23, 0.38, 0.38] * n,
-                   x4=[0.6, 0.7, 0.8, 0.9] * n,
-                   x5=[0.1, 0.2, 0.3, 0.4] * n)
+    return Rx.data(
+        x1=[0.34, 0.49, 0.51, 0.6] * n,
+        x2=[0.6, 0.7, 0.8, 0.89] * n,
+        x3=[0.13, 0.23, 0.38, 0.38] * n,
+        x4=[0.6, 0.7, 0.8, 0.9] * n,
+        x5=[0.1, 0.2, 0.3, 0.4] * n,
+    )
 
 
 """
@@ -53,39 +56,42 @@ Then call
 # -----------------------------------------------------
 # Config
 
+
 class o:
-    def __init__(i, **d): i.__dict__.update(**d)
+    def __init__(i, **d):
+        i.__dict__.update(**d)
 
 
 class THE:
-    cliffs = o(dull=[0.147,  # small
-                     0.33,  # medium
-                     0.474  # large
-                     ][0])
-    bs = o(conf=0.05,
-           b=500)
+    cliffs = o(dull=[0.147, 0.33, 0.474][0])  # small  # medium  # large
+    bs = o(conf=0.05, b=500)
     mine = o(private="_")
     char = o(skip="?")
     rx = o(show="%4s %10s %s")
-    tile = o(width=50,
-             chops=[0.1, 0.3, 0.5, 0.7, 0.9],
-             marks=[" ", "-", "-", "-", " "],
-             bar="|",
-             star="*",
-             show=" %5.3f")
+    tile = o(
+        width=50,
+        chops=[0.1, 0.3, 0.5, 0.7, 0.9],
+        marks=[" ", "-", "-", "-", " "],
+        bar="|",
+        star="*",
+        show=" %5.3f",
+    )
 
 
 # -----------------------------------------------------
 
+
 def cliffsDeltaSlow(lst1, lst2, dull=THE.cliffs.dull):
     """Returns true if there are more than 'dull' difference.
-       Warning: O(N)^2."""
+    Warning: O(N)^2."""
     n = gt = lt = 0.0
     for x in lst1:
         for y in lst2:
             n += 1
-            if x > y:  gt += 1
-            if x < y:  lt += 1
+            if x > y:
+                gt += 1
+            if x < y:
+                lt += 1
     return abs(lt - gt) / n <= dull
 
 
@@ -94,7 +100,8 @@ def cliffsDelta(lst1, lst2, dull=THE.cliffs.dull):
 
     def runs(lst):
         for j, two in enumerate(lst):
-            if j == 0: one, i = two, 0
+            if j == 0:
+                one, i = two, 0
             if one != two:
                 yield j - i, one
                 i = j
@@ -106,9 +113,11 @@ def cliffsDelta(lst1, lst2, dull=THE.cliffs.dull):
     lst2 = sorted(lst2)
     j = more = less = 0
     for repeats, x in runs(sorted(lst1)):
-        while j <= (n - 1) and lst2[j] < x: j += 1
+        while j <= (n - 1) and lst2[j] < x:
+            j += 1
         more += j * repeats
-        while j <= (n - 1) and lst2[j] == x: j += 1
+        while j <= (n - 1) and lst2[j] == x:
+            j += 1
         less += (n - j) * repeats
     d = (more - less) / (m * n)
     return abs(d) <= dull
@@ -122,24 +131,28 @@ def bootstrap(y0, z0, conf=THE.bs.conf, b=THE.bs.b):
     Typically, conf=0.05 and b is 100s to 1000s.
     """
 
-    class Sum():
+    class Sum:
         def __init__(i, some=[]):
-            i.sum = i.n = i.mu = 0;
+            i.sum = i.n = i.mu = 0
             i.all = []
-            for one in some: i.put(one)
+            for one in some:
+                i.put(one)
 
         def put(i, x):
-            i.all.append(x);
-            i.sum += x;
-            i.n += 1;
+            i.all.append(x)
+            i.sum += x
+            i.n += 1
             i.mu = float(i.sum) / i.n
 
-        def __add__(i1, i2): return Sum(i1.all + i2.all)
+        def __add__(i1, i2):
+            return Sum(i1.all + i2.all)
 
     def testStatistic(y, z):
         tmp1 = tmp2 = 0
-        for y1 in y.all: tmp1 += (y1 - y.mu) ** 2
-        for z1 in z.all: tmp2 += (z1 - z.mu) ** 2
+        for y1 in y.all:
+            tmp1 += (y1 - y.mu) ** 2
+        for z1 in z.all:
+            tmp2 += (z1 - z.mu) ** 2
         s1 = float(tmp1) / (y.n - 1)
         s2 = float(tmp2) / (z.n - 1)
         delta = z.mu - y.mu
@@ -160,15 +173,20 @@ def bootstrap(y0, z0, conf=THE.bs.conf, b=THE.bs.b):
     zhat = [z1 - z.mu + x.mu for z1 in z.all]
     bigger = 0
     for i in range(b):
-        if testStatistic(Sum([one(yhat) for _ in yhat]),
-                         Sum([one(zhat) for _ in zhat])) > baseline:
+        if (
+            testStatistic(
+                Sum([one(yhat) for _ in yhat]), Sum([one(zhat) for _ in zhat])
+            )
+            > baseline
+        ):
             bigger += 1
     return bigger / b >= conf
 
 
 # -------------------------------------------------------
 # misc functions
-def same(x): return x
+def same(x):
+    return x
 
 
 class Mine:
@@ -181,17 +199,25 @@ class Mine:
         return i.oid
 
     def __repr__(i):
-        pairs = sorted([(k, v) for k, v in i.__dict__.items()
-                        if k[0] != THE.mine.private])
-        pre = i.__class__.__name__ + '{'
+        pairs = sorted(
+            [(k, v) for k, v in i.__dict__.items() if k[0] != THE.mine.private]
+        )
+        pre = i.__class__.__name__ + "{"
 
         def q(z):
-            if isinstance(z, str): return "'%s'" % z
-            if callable(z): return "fun(%s)" % z.__name__
+            if isinstance(z, str):
+                return "'%s'" % z
+            if callable(z):
+                return "fun(%s)" % z.__name__
             return str(z)
 
-        return pre + ", ".join(['%s=%s' % (k, q(v)) for k, v in i.__dict__.items()
-                                if k[0] != THE.mine.private])
+        return pre + ", ".join(
+            [
+                "%s=%s" % (k, q(v))
+                for k, v in i.__dict__.items()
+                if k[0] != THE.mine.private
+            ]
+        )
 
 
 # -------------------------------------------------------
@@ -214,11 +240,10 @@ class Rx(Mine):
         return i.med < j.med
 
     def __eq__(i, j):
-        return cliffsDelta(i.vals, j.vals) and \
-               bootstrap(i.vals, j.vals)
+        return cliffsDelta(i.vals, j.vals) and bootstrap(i.vals, j.vals)
 
     def __repr__(i):
-        return '%4s %10s %s' % (i.rank, i.rx, i.tiles())
+        return "%4s %10s %s" % (i.rank, i.rx, i.tiles())
 
     def xpect(i, j, b4):
         "Expected value of difference in emans before and after a split"
@@ -286,6 +311,7 @@ class Rx(Mine):
 
 # -------------------------------------------------------
 
+
 def pairs(lst):
     "Return all pairs of items i,i+1 from a list."
     last = lst[0]
@@ -301,13 +327,17 @@ def words(f):
                 yield word
 
 
-def xtile(lst, lo, hi,
-          width=THE.tile.width,
-          chops=THE.tile.chops,
-          marks=THE.tile.marks,
-          bar=THE.tile.bar,
-          star=THE.tile.star,
-          show=THE.tile.show):
+def xtile(
+    lst,
+    lo,
+    hi,
+    width=THE.tile.width,
+    chops=THE.tile.chops,
+    marks=THE.tile.marks,
+    bar=THE.tile.bar,
+    star=THE.tile.star,
+    show=THE.tile.show,
+):
     """The function _xtile_ takes a list of (possibly)
     unsorted numbers and presents them as a horizontal
     xtile chart (in ascii format). The default is a
@@ -323,7 +353,7 @@ def xtile(lst, lo, hi,
         return int(width * float((x - lo)) / (hi - lo + 0.00001))
 
     def pretty(lst):
-        return ', '.join([show % x for x in lst])
+        return ", ".join([show % x for x in lst])
 
     ordered = sorted(lst)
     lo = min(lo, ordered[0])
@@ -337,7 +367,7 @@ def xtile(lst, lo, hi,
         marks = marks[1:]
     out[int(width / 2)] = bar
     out[place(pos(0.5))] = star
-    return '(' + ''.join(out) + ")," + pretty(what)
+    return "(" + "".join(out) + ")," + pretty(what)
 
 
 def thing(x):
@@ -363,9 +393,9 @@ def _cliffsDelta():
 
 
 def bsTest(n=1000, mu1=10, sigma1=1, mu2=10.2, sigma2=1):
-    def g(mu, sigma): return random.gauss(mu, sigma)
+    def g(mu, sigma):
+        return random.gauss(mu, sigma)
 
     x = [g(mu1, sigma1) for i in range(n)]
     y = [g(mu2, sigma2) for i in range(n)]
-    return n, mu1, sigma1, mu2, sigma2, \
-           'same' if bootstrap(x, y) else 'different'
+    return n, mu1, sigma1, mu2, sigma2, "same" if bootstrap(x, y) else "different"

@@ -34,8 +34,6 @@ pip install metric_visualizer
 mvis example.mv
 ```
 
-```python 
-
 假设存在多组对比实验(或者一组参数设置)，则称之为trial，每组实验存在多个metric(例如AUC，Accuracy，F1，Loss等)，
 每组参照实验重复n词，则使用以下方法监听实验结果(监听结束后可自动绘制图形)：
 Assume that there exist multiple sets of comparison experiments (or a set of parameter settings), called trials, with
