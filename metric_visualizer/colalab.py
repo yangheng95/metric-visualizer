@@ -50,7 +50,7 @@ def extract_x_label_from_tex(tex_src_or_file_path):
             tex = f.read()
     else:
         tex = tex_src_or_file_path
-    x_labels = re.findall(r"xlabel.*?},", tex, re.DOTALL)
+    x_labels = re.findall(r"xlabel.*?\n", tex, re.DOTALL)
     return x_labels[0] if x_labels else None
 
 
@@ -70,7 +70,7 @@ def extract_y_label_from_tex(tex_src_or_file_path):
             tex = f.read()
     else:
         tex = tex_src_or_file_path
-    y_labels = re.findall(r"ylabel.*?},", tex, re.DOTALL)
+    y_labels = re.findall(r"ylabel.*?\n", tex, re.DOTALL)
     return y_labels[0] if y_labels else None
 
 
@@ -237,16 +237,27 @@ def preprocess_style(tex_src_or_file_path):
 
         if ",\n]" not in styles[i]:
             styles[i] = styles[i].replace("\n]", ",\n]")
+
+        # for seg in re.findall(r",\s+]", tex, re.DOTALL):
+        #     styles[i] = styles[i].replace(seg, "\n]")
+
         tex = tex.replace(style, styles[i])
+
+    for seg in re.findall(r"\n\s+\n", tex, re.DOTALL):
+        tex = tex.replace(seg, "\n")
+
+    for seg in re.findall(r"\s+=\s+", tex, re.DOTALL):
+        tex = tex.replace(seg, "=")
+
     return tex
 
 
 def reformat_tikz_format_for_colalab(
-    template: Union[str, Path],
-    tex_src_to_format: Union[str, Path],
-    output_path: Union[str, Path] = None,
-    style_settings: dict = None,
-    **kwargs
+        template: Union[str, Path],
+        tex_src_to_format: Union[str, Path],
+        output_path: Union[str, Path] = None,
+        style_settings: dict = None,
+        **kwargs
 ):
     """Reformat tikz format.
 
@@ -269,7 +280,7 @@ def reformat_tikz_format_for_colalab(
         _template = _template.replace(head, head + "\n" + color + "\n")
 
     for new_legend, old_legend in zip_longest(
-        extract_legend_from_tex(tex_src_to_format), extract_legend_from_tex(_template)
+            extract_legend_from_tex(tex_src_to_format), extract_legend_from_tex(_template)
     ):
         if old_legend and new_legend:
             _template = _template.replace(old_legend, new_legend, 1)
@@ -280,10 +291,11 @@ def reformat_tikz_format_for_colalab(
         else:
             style_settings["legend"] = new_legend
 
-    tikz_plot_style = extract_style_from_tex(_template)
     for k, v in style_settings.items():
         _template = _template.replace(
-            tikz_plot_style, tikz_plot_style.replace("]", "{}={},\n]".format(k, v)), 1
+            extract_style_from_tex(_template),
+            extract_style_from_tex(_template).replace("]", "{}={},\n]".format(k, v)),
+            1
         )
 
     if kwargs.get("no_legend", False):
@@ -331,7 +343,7 @@ def reformat_tikz_format_for_colalab(
     new_y_label = extract_y_label_from_tex(tex_src_to_format)
     old_y_label = extract_y_label_from_tex(_template)
     if old_y_label and new_y_label:
-        _template = _template.replace(old_y_label, new_y_label, 1)
+        _template = _template.replace(old_y_label, new_y_label.split(',')[0]+',\n', 1)
     elif old_y_label and not new_y_label:
         _template = _template.replace(old_y_label, "", 1)
     elif new_y_label:
@@ -342,12 +354,15 @@ def reformat_tikz_format_for_colalab(
     if os.path.exists(tex_src_to_format):
         output_path = os.path.join(Path(tex_src_to_format), ".tex")
 
+    _template = preprocess_style(_template)
+
     with open(os.path.join(output_path), "w") as f:
         f.write(_template)
-    os.system("pdflatex %s %s" % (output_path, output_path))
+    os.system("pdflatex %s" % output_path)
+
     os.system(
         "pdfcrop %s %s"
-        % (output_path.replace(".tex", ".pdf"), output_path.replace(".tex", ".pdf"))
+        % (output_path[:-4] + ".pdf", output_path[:-4] + ".pdf")
     )
 
     return _template
