@@ -12,8 +12,26 @@ from itertools import zip_longest
 from pathlib import Path
 from typing import Union
 
+style_dict = {
+    "xlabel": r"xlabel.*?\n",
+    "ylabel": r"ylabel.*?\n",
+    "zlabel": r"zlabel.*?\n",
+    "xtick": r"xtick.*?\n",
+    "ytick": r"ytick.*?\n",
+    "ztick": r"ztick.*?\n",
+    "xticklabels": r"xticklabels.*?\n",
+    "yticklabels": r"yticklabels.*?\n",
+    "zticklabels": r"zticklabels.*?\n",
+    "xmin": r"xmin.*?\n",
+    "xmax": r"xmax.*?\n",
+    "ymin": r"ymin.*?\n",
+    "ymax": r"ymax.*?\n",
+    "zmin": r"zmin.*?\n",
+    "zmax": r"zmax.*?\n",
+}
 
-def extract_table_and_style_from_tex(tex_src_or_file_path):
+
+def extract_table_style_from_tex(tex_src_or_file_path):
     """Extract tables from tex file.
 
     Args:
@@ -34,31 +52,12 @@ def extract_table_and_style_from_tex(tex_src_or_file_path):
     return [tables, styles]
 
 
-def extract_x_label_from_tex(tex_src_or_file_path):
-    """Extract x label from tex file.
-
-    Args:
-        tex_src_or_file_path (str): tex file path.
-
-    Returns:
-        list: list of x label.
-    """
-    import re
-
-    if os.path.exists(tex_src_or_file_path):
-        with open(tex_src_or_file_path, "r", encoding="utf8") as f:
-            tex = f.read()
-    else:
-        tex = tex_src_or_file_path
-    x_labels = re.findall(r"xlabel.*?\n", tex, re.DOTALL)
-    return x_labels[0] if x_labels else None
-
-
-def extract_y_label_from_tex(tex_src_or_file_path):
+def extract_config_by_name(tex_src_or_file_path, style_name):
     """Extract y label from tex file.
 
     Args:
         tex_src_or_file_path (str): tex file path.
+        style_name (str): style name.
 
     Returns:
         list: list of y label.
@@ -70,48 +69,8 @@ def extract_y_label_from_tex(tex_src_or_file_path):
             tex = f.read()
     else:
         tex = tex_src_or_file_path
-    y_labels = re.findall(r"ylabel.*?\n", tex, re.DOTALL)
+    y_labels = re.findall(style_dict[style_name], tex, re.DOTALL)
     return y_labels[0] if y_labels else None
-
-
-def extract_x_tick_from_tex(tex_src_or_file_path):
-    """Extract x tick from tex file.
-
-    Args:
-        tex_src_or_file_path (str): tex file path.
-
-    Returns:
-        list: list of x tick.
-    """
-    import re
-
-    if os.path.exists(tex_src_or_file_path):
-        with open(tex_src_or_file_path, "r") as f:
-            tex = f.read()
-    else:
-        tex = tex_src_or_file_path
-    x_ticks = re.findall(r"xtick.*?}", tex, re.DOTALL)
-    return x_ticks
-
-
-def extract_y_tick_from_tex(tex_src_or_file_path):
-    """Extract y tick from tex file.
-
-    Args:
-        tex_src_or_file_path (str): tex file path.
-
-    Returns:
-        list: list of y tick.
-    """
-    import re
-
-    if os.path.exists(tex_src_or_file_path):
-        with open(tex_src_or_file_path, "r") as f:
-            tex = f.read()
-    else:
-        tex = tex_src_or_file_path
-    y_ticks = re.findall(r"ytick.*?}", tex, re.DOTALL)
-    return y_ticks
 
 
 def extract_legend_from_tex(tex_src_or_file_path):
@@ -205,7 +164,9 @@ def extract_color_from_tex(tex_src_or_file_path):
             tex = f.read()
     else:
         tex = tex_src_or_file_path
-    colors = re.findall(r"\\definecolor{.*?}{RGB}{.*?}", tex, re.DOTALL)
+    colors = re.findall(r"\\definecolor{.*?}{RGB}{.*?}", tex, re.DOTALL) + re.findall(
+        r"\\definecolor{.*?}{rgb}{.*?}", tex, re.DOTALL
+    )
     return colors
 
 
@@ -253,11 +214,11 @@ def preprocess_style(tex_src_or_file_path):
 
 
 def reformat_tikz_format_for_colalab(
-        template: Union[str, Path],
-        tex_src_to_format: Union[str, Path],
-        output_path: Union[str, Path] = None,
-        style_settings: dict = None,
-        **kwargs
+    template: Union[str, Path],
+    tex_src_to_format: Union[str, Path],
+    output_path: Union[str, Path] = None,
+    style_settings: dict = None,
+    **kwargs,
 ):
     """Reformat tikz format.
 
@@ -280,7 +241,7 @@ def reformat_tikz_format_for_colalab(
         _template = _template.replace(head, head + "\n" + color + "\n")
 
     for new_legend, old_legend in zip_longest(
-            extract_legend_from_tex(tex_src_to_format), extract_legend_from_tex(_template)
+        extract_legend_from_tex(tex_src_to_format), extract_legend_from_tex(_template)
     ):
         if old_legend and new_legend:
             _template = _template.replace(old_legend, new_legend, 1)
@@ -295,14 +256,14 @@ def reformat_tikz_format_for_colalab(
         _template = _template.replace(
             extract_style_from_tex(_template),
             extract_style_from_tex(_template).replace("]", "{}={},\n]".format(k, v)),
-            1
+            1,
         )
 
     if kwargs.get("no_legend", False):
         _template = remove_legend_from_tex(_template)
 
-    new_table_and_styles = extract_table_and_style_from_tex(tex_src_to_format)
-    old_table_and_styles = extract_table_and_style_from_tex(_template)
+    new_table_and_styles = extract_table_style_from_tex(tex_src_to_format)
+    old_table_and_styles = extract_table_style_from_tex(_template)
     for i in range(max(len(new_table_and_styles[0]), len(old_table_and_styles[0]))):
 
         new_table, new_style = new_table_and_styles[0][i], new_table_and_styles[1][i]
@@ -328,27 +289,16 @@ def reformat_tikz_format_for_colalab(
         else:
             raise ValueError("old_table and new_table are both None.")
 
-    new_x_label = extract_x_label_from_tex(tex_src_to_format)
-    old_x_label = extract_x_label_from_tex(_template)
-    if old_x_label and new_x_label:
-        _template = _template.replace(old_x_label, new_x_label, 1)
-    elif old_x_label and not new_x_label:
-        _template = _template.replace(old_x_label, "", 1)
-    elif new_x_label:
-        style_settings["xlabel"] = new_x_label.replace("xlabel=", "").replace(
-            ",", ""
-        )  # replace not available, waiting for style setting
-
-    new_y_label = extract_y_label_from_tex(tex_src_to_format)
-    old_y_label = extract_y_label_from_tex(_template)
-    if old_y_label and new_y_label:
-        _template = _template.replace(old_y_label, new_y_label.split(',')[0]+',\n', 1)
-    elif old_y_label and not new_y_label:
-        _template = _template.replace(old_y_label, "", 1)
-    elif new_y_label:
-        style_settings["ylabel"] = new_y_label.replace("ylabel=", "").replace(
-            ",", ""
-        )  # replace not available, waiting for style setting
+    for k, v in style_dict.items():
+        old_style = extract_config_by_name(_template, k)
+        new_style = extract_config_by_name(tex_src_to_format, k)
+        if old_style and new_style:
+            _template = _template.replace(old_style, new_style, 1)
+        elif old_style and not new_style:
+            _template = _template.replace(old_style, "", 1)
+        elif new_style:
+            style_settings[k] = new_style.replace(f"{k}=", "").replace(",", "")
+            # replace not available, waiting for style setting
 
     if os.path.exists(tex_src_to_format):
         output_path = os.path.join(Path(tex_src_to_format), ".tex")
@@ -359,9 +309,6 @@ def reformat_tikz_format_for_colalab(
         f.write(_template)
     os.system("pdflatex %s" % output_path)
 
-    os.system(
-        "pdfcrop %s %s"
-        % (output_path[:-4] + ".pdf", output_path[:-4] + ".pdf")
-    )
+    os.system("pdfcrop %s %s" % (output_path[:-4] + ".pdf", output_path[:-4] + ".pdf"))
 
     return _template

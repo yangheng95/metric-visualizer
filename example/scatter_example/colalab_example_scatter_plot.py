@@ -57,26 +57,35 @@ if __name__ == "__main__":
         \end{document}
             """
 
-    for tex_file in findfile.find_cwd_files(".tex", exclude_key=[".aux", '.log', '.out', '.gz', '.new']):
+    for tex_file in findfile.find_cwd_files(
+        ".tex", exclude_key=[".aux", ".log", ".out", ".gz", ".new"]
+    ):
         tex_src_data = tex_file
 
         style_settings = {
             "legend pos": "north west",
             "legend entries": "{}",
-            'xtick': '{}',
-            'xticklabels': '{}',
-            'ytick': '{}',
-            'yticklabels': '{}',
+            "xtick": "{}",
+            "xticklabels": "{}",
+            "ytick": "{}",
+            "yticklabels": "{}",
             # write your own style settings here
             # it will be appended to the tikz picture style settings
         }
         reformat_tikz_format_for_colalab(
             tex_src_template,
             tex_src_data,
-            output_path=tex_file + '.new.tex',
+            output_path=tex_file + ".new.tex",
             style_settings=style_settings,
             # no_legend=True
         )
 
-    for trash in findfile.find_cwd_files(or_key=[".aux", '.log', '.out', '.gz',]):
+    for trash in findfile.find_cwd_files(
+        or_key=[
+            ".aux",
+            ".log",
+            ".out",
+            ".gz",
+        ]
+    ):
         os.remove(trash)

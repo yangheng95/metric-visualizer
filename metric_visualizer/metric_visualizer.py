@@ -1860,7 +1860,17 @@ class MetricVisualizer:
             return self.metric_rank_test_result
 
     def _get_table_data(self, **kwargs):
-        header = [self.trial_tag, "Metric", "Values", "Average", "Median", "Std", "IQR", "Min", "Max"]
+        header = [
+            self.trial_tag,
+            "Metric",
+            "Values",
+            "Average",
+            "Median",
+            "Std",
+            "IQR",
+            "Min",
+            "Max",
+        ]
 
         table_data = []
         trial_tag_list = kwargs.get("trial_tag_list", self.trial_tag_list)
@@ -1900,7 +1910,17 @@ class MetricVisualizer:
 
                 table_data += _data
         if len(transposed_metrics[mn]) > 10:
-            header = ["Metric", self.trial_tag, "First 10 values", "Average", "Median", "Std", "IQR", "Min", "Max"]
+            header = [
+                "Metric",
+                self.trial_tag,
+                "First 10 values",
+                "Average",
+                "Median",
+                "Std",
+                "IQR",
+                "Min",
+                "Max",
+            ]
 
         return table_data, header
 
@@ -1933,6 +1953,7 @@ class MetricVisualizer:
 
     def to_execl(self, dump_path=os.getcwd(), filename=None, **kwargs):
         import pandas as pd
+
         if not dump_path:
             dump_path = os.getcwd()
         prefix = os.path.join(dump_path, self.name if self.name else "")
@@ -1953,11 +1974,16 @@ class MetricVisualizer:
             prefix = prefix + filename
         fout = open(prefix + ".txt", mode="w", encoding="utf8")
         table_data, header = self._get_table_data(**kwargs)
-        fout.write(tabulate(table_data, headers=header, numalign="center", tablefmt="fancy_grid"))
+        fout.write(
+            tabulate(
+                table_data, headers=header, numalign="center", tablefmt="fancy_grid"
+            )
+        )
         fout.close()
 
     def to_csv(self, dump_path=os.getcwd(), filename=None, **kwargs):
         import pandas as pd
+
         if not dump_path:
             dump_path = os.getcwd()
         prefix = os.path.join(dump_path, self.name if self.name else "")
@@ -1969,6 +1995,7 @@ class MetricVisualizer:
 
     def to_json(self, dump_path=os.getcwd(), filename=None, **kwargs):
         import json
+
         if not dump_path:
             dump_path = os.getcwd()
         prefix = os.path.join(dump_path, self.name if self.name else "")
@@ -1985,7 +2012,9 @@ class MetricVisualizer:
             prefix = prefix + filename
         fout = open(prefix + ".tex", mode="w", encoding="utf8")
         table_data, header = self._get_table_data(**kwargs)
-        fout.write(tabulate(table_data, headers=header, numalign="center", tablefmt="latex"))
+        fout.write(
+            tabulate(table_data, headers=header, numalign="center", tablefmt="latex")
+        )
         fout.close()
 
     def dump(self, filename=None):

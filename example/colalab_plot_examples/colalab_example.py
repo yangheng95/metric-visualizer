@@ -116,11 +116,10 @@ if __name__ == "__main__":
     style_settings = {
         "legend pos": "north west",
         "legend entries": "{}",
-        'xlabel': 'This is X label',
-        'ylabel': 'This is Y label',
-        'xtick': '{0,1,2}',
-        'xticklabels': '{0,1,2}',
-
+        "xlabel": "This is X label",
+        "ylabel": "This is Y label",
+        "xtick": "{0,1,2}",
+        "xticklabels": "{0,1,2}",
         # write your own style settings here
         # it will be appended to the tikz picture style settings
     }
