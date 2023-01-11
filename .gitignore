@@ -28,6 +28,7 @@ tests/
 *.tex
 *.txt
 
+
 # Embedding
 glove.840B.300d.txt
 glove.42B.300d.txt

@@ -1859,16 +1859,17 @@ class MetricVisualizer:
         except KeyError:
             return self.metric_rank_test_result
 
-    @exception_handle
-    def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
-        summary_str = " ------------------------------------- Metric Visualizer ------------------------------------- \n"
-
-        header = ["Metric", self.trial_tag, "Values", "Summary"]
+    def _get_table_data(self, **kwargs):
+        header = [self.trial_tag, "Metric", "Values", "Average", "Median", "Std", "IQR", "Min", "Max"]
 
         table_data = []
         trial_tag_list = kwargs.get("trial_tag_list", self.trial_tag_list)
-        for mn in self.metrics.keys():
-            metrics = self.metrics[mn]
+        if kwargs.get("transpose", False):
+            transposed_metrics = self.transpose()
+        else:
+            transposed_metrics = self.metrics
+        for mn in transposed_metrics.keys():
+            metrics = transposed_metrics[mn]
             if not trial_tag_list or len(trial_tag_list) != len(metrics.keys()):
                 if len(trial_tag_list) > len(metrics.keys()):
                     trial_tag_list = trial_tag_list[: len(metrics.keys())]
@@ -1881,28 +1882,34 @@ class MetricVisualizer:
                 _data += [
                     [mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]
                 ]
+                _data[-1].append(round(np.mean(metrics[trial]), 2))
+                _data[-1].append(round(np.median(metrics[trial]), 2))
+                _data[-1].append(round(np.std(metrics[trial]), 2))
                 _data[-1].append(
-                    [
-                        "Avg:{}, Median: {}, IQR: {}, STD:{}, Max: {}, Min: {}".format(
-                            round(np.average(metrics[trial]), 2),
-                            round(np.median(metrics[trial]), 2),
-                            round(np.std(metrics[trial]), 2),
-                            round(
-                                iqr(
-                                    metrics[trial],
-                                    rng=(25, 75),
-                                    interpolation="midpoint",
-                                ),
-                                2,
-                            ),
-                            round(np.max(metrics[trial]), 2),
-                            round(np.min(metrics[trial]), 2),
-                        )
-                    ]
+                    round(
+                        iqr(
+                            metrics[trial],
+                            rng=(25, 75),
+                            interpolation="midpoint",
+                        ),
+                        2,
+                    ),
                 )
+                _data[-1].append(round(np.min(metrics[trial]), 2))
+                _data[-1].append(round(np.max(metrics[trial]), 2))
+
                 table_data += _data
-        if len(self.metrics[mn]) > 10:
-            header = ["Metric", self.trial_tag, "Values (First 10 values)", "Summary"]
+        if len(transposed_metrics[mn]) > 10:
+            header = ["Metric", self.trial_tag, "First 10 values", "Average", "Median", "Std", "IQR", "Min", "Max"]
+
+        return table_data, header
+
+    @exception_handle
+    def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
+        summary_str = " ------------------------------------- Metric Visualizer ------------------------------------- \n"
+
+        table_data, header = self._get_table_data(**kwargs)
+
         summary_str += tabulate(
             table_data, headers=header, numalign="center", tablefmt="fancy_grid"
         )
@@ -1924,6 +1931,63 @@ class MetricVisualizer:
 
         return summary_str
 
+    def to_execl(self, dump_path=os.getcwd(), filename=None, **kwargs):
+        import pandas as pd
+        if not dump_path:
+            dump_path = os.getcwd()
+        prefix = os.path.join(dump_path, self.name if self.name else "")
+        if filename:
+            prefix = prefix + filename
+        writer = pd.ExcelWriter(prefix + ".xlsx")
+        table_data, header = self._get_table_data(**kwargs)
+
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_excel(writer, sheet_name=self.name)
+        writer.save()
+
+    def to_txt(self, dump_path=os.getcwd(), filename=None, **kwargs):
+        if not dump_path:
+            dump_path = os.getcwd()
+        prefix = os.path.join(dump_path, self.name if self.name else "")
+        if filename:
+            prefix = prefix + filename
+        fout = open(prefix + ".txt", mode="w", encoding="utf8")
+        table_data, header = self._get_table_data(**kwargs)
+        fout.write(tabulate(table_data, headers=header, numalign="center", tablefmt="fancy_grid"))
+        fout.close()
+
+    def to_csv(self, dump_path=os.getcwd(), filename=None, **kwargs):
+        import pandas as pd
+        if not dump_path:
+            dump_path = os.getcwd()
+        prefix = os.path.join(dump_path, self.name if self.name else "")
+        if filename:
+            prefix = prefix + filename
+        table_data, header = self._get_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_csv(prefix + ".csv", index=False)
+
+    def to_json(self, dump_path=os.getcwd(), filename=None, **kwargs):
+        import json
+        if not dump_path:
+            dump_path = os.getcwd()
+        prefix = os.path.join(dump_path, self.name if self.name else "")
+        if filename:
+            prefix = prefix + filename
+        table_data, header = self._get_table_data(**kwargs)
+        json.dump(table_data, open(prefix + ".json", mode="w", encoding="utf8"))
+
+    def to_latex(self, dump_path=os.getcwd(), filename=None, **kwargs):
+        if not dump_path:
+            dump_path = os.getcwd()
+        prefix = os.path.join(dump_path, self.name if self.name else "")
+        if filename:
+            prefix = prefix + filename
+        fout = open(prefix + ".tex", mode="w", encoding="utf8")
+        table_data, header = self._get_table_data(**kwargs)
+        fout.write(tabulate(table_data, headers=header, numalign="center", tablefmt="latex"))
+        fout.close()
+
     def dump(self, filename=None):
         if not filename:
             if self.dump_pointer:
@@ -1943,13 +2007,22 @@ class MetricVisualizer:
         pickle.dump(self, open(self.dump_pointer, mode="wb"))
 
     @staticmethod
-    def load(filename="metric_visualizer.dat"):
-        if not os.path.exists(filename):
-            dats = find_cwd_files(filename)
-            if not dats:
-                raise ValueError("Can not find {}".format(filename))
+    def load(filename=None):
+        mv = None
+        if not filename:
+            filename = find_cwd_files(".mv")
+
+        if not isinstance(filename, list):
+            filename = [filename]
+
+        for fn in filename:
+            if not os.path.exists(fn):
+                fn = find_cwd_files(fn)
+
+            print("Load", fn)
+            if not mv:
+                mv = pickle.load(open(fn, mode="rb"))
             else:
-                filename = max(dats)
-        print("Load", filename)
-        mv = pickle.load(open(filename, mode="rb"))
+                _ = pickle.load(open(fn, mode="rb"))
+                mv.metrics.update(_.metrics)
         return mv

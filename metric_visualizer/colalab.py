@@ -318,7 +318,6 @@ def reformat_tikz_format_for_colalab(
             _template = _template.replace(old_style, new_style, 1)
         elif old_table and not new_table:
             _template = _template.replace(old_table, "", 1)
-            _template = _template.replace(old_style, "", 1)
         elif not old_table and new_table:
             _template = _template.replace(
                 extract_style_from_tex(_template),

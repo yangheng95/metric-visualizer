@@ -109,12 +109,18 @@ if __name__ == "__main__":
 
         \end{document}
             """
-
+    MV = MV.load()
+    MV.to_execl()
     tex_src_data = MV.box_plot_by_metric()
 
     style_settings = {
         "legend pos": "north west",
         "legend entries": "{}",
+        'xlabel': 'This is X label',
+        'ylabel': 'This is Y label',
+        'xtick': '{0,1,2}',
+        'xticklabels': '{0,1,2}',
+
         # write your own style settings here
         # it will be appended to the tikz picture style settings
     }

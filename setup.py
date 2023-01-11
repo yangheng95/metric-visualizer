@@ -39,6 +39,8 @@ setup(
         "numpy",
         "update_checker",
         "click",
+        "pandas",
+        "openpyxl",
     ],
     entry_points="""
       [console_scripts]
