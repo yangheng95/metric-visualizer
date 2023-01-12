@@ -1860,17 +1860,30 @@ class MetricVisualizer:
             return self.metric_rank_test_result
 
     def _get_table_data(self, **kwargs):
-        header = [
-            self.trial_tag,
-            "Metric",
-            "Values",
-            "Average",
-            "Median",
-            "Std",
-            "IQR",
-            "Min",
-            "Max",
-        ]
+        if kwargs.get('transpose', False):
+            header = [
+                self.trial_tag,
+                "Metric",
+                "Values",
+                "Average",
+                "Median",
+                "Std",
+                "IQR",
+                "Min",
+                "Max",
+            ]
+        else:
+            header = [
+                "Metric",
+                self.trial_tag,
+                "Values",
+                "Average",
+                "Median",
+                "Std",
+                "IQR",
+                "Min",
+                "Max",
+            ]
 
         table_data = []
         trial_tag_list = kwargs.get("trial_tag_list", self.trial_tag_list)
