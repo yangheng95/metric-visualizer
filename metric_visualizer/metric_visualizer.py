@@ -19,7 +19,7 @@ import matplotlib
 import natsort
 import numpy as np
 import tikzplotlib
-from findfile import find_cwd_files
+from findfile import find_cwd_files, find_cwd_file
 from matplotlib import pyplot as plt
 from scipy.stats import iqr
 from scipy.stats import ranksums
@@ -1939,7 +1939,7 @@ class MetricVisualizer:
 
     @exception_handle
     def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
-        summary_str = " ------------------------------------- Metric Visualizer ------------------------------------- \n"
+        summary_str = "\n ------------------------------------- Metric Visualizer ------------------------------------- \n"
 
         table_data, header = self._get_table_data(**kwargs)
 
@@ -2059,7 +2059,7 @@ class MetricVisualizer:
 
         for fn in filename:
             if not os.path.exists(fn):
-                fn = find_cwd_files(fn)
+                fn = find_cwd_file(fn)
 
             print("Load", fn)
             if not mv:
