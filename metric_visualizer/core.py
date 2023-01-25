@@ -11,6 +11,7 @@ import datetime
 import json
 import os
 import pickle
+import random
 from collections import OrderedDict
 
 import findfile
@@ -34,7 +35,7 @@ tex_template = r"""
     \usepackage{helvet}
     \usepackage[eulergreek]{sansmath}
     \usepackage{amsfonts,amssymb,amsmath,amsthm,amsopn}	% math related
-
+    \usetikzlibrary{patterns}
     \begin{document}
 
         \begin{figure}
@@ -96,17 +97,23 @@ class MetricVisualizer:
         self.metric_rank_test_result = None
 
     @staticmethod
-    def compile_tikz(**kwargs):
-        for f in findfile.find_cwd_files(".tex", exclude_key=["ignore", ".pdf"], recursive=kwargs.get("recursive", 1)):
+    def compile_tikz(crop=True, clean=True, **kwargs):
+        for f in findfile.find_cwd_files(
+                ".tex", exclude_key=["ignore", ".pdf"], recursive=kwargs.get("recursive", 1)
+        ):
             os.system(f"pdflatex {f} {f}.pdf")
         # for f in findfile.find_cwd_files(".tex", exclude_key=["ignore", ".pdf"]):
         #     os.system(f"rm {f}")
-        for f in findfile.find_cwd_files(".aux", exclude_key=["ignore", ".pdf"]):
-            os.remove(f)
-        for f in findfile.find_cwd_files(".log", exclude_key=["ignore", ".pdf"]):
-            os.remove(f)
-        for f in findfile.find_cwd_files(".out", exclude_key=["ignore", ".pdf"]):
-            os.remove(f)
+        if crop:
+            for f in findfile.find_cwd_files(".pdf", exclude_key=["ignore", ".pdf"]):
+                os.system(f"pdfcrop {f} {f}")
+        if clean:
+            for f in findfile.find_cwd_files(".aux", exclude_key=["ignore", ".pdf"]):
+                os.remove(f)
+            for f in findfile.find_cwd_files(".log", exclude_key=["ignore", ".pdf"]):
+                os.remove(f)
+            for f in findfile.find_cwd_files(".out", exclude_key=["ignore", ".pdf"]):
+                os.remove(f)
 
     def log(self, trial_name=None, metric_name=None, value=0, unit=None):
         """
@@ -163,71 +170,94 @@ class MetricVisualizer:
         :return: None
         """
         import matplotlib.pyplot as plt
-        import matplotlib.pyplot as plt
-        import numpy as np
 
-        if by == 'trial':
-            metrics = self.transpose()
+        plt.cla()
+
+        if by == "trial":
+            plot_metrics = self.metrics
         else:
-            metrics = self.metrics
+            plot_metrics = self.transpose()
 
-        # get the number of metrics
-        num_metrics = len(metrics.keys())
-        # get the number of trials
-        num_trials = len(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("markers", None):
+            markers = self.MARKERS[:]
+        else:
+            markers = kwargs.pop("markers")
 
-        # get the width of the box plot
-        width = 0.8 / num_metrics
-        # get the xticks
-        xticks = np.arange(num_trials) + 0.4
-        # get the xtick labels
-        xtick_labels = list(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("colors", None):
+            colors = self.COLORS[:]
+        else:
+            colors = kwargs.pop("colors")
 
-        # get the colors
-        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
+        box_parts = []
+        ax = plt.subplot()
+        for metric_name in plot_metrics.keys():
+            metrics = plot_metrics[metric_name]
 
-        # draw the box plot
-        fig, ax = plt.subplots()
-        for i, metric_name in enumerate(metrics.keys()):
-            # get the values
-            values = list(metrics[metric_name].values())
-            # draw the box plot
-            ax.boxplot(
-                values,
-                labels=xtick_labels,
-                positions=xticks + i * width,
-                widths=width,
-                patch_artist=True,
-                boxprops=dict(facecolor=colors[i], color=colors[i]),
-                capprops=dict(color=colors[i]),
-                whiskerprops=dict(color=colors[i]),
-                flierprops=dict(color=colors[i], markeredgecolor=colors[i]),
-                medianprops=dict(color=colors[i]),
-                meanline=kwargs.get("meanline", True),
-                **kwargs.get("boxplot_kwargs", {}),
+            color = random.choice(colors)
+            colors.remove(color)
+
+            data = [metrics[trial] for trial in metrics.keys()]
+
+            boxs_parts = ax.boxplot(
+                data,
+                positions=list(range(len(metrics.keys()))),
+                widths=kwargs.pop("widths", 0.8),
+                meanline=True,
             )
 
-        # set the xticks
-        ax.set_xticks(xticks + 0.4)
-        # set the xtick labels
-        ax.set_xticklabels(xtick_labels)
-        # set the xtick label rotation
-        plt.setp(
-            ax.get_xticklabels(),
-            rotation=kwargs.get("xtick_rotation", 0),
-            horizontalalignment=kwargs.get("horizontalalignment", "right")
+            box_parts.append(boxs_parts["boxes"][0])
+
+            for item in ["boxes", "whiskers", "fliers", "medians", "caps"]:
+                plt.setp(boxs_parts[item], color=color)
+
+            plt.setp(boxs_parts["fliers"], markeredgecolor=color)
+
+        if kwargs.get("legend", True):
+            plt.legend(box_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+
+        if kwargs.get("minor_ticks", True):
+            plt.minorticks_on()
+
+        if kwargs.get("grid", True):
+            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+
+        plt.xticks(
+            kwargs.get("xticks", list(range(len(metrics.keys())))),
+            list(metrics.keys()),
+            rotation=kwargs.pop("xrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            **kwargs.pop("xticks_kwargs", {}),
+        )
+        plt.yticks(
+            rotation=kwargs.pop("yrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            **kwargs.pop("yticks_kwargs", {}),
         )
 
-        # set the title
-        ax.set_title(kwargs.get("title", self.name + " Box Plot"))
-        # set the x label
-        ax.set_xlabel(kwargs.get("xlabel", "Trial" if by == "trial" else "Metric"))
-        # set the y label
-        ax.set_ylabel(kwargs.get("ylabel", "Value" if by == "trial" else "Metric"))
+        plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
+        plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        # set the legend
-        ax.legend(metrics.keys())
-
+        if kwargs.get("xticklabels", None):
+            ax.set_xticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                #verticalalignment=kwargs.pop("verticalalignment", "top"),
+                **kwargs.pop("xticklabels_kwargs", {}),
+            )
+        if kwargs.get("yticklabels", None):
+            ax.set_yticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                verticalalignment=kwargs.pop("verticalalignment", "left"),
+                **kwargs.pop("yticklabels_kwargs", {}),
+            )
         if engine != "tikz":
             # save the box plot
             if save_path is not None:
@@ -248,7 +278,9 @@ class MetricVisualizer:
 
             return save_path
 
-    def violin_plot(self, by='trial', engine='matplotlib', save_path=None, show=True, **kwargs):
+    def violin_plot(
+            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+    ):
         """
         Draw a violin plot based on the metric name and trial name.
         :param by: the name of the x-axis, such as trial, metric, etc.
@@ -260,65 +292,91 @@ class MetricVisualizer:
         """
         import matplotlib.pyplot as plt
 
-        if by == 'trial':
-            metrics = self.transpose()
+        plt.cla()
+
+        if by == "trial":
+            plot_metrics = self.metrics
         else:
-            metrics = self.metrics
+            plot_metrics = self.transpose()
 
-        # get the number of metrics
-        num_metrics = len(metrics.keys())
-        # get the number of trials
-        num_trials = len(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("markers", None):
+            markers = self.MARKERS[:]
+        else:
+            markers = kwargs.pop("markers")
 
-        # get the width of the violin plot
-        width = 0.8 / num_metrics
-        # get the xticks
-        xticks = np.arange(num_trials) + 0.4
-        # get the xtick labels
-        xtick_labels = list(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("colors", None):
+            colors = self.COLORS[:]
+        else:
+            colors = kwargs.pop("colors")
 
-        # get the colors
-        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
+        violin_parts = []
+        ax = plt.subplot()
+        for metric_name in plot_metrics.keys():
+            metrics = plot_metrics[metric_name]
+            data = [metrics[trial] for trial in metrics.keys()]
 
-        # draw the violin plot
-        fig, ax = plt.subplots()
-        for i, metric_name in enumerate(metrics.keys()):
-            # get the values
-            values = list(metrics[metric_name].values())
-            # draw the violin plot
-            ax.violinplot(
-                values,
-                positions=xticks + i * width,
-                widths=width,
-                showmeans=kwargs.get("showmeans", False),
-                showmedians=kwargs.get("showmedians", True),
-                showextrema=kwargs.get("showextrema", True),
-                bw_method=kwargs.get("bw_method", "scott"),
-                **kwargs.get("violinplot_kwargs", {})
+            violin = ax.violinplot(
+                data,
+                widths=kwargs.pop("widths", 0.8),
+                positions=list(range(len(metrics.keys()))),
+                showmeans=True,
+                showmedians=True,
+                showextrema=True,
+            )
+            violin_parts.append(violin["bodies"][0])
+
+        if kwargs.get("legend", True):
+            plt.legend(
+                violin_parts, self.metrics.keys(), loc=kwargs.pop("legend_loc", 1)
             )
 
-        # set the xticks
-        ax.set_xticks(xticks + 0.4)
-        # set the xtick labels
-        ax.set_xticklabels(xtick_labels)
-        # set the xtick label rotation
-        plt.setp(
-            ax.get_xticklabels(),
-            rotation=kwargs.get("rotation", 0),
-            horizontalalignment=kwargs.get("horizontalalignment", "right"), **kwargs.get("xticklabels_kwargs", {})
+        for pc in violin["bodies"]:
+            pc.set_linewidth(kwargs.pop("linewidth", 2))
+
+        if kwargs.get("minor_ticks", True):
+            plt.minorticks_on()
+
+        if kwargs.get("grid", True):
+            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+
+        plt.xticks(
+            kwargs.get("xticks", list(range(len(metrics.keys())))),
+            list(metrics.keys()),
+            rotation=kwargs.pop("xrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            **kwargs.pop("xticks_kwargs", {}),
+        )
+        plt.yticks(
+            rotation=kwargs.pop("yrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            **kwargs.pop("yticks_kwargs", {}),
         )
 
-        # set the title
-        ax.set_title(kwargs.get("title", self.name + " Violin Plot"))
-        # set the x label
-        ax.set_xlabel(kwargs.get("xlabel", "Trial" if by == "trial" else "Metric"))
-        # set the y label
-        ax.set_ylabel(kwargs.get("ylabel", "Value" if by == "trial" else "Metric"))
+        plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
+        plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        # set the legend
-        ax.legend(metrics.keys())
-
-        if engine != 'tikz':
+        if kwargs.get("xticklabels", None):
+            ax.set_xticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                #verticalalignment=kwargs.pop("verticalalignment", "top"),
+                **kwargs.pop("xticklabels_kwargs", {}),
+            )
+        if kwargs.get("yticklabels", None):
+            ax.set_yticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                verticalalignment=kwargs.pop("verticalalignment", "left"),
+                **kwargs.pop("yticklabels_kwargs", {}),
+            )
+        if engine != "tikz":
             # save the violin plot
             if save_path is not None:
                 plt.savefig(save_path)
@@ -327,6 +385,7 @@ class MetricVisualizer:
                 plt.show()
         else:
             import tikzplotlib
+
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
@@ -337,7 +396,9 @@ class MetricVisualizer:
 
             return save_path
 
-    def scatter_plot(self, by='trial', engine='matplotlib', save_path=None, show=True, **kwargs):
+    def scatter_plot(
+            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+    ):
         """
         Draw a scatter plot based on the metric name and trial name.
         :param by: the name of the x-axis, such as trial, metric, etc.
@@ -349,61 +410,88 @@ class MetricVisualizer:
         """
         import matplotlib.pyplot as plt
 
-        if by == 'trial':
-            metrics = self.transpose()
+        plt.cla()
+        if by == "trial":
+            plot_metrics = self.metrics
         else:
-            metrics = self.metrics
+            plot_metrics = self.transpose()
 
-        # get the number of metrics
-        num_metrics = len(metrics.keys())
-        # get the number of trials
-        num_trials = len(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("markers", None):
+            markers = self.MARKERS[:]
+        else:
+            markers = kwargs.pop("markers")
 
-        # get the width of the scatter plot
-        width = 0.8 / num_metrics
-        # get the xticks
-        xticks = np.arange(num_trials) + 0.4
-        # get the xtick labels
-        xtick_labels = list(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("colors", None):
+            colors = self.COLORS[:]
+        else:
+            colors = kwargs.pop("colors")
 
-        # get the colors
-        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
-
+        scatter_parts = []
+        ax = plt.subplot()
         # draw the scatter plot
-        fig, ax = plt.subplots()
-        for i, metric_name in enumerate(metrics.keys()):
+        for i, metric_name in enumerate(plot_metrics.keys()):
             # get the values
-            values = list(metrics[metric_name].values())
+            metrics = plot_metrics[metric_name]
+            values = list(plot_metrics[metric_name].values())
             # draw the scatter plot
-            ax.scatter(
-                xticks + i * width,
+            scatter_part = ax.scatter(
+                list(range(len(values))),
                 values,
                 color=colors[i],
-                **kwargs.get("scatter_kwargs", {})
+                **kwargs.get("scatter_kwargs", {}),
             )
 
-        # set the xticks
-        ax.set_xticks(xticks + 0.4)
-        # set the xtick labels
-        ax.set_xticklabels(xtick_labels)
-        # set the xtick label rotation
-        plt.setp(
-            ax.get_xticklabels(),
-            rotation=kwargs.get("rotation", 0),
-            horizontalalignment=kwargs.get("horizontalalignment", "right"), **kwargs.get("xticklabels_kwargs", {})
+            scatter_parts.append(scatter_part["bodies"][0])
+
+        if kwargs.get("legend", True):
+            plt.legend(
+                scatter_parts, self.metrics.keys(), loc=kwargs.pop("legend_loc", 1)
+            )
+
+        if kwargs.get("minor_ticks", True):
+            plt.minorticks_on()
+
+        if kwargs.get("grid", True):
+            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+
+        plt.xticks(
+            kwargs.get("xticks", list(range(len(metrics.keys())))),
+            list(metrics.keys()),
+            rotation=kwargs.pop("xrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            **kwargs.pop("xticks_kwargs", {}),
+        )
+        plt.yticks(
+            rotation=kwargs.pop("yrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            **kwargs.pop("yticks_kwargs", {}),
         )
 
-        # set the title
-        ax.set_title(kwargs.get("title", self.name + " Scatter Plot"))
-        # set the x label
-        ax.set_xlabel(kwargs.get("xlabel", "Trial" if by == "trial" else "Metric"))
-        # set the y label
-        ax.set_ylabel(kwargs.get("ylabel", "Value" if by == "trial" else "Metric"))
+        plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
+        plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        # set the legend
-        ax.legend(metrics.keys())
-
-        if engine != 'tikz':
+        if kwargs.get("xticklabels", None):
+            ax.set_xticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                #verticalalignment=kwargs.pop("verticalalignment", "top"),
+                **kwargs.pop("xticklabels_kwargs", {}),
+            )
+        if kwargs.get("yticklabels", None):
+            ax.set_yticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                verticalalignment=kwargs.pop("verticalalignment", "left"),
+                **kwargs.pop("yticklabels_kwargs", {}),
+            )
+        if engine != "tikz":
             # save the scatter plot
             if save_path is not None:
                 plt.savefig(save_path)
@@ -412,6 +500,7 @@ class MetricVisualizer:
                 plt.show()
         else:
             import tikzplotlib
+
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
@@ -422,7 +511,9 @@ class MetricVisualizer:
 
             return save_path
 
-    def trajectory_plot(self, by='trial', engine='matplotlib', save_path=None, show=True, **kwargs):
+    def trajectory_plot(
+            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+    ):
         """
         Draw a trajectory plot based on the metric name and trial name.
         :param by: the name of the x-axis, such as trial, metric, etc.
@@ -434,93 +525,119 @@ class MetricVisualizer:
         """
         import matplotlib.pyplot as plt
 
-        if by == 'trial':
-            metrics = self.transpose()
+        plt.cla()
+
+        if by == "trial":
+            plot_metrics = self.metrics
         else:
-            metrics = self.metrics
+            plot_metrics = self.transpose()
 
-        # get the number of metrics
-        num_metrics = len(metrics.keys())
-        # get the number of trials
-        num_trials = len(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("markers", None):
+            markers = self.MARKERS[:]
+        else:
+            markers = kwargs.pop("markers")
 
-        # get the width of the trajectory plot
-        width = 1 / num_metrics
-        # get the xticks
-        xticks = np.arange(num_trials)
-        xticks = np.expand_dims(xticks, axis=1)
-        # get the xtick labels
-        xtick_labels = list(metrics[list(metrics.keys())[0]].keys())
-
-        # get the colors
-        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
+        if not kwargs.get("colors", None):
+            colors = self.COLORS[:]
+        else:
+            colors = kwargs.pop("colors")
 
         traj_parts = []
-        # draw the trajectory plot
-        fig, ax = plt.subplots()
-        for i, metric_name in enumerate(metrics.keys()):
-            metric = metrics[metric_name]
-            y = np.array([metric[metric_name] for metric_name in metric])
+        ax = plt.subplot()
+
+        for metric_name in plot_metrics.keys():
+            metrics = plot_metrics[metric_name]
+
+            y = np.array([metrics[metric_name] for metric_name in metrics])
             x = np.array(
-                [[j for j, label in enumerate(metric)] for _ in range(y.shape[1])]
+                [[i for i, label in enumerate(metrics)] for _ in range(y.shape[1])]
             )
 
             # y_avg = np.median(y, axis=1)
+
             y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
 
-            avg_point = ax.plot(
+            marker = random.choice(markers)
+            markers.remove(marker)
+            if not colors:
+                colors = self.COLORS[:]
+            color = random.choice(colors)
+            colors.remove(color)
+
+            if kwargs.pop("avg_point", True):
+                avg_point = ax.plot(
                     x[0],
                     y_avg,
-                    marker=kwargs.get("marker", "o"),
-                    color=colors[i],
-                    markersize=kwargs.get("markersize", 10),
-                    linewidth=kwargs.get("linewidth", 2),
+                    marker=marker,
+                    color=color,
+                    markersize=kwargs.pop("markersize", 3),
+                    linewidth=kwargs.pop("linewidth", 2),
                 )
-            traj_parts.append(avg_point[0])
 
-            if kwargs.pop("fill", True):
-                traj_fill = ax.fill_between(
+            if kwargs.pop("traj_fill", True):
+                plt.subplot().fill_between(
                     x[0],
                     y_avg - y_std,
                     y_avg + y_std,
-                    color=colors[i],
-                    alpha=kwargs.get("alpha", 0.2)
+                    color=color,
+                    alpha=kwargs.pop("alpha", 0.2),
                 )
 
             if kwargs.pop("traj_point", True):
-                # color = random.choice(colors)
-                # colors.remove(color)
-                traj_point = ax.scatter(
-                    x,
-                    y,
-                    marker=kwargs.get("marker", "o"),
-                    color=kwargs.get("color", colors[i]),
-                    **kwargs.get("scatter_kwargs", {})
-                )
+                plt.subplot().scatter(x, y, marker=marker, color=color)
 
-        plt.legend(traj_parts, xtick_labels)
+            traj_parts.append(avg_point[0])
 
-        # set the xticks
-        ax.set_xticks(list(xticks))
-        # set the xtick labels
-        # ax.set_xticklabels(xtick_labels)
-        # # set the xtick label rotation
-        plt.setp(
-            ax.get_xticklabels(),
-            rotation=kwargs.get("rotation", 0),
-            horizontalalignment=kwargs.get("horizontalalignment", "right"), **kwargs.get("xticklabels_kwargs", {})
+        if kwargs.get("legend", True):
+            plt.legend(
+                traj_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1)
+            )
+
+        if kwargs.get("minor_ticks", True):
+            plt.minorticks_on()
+
+        if kwargs.get("grid", True):
+            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+
+        plt.xticks(
+            kwargs.get("xticks", list(range(len(metrics.keys())))),
+            list(metrics.keys()),
+            rotation=kwargs.pop("xrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            **kwargs.pop("xticks_kwargs", {}),
+        )
+        plt.yticks(
+            rotation=kwargs.pop("yrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            **kwargs.pop("yticks_kwargs", {}),
         )
 
-        # set the title
-        ax.set_title(kwargs.get("title", self.name + " Trajectory Plot"))
-        # set the x label
-        ax.set_xlabel(kwargs.get("xlabel", "Trial" if by == "trial" else "Metric"))
+        plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
+        plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        # set the legend
-        ax.legend(traj_parts, metric.keys())
-
-        if engine != 'tikz':
+        if kwargs.get("xticklabels", None):
+            ax.set_xticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                #verticalalignment=kwargs.pop("verticalalignment", "top"),
+                **kwargs.pop("xticklabels_kwargs", {}),
+            )
+        if kwargs.get("yticklabels", None):
+            ax.set_yticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                verticalalignment=kwargs.pop("verticalalignment", "left"),
+                **kwargs.pop("yticklabels_kwargs", {}),
+            )
+        if engine != "tikz":
             # save the trajectory plot
             if save_path is not None:
                 plt.savefig(save_path)
@@ -529,6 +646,7 @@ class MetricVisualizer:
                 plt.show()
         else:
             import tikzplotlib
+
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
@@ -539,7 +657,9 @@ class MetricVisualizer:
 
             return save_path
 
-    def bar_plot(self, by='trial', engine='matplotlib', save_path=None, show=True, **kwargs):
+    def bar_plot(
+            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+    ):
         """
         Draw a bar plot based on the metric name and trial name.
         :param by: the name of the x-axis, such as trial, metric, etc.
@@ -551,75 +671,101 @@ class MetricVisualizer:
         """
         import matplotlib.pyplot as plt
 
-        if by == 'trial':
-            metrics = self.transpose()
+        plt.cla()
+
+        if by == "trial":
+            plot_metrics = self.metrics
         else:
-            metrics = self.metrics
+            plot_metrics = self.transpose()
 
-        # get the number of metrics
-        num_metrics = len(metrics.keys())
-        # get the number of trials
-        num_trials = len(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("markers", None):
+            markers = self.MARKERS[:]
+        else:
+            markers = kwargs.pop("markers")
 
-        # get the width of the bar plot
-        total_width = 0.8
-        width = total_width / num_metrics
-        # get the xticks
-        xticks = np.arange(num_trials) + 0.4
-        # get the xtick labels
-        xtick_labels = list(metrics[list(metrics.keys())[0]].keys())
+        if not kwargs.get("colors", None):
+            colors = self.COLORS[:]
+        else:
+            colors = kwargs.pop("colors")
 
-        # get the colors
-        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
-
-        # draw the bar plot
-        fig, ax = plt.subplots()
-        for i, metric_name in enumerate(metrics.keys()):
-            trial_num = len(metrics[metric_name])
+        bar_parts = []
+        ax = plt.subplot()
+        total_width = 0.9
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            metrics = plot_metrics[metric_name]
+            metric_num = len(plot_metrics.keys())
+            trial_num = len(plot_metrics[metric_name])
+            width = total_width / metric_num
             x = np.arange(trial_num)
             x = x - (total_width - width) / 2
             x = x + i * width
             Y = np.array(
                 [
-                    np.average(metrics[m_name][trial])
-                    for m_name in metrics.keys()
-                    for trial in metrics[m_name]
+                    np.average(plot_metrics[m_name][trial])
+                    for m_name in plot_metrics.keys()
+                    for trial in plot_metrics[m_name]
                     if metric_name == m_name
                 ]
             )
-
-            plt.bar(
-                x,
-                Y,
-                width=width,
-                color=colors[i]
-            )
+            hatch = random.choice(self.HATCHES)
+            color = random.choice(colors)
+            colors.remove(color)
+            bar = plt.bar(x, Y, width=width, hatch=hatch, color=color)
+            bar_parts.append(bar[0])
 
             for i_x, j_x in zip(x, Y):
                 plt.text(
-                    i_x, j_x + max(Y) // 100, "%.1f" % j_x, ha="center", va="bottom"
+                    i_x, j_x + max(Y) // 100, "%.1f" % j_x, ha="center", va="center"
                 )
 
-        # set the xticks
-        ax.set_xticks(xticks + 0.4)
-        # set the xtick labels
-        ax.set_xticklabels(xtick_labels)
-        # set the xtick label rotation
-        plt.setp(
-            ax.get_xticklabels(),
-            rotation=kwargs.get("rotation", 0),
-            horizontalalignment=kwargs.get("horizontalalignment", "right"), **kwargs.get("xticklabels_kwargs", {})
+        if kwargs.get("legend", True):
+            plt.legend(bar_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+
+        if kwargs.get("minor_ticks", True):
+            plt.minorticks_on()
+
+        if kwargs.get("grid", True):
+            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+
+        plt.xticks(
+            kwargs.get("xticks", list(range(len(metrics.keys())))),
+            list(metrics.keys()),
+            rotation=kwargs.pop("xrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            **kwargs.pop("xticks_kwargs", {}),
+        )
+        plt.yticks(
+            rotation=kwargs.pop("yrotation", 0),
+            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            **kwargs.pop("yticks_kwargs", {}),
         )
 
-        # set the title
-        ax.set_title(kwargs.get("title", self.name + " Bar Plot"))
-        # set the x label
-        ax.set_xlabel(kwargs.get("xlabel", "Trial" if by == "trial" else "Metric"))
+        plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
+        plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        # set the legend
-        ax.legend(metrics.keys())
+        if kwargs.get("xticklabels", None):
+            ax.set_xticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                #verticalalignment=kwargs.pop("verticalalignment", "top"),
+                **kwargs.pop("xticklabels_kwargs", {}),
+            )
+        if kwargs.get("yticklabels", None):
+            ax.set_yticklabels(
+                [metric_name for metric_name in metrics],
+                rotation=kwargs.pop("rotation", 0),
+                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+                verticalalignment=kwargs.pop("verticalalignment", "left"),
+                **kwargs.pop("yticklabels_kwargs", {}),
+            )
 
-        if engine != 'tikz':
+        if engine != "tikz":
             # save the bar plot
             if save_path is not None:
                 plt.savefig(save_path)
@@ -628,6 +774,7 @@ class MetricVisualizer:
                 plt.show()
         else:
             import tikzplotlib
+
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
@@ -638,7 +785,14 @@ class MetricVisualizer:
 
             return save_path
 
-    def a12_bar_plot(self, target_trial=None, engine='matplotlib', save_path=None, show=True, **kwargs):
+    def a12_bar_plot(
+            self,
+            target_trial=None,
+            engine="matplotlib",
+            save_path=None,
+            show=True,
+            **kwargs,
+    ):
         """
         Draw a bar plot based on the metric name and trial name.
         :param target_trial:  the target trial to compare with other trials
@@ -656,7 +810,7 @@ class MetricVisualizer:
             raise ImportError(
                 "You need to \n1): install R programming language (https://cran.r-project.org/mirrors.html)."
                 '\n2): install "effsize" by R prompt: \ninstall.packages("effsize")'
-                '\n3): pip install rpy2\n'
+                "\n3): pip install rpy2\n"
             )
 
         pandas2ri.activate()
@@ -815,9 +969,10 @@ class MetricVisualizer:
                     )
             plot_metrics = new_plot_metrics
 
-        mv = MetricVisualizer(name=self.name + ' A12', metrics=plot_metrics)
-        return mv.bar_plot(by="trial", engine=engine, save_path=save_path, show=show, **kwargs)
-
+        mv = MetricVisualizer(name=self.name + " A12", metrics=plot_metrics)
+        return mv.bar_plot(
+            by="trial", engine=engine, save_path=save_path, show=show, **kwargs
+        )
 
     def sk_rank_plot(
             self, plot_type="box", engine="matplotlib", save_path=None, show=True, **kwargs
@@ -834,7 +989,8 @@ class MetricVisualizer:
 
         from metric_visualizer.external import Rx
 
-        metrics = self.transpose()
+        # metrics = self.transpose()
+        metrics = self.metrics
 
         Rx.list_algorithm_rank = []
         data_dict = {"Scott-Knott Rank Test": {}}
@@ -857,7 +1013,7 @@ class MetricVisualizer:
                 save_path=save_path,
                 show=show,
                 ylabel="Scott-Knott Rank",
-                **kwargs
+                **kwargs,
             )
         else:
             return mv.violin_plot(
@@ -865,7 +1021,7 @@ class MetricVisualizer:
                 save_path=save_path,
                 show=show,
                 ylabel="Scott-Knott Rank",
-                **kwargs
+                **kwargs,
             )
 
     def remove_outliers(self, outlier_constant=1.5):
