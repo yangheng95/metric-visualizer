@@ -5,10 +5,10 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = "0.7.5"
-__name__ = "metric_visualizer"
+__version__ = "0.0.1"
+__name__ = "mvis"
 
-from .metric_visualizer import MetricVisualizer
+from .core import MetricVisualizer
 
 from update_checker import UpdateChecker
 

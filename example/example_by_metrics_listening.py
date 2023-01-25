@@ -6,7 +6,7 @@
 # Copyright (C) 2021. All Rights Reserved.
 import os
 import random
-from metric_visualizer import MetricVisualizer
+from metric_visualizer.core import MetricVisualizer
 import numpy as np
 
 MV = MetricVisualizer(name="example", trial_tag="Model")
@@ -27,35 +27,42 @@ for r in range(repeat):  # repeat the experiments to plot violin or box figure
 
         for i, m in enumerate(metrics):
             MV.log_metric(
-                trial_name=n_trial, metric_name="metric{}".format(i + 1), value=m
+                trial_name="Trial-{}".format(n_trial),
+                metric_name="metric{}".format(i + 1),
+                value=m + random.random(),
             )  # add metric by custom name and value
 
 MV.remove_outliers()  # remove outliers
 
-MV.summary(dump_path=os.getcwd(), filename="file_name", no_print=True)
-MV.traj_plot_by_trial(xlabel="", xrotation=30, minorticks_on=True)
-MV.violin_plot_by_trial()
-MV.box_plot_by_trial()
-MV.box_plot_by_trial()
-MV.avg_bar_plot_by_trial()
-MV.sum_bar_plot_by_trial()
+MV.summary(dump_path=os.getcwd())
+MV.box_plot(by="trial", show=True)
+MV.box_plot(by="metric", show=True)
+MV.violin_plot(by="trial", show=True)
+MV.violin_plot(by="metric", show=True)
+MV.bar_plot(by="trial", show=True)
+MV.bar_plot(by="metric", show=True)
+MV.bar_plot(by="trial", show=True)
+MV.bar_plot(by="metric", show=True)
+MV.trajectory_plot(by="trial", show=True)
+MV.trajectory_plot(by="metric", show=True)
+MV.sk_rank_plot(plot_type="box", show=True)
+MV.sk_rank_plot(plot_type="violin", show=True)
+# MV.a12_bar_plot(show=True)
 
-MV.traj_plot_by_metric(xlabel="", xrotation=30, minorticks_on=True)
-MV.violin_plot_by_metric()
-MV.box_plot_by_metric()
-MV.box_plot_by_metric()
-MV.avg_bar_plot_by_metric()
-MV.sum_bar_plot_by_metric()
 
-MV.scott_knott_plot(plot_type="box", minorticks_on=False)
-MV.scott_knott_plot(
-    plot_type="violin", minorticks_on=False
-)  # save fig_preview into .texg and .pdf format
+# MV.summary(dump_path=os.getcwd())
+# MV.box_plot(by="trial", engine="tikz", show=True)
+# MV.box_plot(by="metric", engine="tikz", show=True)
+# MV.violin_plot(by="trial", engine="tikz", show=True)
+# MV.violin_plot(by="metric", engine="tikz", show=True)
+# MV.bar_plot(by="trial", engine="tikz", show=True)
+# MV.bar_plot(by="metric", engine="tikz", show=True)
+# MV.bar_plot(by="trial", engine="tikz", show=True)
+# MV.bar_plot(by="metric", engine="tikz", show=True)
+# MV.trajectory_plot(by="trial", engine="tikz", show=True)
+# MV.trajectory_plot(by="metric", engine="tikz", show=True)
+# MV.sk_rank_plot(plot_type="box", engine="tikz", show=True)
+# MV.sk_rank_plot(plot_type="violin", engine="tikz", show=True)
+# # MV.a12_bar_plot(engine='tikz', show=True)
 
-# MV.A12_bar_plot()  # need to install R language and rpy2 package
-
-rank_test_result = MV.rank_test_by_trail("trial1")
-rank_test_result = MV.rank_test_by_metric("metric1")
-
-print(MV.rank_test_by_trail("trial0"))
-print(MV.rank_test_by_metric("metric1"))
+pass
