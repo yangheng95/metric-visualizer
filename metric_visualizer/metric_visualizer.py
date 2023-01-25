@@ -1939,7 +1939,7 @@ class MetricVisualizer:
 
     @exception_handle
     def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
-        summary_str = "\n ------------------------------------- Metric Visualizer ------------------------------------- \n"
+        summary_str = " ------------------------------------- Metric Visualizer ------------------------------------- \n"
 
         table_data, header = self._get_table_data(**kwargs)
 
@@ -2051,7 +2051,7 @@ class MetricVisualizer:
     @staticmethod
     def load(filename=None):
         mv = None
-        if not filename:
+        if not filename or os.path.isdir(filename):
             filename = find_cwd_files(".mv")
 
         if not isinstance(filename, list):
@@ -2059,12 +2059,15 @@ class MetricVisualizer:
 
         for fn in filename:
             if not os.path.exists(fn):
-                fn = find_cwd_file(fn)
+                fn = find_cwd_file([fn, ".mv"])
 
             print("Load", fn)
             if not mv:
                 mv = pickle.load(open(fn, mode="rb"))
             else:
                 _ = pickle.load(open(fn, mode="rb"))
-                mv.metrics.update(_.metrics)
+                for metric_name in _.metrics:
+                    if metric_name not in mv.metrics:
+                        mv.metrics[metric_name] = []
+                    mv.metrics[metric_name].update(_.metrics[metric_name])
         return mv
