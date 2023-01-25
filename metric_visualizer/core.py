@@ -13,6 +13,7 @@ import os
 import pickle
 from collections import OrderedDict
 
+import findfile
 import matplotlib
 import natsort
 import pandas as pd
@@ -93,6 +94,19 @@ class MetricVisualizer:
 
         self.trial_rank_test_result = None
         self.metric_rank_test_result = None
+
+    @staticmethod
+    def compile_tikz(**kwargs):
+        for f in findfile.find_cwd_files(".tex", exclude_key=["ignore", ".pdf"], recursive=kwargs.get("recursive", 1)):
+            os.system(f"pdflatex {f} {f}.pdf")
+        # for f in findfile.find_cwd_files(".tex", exclude_key=["ignore", ".pdf"]):
+        #     os.system(f"rm {f}")
+        for f in findfile.find_cwd_files(".aux", exclude_key=["ignore", ".pdf"]):
+            os.remove(f)
+        for f in findfile.find_cwd_files(".log", exclude_key=["ignore", ".pdf"]):
+            os.remove(f)
+        for f in findfile.find_cwd_files(".out", exclude_key=["ignore", ".pdf"]):
+            os.remove(f)
 
     def log(self, trial_name=None, metric_name=None, value=0, unit=None):
         """
