@@ -273,7 +273,7 @@ class MetricVisualizer:
         if engine != "tikz":
             # save the box plot
             if save_path is not None:
-                plt.savefig(save_path)
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
             # show the box plot
             if show:
                 plt.show()
@@ -398,7 +398,7 @@ class MetricVisualizer:
         if engine != "tikz":
             # save the violin plot
             if save_path is not None:
-                plt.savefig(save_path)
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
             # show the violin plot
             if show:
                 plt.show()
@@ -430,37 +430,41 @@ class MetricVisualizer:
         import matplotlib.pyplot as plt
 
         plt.cla()
-        if by == "trial":
-            plot_metrics = self.metrics
-        else:
+        if by != 'trial':
             plot_metrics = self.transpose()
-
-        if not kwargs.get("markers", None):
-            markers = self.MARKERS[:]
         else:
-            markers = kwargs.pop("markers")
+            plot_metrics = self.metrics
 
-        if not kwargs.get("colors", None):
-            colors = self.COLORS[:]
-        else:
-            colors = kwargs.pop("colors")
+            # get the number of metrics
+        num_metrics = len(plot_metrics.keys())
+        # get the number of trials
+        num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
 
-        scatter_parts = []
-        ax = plt.subplot()
+        # get the width of the scatter plot
+        width = 0.8 / num_metrics
+        # get the xticks
+        xticks = np.arange(num_trials) + 0.4
+        # get the xtick labels
+        xtick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
+
+        # get the colors
+        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
+
         # draw the scatter plot
+        ax = plt.subplot()
+        scatter_parts = []
         for i, metric_name in enumerate(plot_metrics.keys()):
             # get the values
-            metrics = plot_metrics[metric_name]
             values = list(plot_metrics[metric_name].values())
             # draw the scatter plot
             scatter_part = ax.scatter(
-                list(range(len(values))),
+                [[x] * len(values[0]) for x in (xticks + i * width)],
                 values,
                 color=colors[i],
-                **kwargs.get("scatter_kwargs", {}),
+                **kwargs.get("scatter_kwargs", {})
             )
 
-            scatter_parts.append(scatter_part["bodies"][0])
+            scatter_parts.append(scatter_part)
 
         if kwargs.get("legend", True):
             plt.legend(
@@ -475,8 +479,8 @@ class MetricVisualizer:
             plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", list(range(len(metrics.keys())))),
-            list(metrics.keys()),
+            kwargs.get("xticks", list(range(len(plot_metrics[metric_name].keys())))),
+            list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
@@ -513,7 +517,7 @@ class MetricVisualizer:
         if engine != "tikz":
             # save the scatter plot
             if save_path is not None:
-                plt.savefig(save_path)
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
             # show the scatter plot
             if show:
                 plt.show()
@@ -659,7 +663,7 @@ class MetricVisualizer:
         if engine != "tikz":
             # save the trajectory plot
             if save_path is not None:
-                plt.savefig(save_path)
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
             # show the trajectory plot
             if show:
                 plt.show()
@@ -787,7 +791,7 @@ class MetricVisualizer:
         if engine != "tikz":
             # save the bar plot
             if save_path is not None:
-                plt.savefig(save_path)
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
             # show the bar plot
             if show:
                 plt.show()

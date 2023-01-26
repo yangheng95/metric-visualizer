@@ -1,4 +1,4 @@
-# MetricVisualizer - for easy managing performance metric
+# MetricVisualizer - Automated Experiment Metric Visualizations and Statistics
 
 ![PyPI - Python Version](https://img.shields.io/badge/python-3.6-blue.svg)
 [![PyPI](https://img.shields.io/pypi/v/metric-visualizer)](https://pypi.org/project/metric-visualizer/)
@@ -6,8 +6,13 @@
 [![Downloads](https://pepy.tech/badge/metric-visualizer/month)](https://pepy.tech/project/metric-visualizer)
 [![Downloads](https://pepy.tech/badge/metric-visualizer/week)](https://pepy.tech/project/metric-visualizer)
 
-## Automated metric visualization for comparison experiments
+## Introduction
+这个工具的目的在于自动化实验结果(指标，例如正确率，AUC，F1)等
+的记录和统计。实验结果可以快速可视化，统计数据可以轻易导出到txt,xlsx等。
 
+The purpose of this tool is to automate the recording of experimental results (metrics, e.g. correctness, AUC, F1), etc.
+The results can be recorded and counted. The results can be visualised quickly and the statistics can be easily exported to txt, xlsx, etc.
+Currently only the following features are supported:
 - Box plot
 - Trajectory plot
 - Scatter plot
@@ -18,6 +23,16 @@
 - Wilconxon Rank test
 - On the way
 
+## Examples
+![plot_example](example/box_plot.png)
+![plot_example](example/violin_plot.png)
+![plot_example](example/scatter_plot.png)
+![plot_example](example/trajectory_plot.png)
+
+## Usages
+
+具体用法及例子请参考[example](example/cola_lab_tutorial.ipynb)
+
 ## Install
 
 If you want to make tikz(latex) plots, you need to install texlive (other latex release version are not tested).
@@ -26,7 +41,6 @@ If you want to make tikz(latex) plots, you need to install texlive (other latex 
 pip install metric_visualizer
 ```
 
-## 用法说明 Usage
 
 ### [Bash] Instant Visualization of MetricVisualizer file (named example.mv)
 
@@ -68,32 +82,7 @@ for n_trial in range(len(trial_names)):
 
 # MV.remove_outliers()  # remove outliers
 
-MV.summary(no_print=True)
-MV.traj_plot_by_trial(xlabel='', xrotation=30, minorticks_on=True)
-MV.violin_plot_by_trial()
-MV.box_plot_by_trial()
-MV.box_plot_by_trial()
-MV.avg_bar_plot_by_trial()
-MV.sum_bar_plot_by_trial()
-
-MV.traj_plot_by_metric(xlabel='', xrotation=30, minorticks_on=True)
-MV.violin_plot_by_metric()
-MV.box_plot_by_metric()
-MV.box_plot_by_metric()
-MV.avg_bar_plot_by_metric()
-MV.sum_bar_plot_by_metric()
-
-MV.scott_knott_plot(plot_type='box', minorticks_on=False)
-MV.scott_knott_plot(plot_type='violin', minorticks_on=False)  # save example into .texg and .pdf format
-
-# MV.A12_bar_plot()  # need to install R language and rpy2 package
-
-rank_test_result = MV.rank_test_by_trail('trial1')
-rank_test_result = MV.rank_test_by_metric('metric1')
-
-print(MV.rank_test_by_trail('trial0'))
-print(MV.rank_test_by_metric('metric1'))
-
+MV.summary(no_print=False)
 ```
 
 ```html
@@ -132,85 +121,4 @@ print(MV.rank_test_by_metric('metric1'))
 │ Metric-3 │ trial-4 │ [2.41, 2.12, 2.31, 2.29, 2.46, 2.95, 2.74, 2.66, 2.34, 2.65] │ ['Avg:2.49, Median: 2.44, IQR: 0.33, Max: 2.95, Min: 2.12'] │
 ╘══════════╧═════════╧══════════════════════════════════════════════════════════════╧═════════════════════════════════════════════════════════════╛
 -------------------- Metric Summary --------------------
-```
-
-## Auto-Plot in Tikz and Matplotlib format
-
-see more auto-previews in [example](example)
-
-### Traj Plot [matplotlib version](example/example.traj_plot_by_metric.matplotlib.pdf)
-
-![traj_plot_example](example/example.traj_plot_by_metric.tikz.pdf)
-
-### Box Plot [matplotlib version](example/example.box_plot_by_trial.matplotlib.pdf)
-
-![box_plot_example](example/example.box_plot_by_trial.tikz.pdf)
-
-### Violin Plot [matplotlib version](example/example.violin_plot_by_trial.matplotlib.pdf)
-
-![violin_plot_example](example/example.violin_plot_by_trial.tikz.pdf)
-
-### A12 Plot [matplotlib version](example/example.A12_bar_plot.matplotlib.pdf)
-
-![A12_plot_example](example/example.A12_bar_plot.tikz.pdf)
-
-### Scott-knot Plot [matplotlib version](example/example.sk_rank.scott_knott_plot.box.matplotlib.pdf)
-
-![Scott-knot_plot_example](example/example.sk_rank.scott_knott_plot.box.tikz.pdf)
-
-### Average Bar Plot [matplotlib version](example/example.avg_bar_plot_by_trial.matplotlib.pdf)
-
-![average_plot_example](example/example.avg_bar_plot_by_trial.tikz.pdf)
-
-### Sum Bar Plot [matplotlib version](example/example.sum_bar_plot_by_trial.matplotlib.pdf)
-
-![sum bar_plot_example](example/example.sum_bar_plot_by_trial.tikz.pdf)
-
-## Real Usage Example in PyABSA
-
-To analyze the impact of max_seq_len, we can use MetricVisualizer as following:
-
-```bash
-pip install pyabsa  # install pyabsa
-```
-
-```python3
-import random
-import os
-from metric_visualizer import MetricVisualizer
-
-from pyabsa.functional import Trainer
-from pyabsa.functional import APCConfigManager
-from pyabsa.functional import ABSADatasetList
-from pyabsa.functional import APCModelList
-
-config = APCConfigManager.get_config()
-config.model = APCModelList.FAST_LCF_BERT
-config.lcf = 'cdw'
-config.seed = [random.randint(0, 10000) for _ in range(3)]  # each trial repeats with different seed
-
-MV = MetricVisualizer()
-config.MV = MV
-
-max_seq_lens = [60, 70, 80, 90, 100]
-
-for max_seq_len in max_seq_lens:
-    config.max_seq_len = max_seq_len
-    dataset = ABSADatasetList.Laptop14
-    Trainer(config=config,
-            dataset=dataset,  # train set and test set will be automatically detected
-            auto_device=True  # automatic choose CUDA or CPU
-            )
-    config.MV.next_trial()
-
-save_prefix = os.getcwd()
-MV.summary(save_path=save_prefix, no_print=True)
-
-MV.traj_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
-MV.violin_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
-MV.box_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
-MV.avg_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
-MV.sum_bar_plot_by_trial(save_path=save_prefix, xticks=max_seq_lens)
-MV.scott_knott_plot(save_path=save_prefix, xticks=max_seq_lens, minorticks_on=False)
-
 ```
