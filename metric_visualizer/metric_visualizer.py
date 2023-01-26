@@ -26,6 +26,24 @@ from tabulate import tabulate
 from metric_visualizer import __version__ as version
 from metric_visualizer import __name__ as pkg_name
 
+mv_font = {'family': 'Serif',
+           'weight': 'normal',
+           'size': 15,
+           }
+
+mv_font_small = {'family': 'Serif',
+                 'weight': 'normal',
+                 'size': 10,
+                 }
+
+mv_font_large = {'family': 'Serif',
+                 'weight': 'normal',
+                 'size': 20,
+                 }
+
+# set font for matplotlib
+matplotlib.rc('font', **mv_font_small)
+
 tex_template = r"""
     \documentclass{article}
     \usepackage{pgfplots}
@@ -342,7 +360,7 @@ class MetricVisualizer:
                 **kwargs.get("violinplot_kwargs", {})
             )
 
-        violin_parts.append(violin["bodies"][0])
+            violin_parts.append(violin["bodies"][0])
 
         if kwargs.get("legend", True):
             plt.legend(
