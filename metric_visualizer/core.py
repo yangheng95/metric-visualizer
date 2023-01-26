@@ -203,6 +203,12 @@ class MetricVisualizer:
                 positions=list(range(len(metrics.keys()))),
                 widths=kwargs.pop("widths", 0.8),
                 meanline=True,
+                boxprops={'linewidth': '3'},
+                medianprops={'linewidth': '3', 'color': 'red'},
+                meanprops={'linewidth': '3'},
+                capprops={'linewidth': '3'},
+                flierprops={"marker": "o", "markerfacecolor": "k", "markersize": 10},
+                whiskerprops={'linewidth': '3'}
             )
 
             box_parts.append(boxs_parts["boxes"][0])
@@ -213,21 +219,21 @@ class MetricVisualizer:
             plt.setp(boxs_parts["fliers"], markeredgecolor=color)
 
         if kwargs.get("legend", True):
-            plt.legend(box_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+            ax.legend(box_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1))
 
         if kwargs.get("minor_ticks", True):
-            plt.minorticks_on()
+            ax.minorticks_on()
 
         if kwargs.get("grid", True):
-            plt.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
-            plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
+            ax.grid(which="major", linestyle="-", linewidth="0.3", color="grey")
+            ax.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
             kwargs.get("xticks", list(range(len(metrics.keys())))),
-            list(metrics.keys()),
+            labels=list(metrics.keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -240,24 +246,24 @@ class MetricVisualizer:
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        if kwargs.get("xticklabels", None):
-            ax.set_xticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                #verticalalignment=kwargs.pop("verticalalignment", "top"),
-                **kwargs.pop("xticklabels_kwargs", {}),
-            )
-        if kwargs.get("yticklabels", None):
-            ax.set_yticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                verticalalignment=kwargs.pop("verticalalignment", "left"),
-                **kwargs.pop("yticklabels_kwargs", {}),
-            )
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
         if engine != "tikz":
             # save the box plot
             if save_path is not None:
@@ -327,11 +333,11 @@ class MetricVisualizer:
 
         if kwargs.get("legend", True):
             plt.legend(
-                violin_parts, self.metrics.keys(), loc=kwargs.pop("legend_loc", 1)
+                violin_parts, plot_metrics.keys(), loc=kwargs.pop("legend_loc", 1)
             )
 
         for pc in violin["bodies"]:
-            pc.set_linewidth(kwargs.pop("linewidth", 2))
+            pc.set_linewidth(kwargs.pop("linewidth", 3))
 
         if kwargs.get("minor_ticks", True):
             plt.minorticks_on()
@@ -345,7 +351,7 @@ class MetricVisualizer:
             list(metrics.keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -358,24 +364,24 @@ class MetricVisualizer:
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        if kwargs.get("xticklabels", None):
-            ax.set_xticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                #verticalalignment=kwargs.pop("verticalalignment", "top"),
-                **kwargs.pop("xticklabels_kwargs", {}),
-            )
-        if kwargs.get("yticklabels", None):
-            ax.set_yticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                verticalalignment=kwargs.pop("verticalalignment", "left"),
-                **kwargs.pop("yticklabels_kwargs", {}),
-            )
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
         if engine != "tikz":
             # save the violin plot
             if save_path is not None:
@@ -445,7 +451,7 @@ class MetricVisualizer:
 
         if kwargs.get("legend", True):
             plt.legend(
-                scatter_parts, self.metrics.keys(), loc=kwargs.pop("legend_loc", 1)
+                scatter_parts, plot_metrics.keys(), loc=kwargs.pop("legend_loc", 1)
             )
 
         if kwargs.get("minor_ticks", True):
@@ -460,7 +466,7 @@ class MetricVisualizer:
             list(metrics.keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -473,24 +479,24 @@ class MetricVisualizer:
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        if kwargs.get("xticklabels", None):
-            ax.set_xticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                #verticalalignment=kwargs.pop("verticalalignment", "top"),
-                **kwargs.pop("xticklabels_kwargs", {}),
-            )
-        if kwargs.get("yticklabels", None):
-            ax.set_yticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                verticalalignment=kwargs.pop("verticalalignment", "left"),
-                **kwargs.pop("yticklabels_kwargs", {}),
-            )
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
         if engine != "tikz":
             # save the scatter plot
             if save_path is not None:
@@ -572,7 +578,7 @@ class MetricVisualizer:
                     marker=marker,
                     color=color,
                     markersize=kwargs.pop("markersize", 3),
-                    linewidth=kwargs.pop("linewidth", 2),
+                    linewidth=kwargs.pop("linewidth", 3),
                 )
 
             if kwargs.pop("traj_fill", True):
@@ -591,7 +597,7 @@ class MetricVisualizer:
 
         if kwargs.get("legend", True):
             plt.legend(
-                traj_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1)
+                traj_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1)
             )
 
         if kwargs.get("minor_ticks", True):
@@ -606,7 +612,7 @@ class MetricVisualizer:
             list(metrics.keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -619,24 +625,24 @@ class MetricVisualizer:
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        if kwargs.get("xticklabels", None):
-            ax.set_xticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                #verticalalignment=kwargs.pop("verticalalignment", "top"),
-                **kwargs.pop("xticklabels_kwargs", {}),
-            )
-        if kwargs.get("yticklabels", None):
-            ax.set_yticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                verticalalignment=kwargs.pop("verticalalignment", "left"),
-                **kwargs.pop("yticklabels_kwargs", {}),
-            )
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
         if engine != "tikz":
             # save the trajectory plot
             if save_path is not None:
@@ -715,11 +721,11 @@ class MetricVisualizer:
 
             for i_x, j_x in zip(x, Y):
                 plt.text(
-                    i_x, j_x + max(Y) // 100, "%.1f" % j_x, ha="center", va="center"
+                    i_x, j_x + max(Y) // 100, "%.1f" % j_x, ha="center", va="bottom"
                 )
 
         if kwargs.get("legend", True):
-            plt.legend(bar_parts, list(metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+            plt.legend(bar_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1))
 
         if kwargs.get("minor_ticks", True):
             plt.minorticks_on()
@@ -733,7 +739,7 @@ class MetricVisualizer:
             list(metrics.keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            #verticalalignment=kwargs.pop("verticalalignment", "top"),
+            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -746,24 +752,24 @@ class MetricVisualizer:
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
 
-        if kwargs.get("xticklabels", None):
-            ax.set_xticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                #verticalalignment=kwargs.pop("verticalalignment", "top"),
-                **kwargs.pop("xticklabels_kwargs", {}),
-            )
-        if kwargs.get("yticklabels", None):
-            ax.set_yticklabels(
-                [metric_name for metric_name in metrics],
-                rotation=kwargs.pop("rotation", 0),
-                rotation_mode=kwargs.pop("rotation_mode", "anchor"),
-                horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-                verticalalignment=kwargs.pop("verticalalignment", "left"),
-                **kwargs.pop("yticklabels_kwargs", {}),
-            )
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
 
         if engine != "tikz":
             # save the bar plot
