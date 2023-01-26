@@ -1167,7 +1167,7 @@ class MetricVisualizer:
 
         return table_data, header
 
-    def summary(self, dump_path=os.getcwd(), filename=None, no_print=False, **kwargs):
+    def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
         summary_str = "\n ----------------------------------- Metric Visualizer ----------------------------------- \n"
 
         table_data, header = self._get_table_data(**kwargs)
@@ -1180,16 +1180,16 @@ class MetricVisualizer:
         if not no_print:
             print(summary_str)
 
-        if dump_path:
-            prefix = os.path.join(dump_path, self.name if self.name else "")
-            if filename:
-                prefix = prefix + filename
-            fout = open(prefix + ".summary.txt", mode="w", encoding="utf8")
+        if save_path:
+            if not save_path.endswith(".summary.txt"):
+                save_path = save_path + ".summary.txt"
+
+            fout = open(save_path, mode="w", encoding="utf8")
             summary_str += "\n{}\n".format(str(self.metrics))
             fout.write(summary_str)
             fout.close()
 
-            self.dump()
+            self.dump(save_path.replace(".summary.txt", ".mv"))
 
         return summary_str
 
@@ -1296,7 +1296,7 @@ class MetricVisualizer:
             pickle.dump(self, fout)
 
     @staticmethod
-    def load(filename=None):
+    def load(filename=None) -> "MetricVisualizer":
         """
         Load the metric visualizer from a file
 

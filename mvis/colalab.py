@@ -210,6 +210,12 @@ def preprocess_style(tex_src_or_file_path):
     for seg in re.findall(r"\s+=\s+", tex, re.DOTALL):
         tex = tex.replace(seg, "=")
 
+    # leftmargin=0cm,
+    lines = tex.split("\n")
+    for i in range(len(lines)):
+        lines[i] = lines[i].strip()
+    tex = "\n".join(lines)
+
     return tex
 
 
