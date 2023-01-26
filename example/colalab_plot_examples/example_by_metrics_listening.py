@@ -12,22 +12,22 @@ import numpy as np
 MV = MetricVisualizer(name="example", trial_tag="Model")
 
 repeat = 100  # number of repeats
-metric_num = 5  # number of metrics
 
 #  利用metric_visualizer监听实验吧并保存实验结果，随时重新绘制图像
 # trial_names = ["LSTM", "CNN", "BERT"]  # fake trial names
 trial_names = ['NSGA-II', 'NSGA-III', 'MOEA/D']  # fake trial names
+metric_names = ["HV", "IGD", "Epsilon", "GD", "Spread"]  # fake metric names
 # trial_names = ['Hyperparameter Setting 1', 'Hyperparameter Setting 2', 'Hyperparameter Setting 3']  # fake trial names
 for r in range(repeat):  # repeat the experiments to plot violin or box figure
     metrics = [
         (np.random.random() + n + (1 if random.random() > 0.5 else -1))
-        for n in range(metric_num)
+        for n in range(len(metric_names))
     ]  # n is metric scale factor
     for n_trial in range(len(trial_names)):
         for i, m in enumerate(metrics):
             MV.log_metric(
-                trial_name="Trial-{}".format(n_trial),
-                metric_name="metric{}".format(i + 1),
+                trial_name=trial_names[n_trial],
+                metric_name=metric_names[i],
                 value=m + random.random(),
             )  # add metric by custom name and value
 
