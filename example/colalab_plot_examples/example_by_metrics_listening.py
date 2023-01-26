@@ -15,7 +15,7 @@ repeat = 100  # number of repeats
 
 #  利用metric_visualizer监听实验吧并保存实验结果，随时重新绘制图像
 # trial_names = ["LSTM", "CNN", "BERT"]  # fake trial names
-trial_names = ['NSGA-II', 'NSGA-III', 'MOEA/D']  # fake trial names
+trial_names = ["NSGA-II", "NSGA-III", "MOEA/D"]  # fake trial names
 metric_names = ["HV", "IGD", "Epsilon", "GD", "Spread"]  # fake metric names
 # trial_names = ['Hyperparameter Setting 1', 'Hyperparameter Setting 2', 'Hyperparameter Setting 3']  # fake trial names
 for r in range(repeat):  # repeat the experiments to plot violin or box figure

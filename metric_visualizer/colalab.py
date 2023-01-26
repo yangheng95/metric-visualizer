@@ -315,6 +315,8 @@ def reformat_tikz_format_for_colalab(
         f.write(_template)
     os.system(r'pdflatex "%s"' % output_path)
 
-    os.system(r'pdfcrop "%s" "%s"' % (output_path[:-4] + ".pdf", output_path[:-4] + ".pdf"))
+    os.system(
+        r'pdfcrop "%s" "%s"' % (output_path[:-4] + ".pdf", output_path[:-4] + ".pdf")
+    )
 
     return _template

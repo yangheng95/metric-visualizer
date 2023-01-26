@@ -26,23 +26,26 @@ from tabulate import tabulate
 from metric_visualizer import __version__ as version
 from metric_visualizer import __name__ as pkg_name
 
-mv_font = {'family': 'Serif',
-           'weight': 'normal',
-           'size': 15,
-           }
+mv_font = {
+    "family": "Serif",
+    "weight": "normal",
+    "size": 15,
+}
 
-mv_font_small = {'family': 'Serif',
-                 'weight': 'normal',
-                 'size': 10,
-                 }
+mv_font_small = {
+    "family": "Serif",
+    "weight": "normal",
+    "size": 10,
+}
 
-mv_font_large = {'family': 'Serif',
-                 'weight': 'normal',
-                 'size': 20,
-                 }
+mv_font_large = {
+    "family": "Serif",
+    "weight": "normal",
+    "size": 20,
+}
 
 # set font for matplotlib
-matplotlib.rc('font', **mv_font_small)
+matplotlib.rc("font", **mv_font_small)
 
 tex_template = r"""
     \documentclass{article}
@@ -117,7 +120,7 @@ class MetricVisualizer:
     @staticmethod
     def compile_tikz(crop=True, clean=True, **kwargs):
         for f in findfile.find_cwd_files(
-                ".tex", exclude_key=["ignore", ".pdf"], recursive=kwargs.get("recursive", 1)
+            ".tex", exclude_key=["ignore", ".pdf"], recursive=kwargs.get("recursive", 1)
         ):
             os.system(f"pdflatex {f} {f}.pdf")
         # for f in findfile.find_cwd_files(".tex", exclude_key=["ignore", ".pdf"]):
@@ -176,7 +179,7 @@ class MetricVisualizer:
             self.metrics[metric_name] = {trial_name: [value]}
 
     def box_plot(
-            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a box plot based on the metric name and trial name.
@@ -204,13 +207,16 @@ class MetricVisualizer:
         num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
 
         # get the width of the box plot
-        width = width / num_metrics if kwargs.get('no_overlap', False) else width
+        width = width / num_metrics if kwargs.get("no_overlap", False) else width
 
         # get the xtick labels
         xtick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
         # get the xticks
-        xticks = np.arange(num_trials) + width * num_metrics if kwargs.get('no_overlap', False) else np.arange(
-            num_trials) + width / 2
+        xticks = (
+            np.arange(num_trials) + width * num_metrics
+            if kwargs.get("no_overlap", False)
+            else np.arange(num_trials) + width / 2
+        )
 
         # get the colors
         colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
@@ -224,15 +230,19 @@ class MetricVisualizer:
             box_part = ax.boxplot(
                 values,
                 labels=xtick_labels,
-                positions=xticks + i * width if kwargs.get('no_overlap', False) else xticks,
+                positions=xticks + i * width
+                if kwargs.get("no_overlap", False)
+                else xticks,
                 widths=width * 0.9,
                 # patch_artist=kwargs.get("patch_artist", True),
                 boxprops=dict(linewidth=2, color=colors[i]),
                 capprops=dict(linewidth=2, color=colors[i]),
                 whiskerprops=dict(linewidth=2, color=colors[i]),
-                flierprops=dict(linewidth=2, color=colors[i], markeredgecolor=colors[i]),
+                flierprops=dict(
+                    linewidth=2, color=colors[i], markeredgecolor=colors[i]
+                ),
                 medianprops=dict(linewidth=2, color=colors[i]),
-                **kwargs.get("boxplot_kwargs", {})
+                **kwargs.get("boxplot_kwargs", {}),
             )
 
             box_parts.append(box_part["boxes"][0])
@@ -243,7 +253,9 @@ class MetricVisualizer:
             plt.setp(box_part["fliers"], markeredgecolor=colors[i])
 
         if kwargs.get("legend", True):
-            ax.legend(box_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+            ax.legend(
+                box_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1)
+            )
 
         if kwargs.get("minor_ticks", True):
             ax.minorticks_on()
@@ -253,7 +265,10 @@ class MetricVisualizer:
             ax.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", xticks + i / 2 * width if kwargs.get('no_overlap', False) else xticks),
+            kwargs.get(
+                "xticks",
+                xticks + i / 2 * width if kwargs.get("no_overlap", False) else xticks,
+            ),
             labels=list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
@@ -309,7 +324,7 @@ class MetricVisualizer:
             return save_path
 
     def violin_plot(
-            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a violin plot based on the metric name and trial name.
@@ -339,7 +354,11 @@ class MetricVisualizer:
         # get the width of the violin plot
         width = width / num_metrics if kwargs.get("no_overlap", False) else width
         # get the xticks
-        xticks = np.arange(num_trials) + width / 2 if kwargs.get("no_overlap", False) else np.arange(num_trials)
+        xticks = (
+            np.arange(num_trials) + width / 2
+            if kwargs.get("no_overlap", False)
+            else np.arange(num_trials)
+        )
         # get the xtick labels
 
         violin_parts = []
@@ -351,13 +370,15 @@ class MetricVisualizer:
             # draw the violin plot
             violin = ax.violinplot(
                 values,
-                positions=xticks + i * width if kwargs.get("no_overlap", False) else xticks,
+                positions=xticks + i * width
+                if kwargs.get("no_overlap", False)
+                else xticks,
                 widths=width * 0.9,
                 showmeans=kwargs.get("showmeans", False),
                 showmedians=kwargs.get("showmedians", True),
                 showextrema=kwargs.get("showextrema", True),
                 bw_method=kwargs.get("bw_method", "scott"),
-                **kwargs.get("violinplot_kwargs", {})
+                **kwargs.get("violinplot_kwargs", {}),
             )
 
             violin_parts.append(violin["bodies"][0])
@@ -378,7 +399,10 @@ class MetricVisualizer:
             plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", xticks + i * width / 2 if kwargs.get("no_overlap", False) else xticks),
+            kwargs.get(
+                "xticks",
+                xticks + i * width / 2 if kwargs.get("no_overlap", False) else xticks,
+            ),
             list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
@@ -434,7 +458,7 @@ class MetricVisualizer:
             return save_path
 
     def scatter_plot(
-            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a scatter plot based on the metric name and trial name.
@@ -448,7 +472,7 @@ class MetricVisualizer:
         import matplotlib.pyplot as plt
 
         plt.cla()
-        if by != 'trial':
+        if by != "trial":
             plot_metrics = self.transpose()
         else:
             plot_metrics = self.metrics
@@ -479,7 +503,7 @@ class MetricVisualizer:
                 [[x] * len(values[0]) for x in (xticks + i * width)],
                 values,
                 color=colors[i],
-                **kwargs.get("scatter_kwargs", {})
+                **kwargs.get("scatter_kwargs", {}),
             )
 
             scatter_parts.append(scatter_part)
@@ -553,7 +577,7 @@ class MetricVisualizer:
             return save_path
 
     def trajectory_plot(
-            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a trajectory plot based on the metric name and trial name.
@@ -699,7 +723,7 @@ class MetricVisualizer:
             return save_path
 
     def bar_plot(
-            self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a bar plot based on the metric name and trial name.
@@ -760,7 +784,9 @@ class MetricVisualizer:
                 )
 
         if kwargs.get("legend", True):
-            plt.legend(bar_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1))
+            plt.legend(
+                bar_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1)
+            )
 
         if kwargs.get("minor_ticks", True):
             plt.minorticks_on()
@@ -827,12 +853,12 @@ class MetricVisualizer:
             return save_path
 
     def a12_bar_plot(
-            self,
-            target_trial=None,
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs,
+        self,
+        target_trial=None,
+        engine="matplotlib",
+        save_path=None,
+        show=True,
+        **kwargs,
     ):
         """
         Draw a bar plot based on the metric name and trial name.
@@ -935,30 +961,30 @@ class MetricVisualizer:
                 "large": {
                     trial: [0]
                     for trial in list(plot_metrics.keys())[:target_trial]
-                                 + list(plot_metrics.keys())[target_trial + 1:]
+                    + list(plot_metrics.keys())[target_trial + 1 :]
                 },
                 "medium": {
                     trial: [0]
                     for trial in list(plot_metrics.keys())[:target_trial]
-                                 + list(plot_metrics.keys())[target_trial + 1:]
+                    + list(plot_metrics.keys())[target_trial + 1 :]
                 },
                 "small": {
                     trial: [0]
                     for trial in list(plot_metrics.keys())[:target_trial]
-                                 + list(plot_metrics.keys())[target_trial + 1:]
+                    + list(plot_metrics.keys())[target_trial + 1 :]
                 },
                 "equal": {
                     trial: [0]
                     for trial in list(plot_metrics.keys())[:target_trial]
-                                 + list(plot_metrics.keys())[target_trial + 1:]
+                    + list(plot_metrics.keys())[target_trial + 1 :]
                 },
             }
             max_num = 0
             count = 0
             trial1 = list(plot_metrics.keys())[target_trial]
             for trial2 in (
-                    list(plot_metrics.keys())[:target_trial]
-                    + list(plot_metrics.keys())[target_trial + 1:]
+                list(plot_metrics.keys())[:target_trial]
+                + list(plot_metrics.keys())[target_trial + 1 :]
             ):
                 for metric in plot_metrics[trial2].keys():
                     cmd = r_cmd.replace(
@@ -1016,7 +1042,7 @@ class MetricVisualizer:
         )
 
     def sk_rank_plot(
-            self, plot_type="box", engine="matplotlib", save_path=None, show=True, **kwargs
+        self, plot_type="box", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a rank plot based on the metric name and trial name.
@@ -1080,7 +1106,7 @@ class MetricVisualizer:
                 c = data
                 c[
                     (c >= (a - b) * 1.5 + a) | (c <= b - (a - b) * outlier_constant)
-                    ] = np.nan
+                ] = np.nan
                 c.fillna(c.median(), inplace=True)
                 self.metrics[metric_name][trial_name] = [
                     x[0] for x in c.values.tolist()

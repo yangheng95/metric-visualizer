@@ -27,6 +27,7 @@ tests/
 .idea/
 *.tex
 *.txt
+*release.sh
 
 
 # Embedding

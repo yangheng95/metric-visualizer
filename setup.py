@@ -41,6 +41,7 @@ setup(
         "click",
         "pandas",
         "openpyxl",
+        "xlsxwriter",
     ],
     entry_points="""
       [console_scripts]
