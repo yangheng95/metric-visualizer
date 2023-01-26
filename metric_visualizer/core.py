@@ -178,45 +178,51 @@ class MetricVisualizer:
         else:
             plot_metrics = self.transpose()
 
-        if not kwargs.get("markers", None):
-            markers = self.MARKERS[:]
-        else:
-            markers = kwargs.pop("markers")
+        width = kwargs.pop("widths", 0.9)
 
-        if not kwargs.get("colors", None):
-            colors = self.COLORS[:]
-        else:
-            colors = kwargs.pop("colors")
+        # get the number of metrics
+        num_metrics = len(plot_metrics.keys())
+        # get the number of trials
+        num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
 
+        # get the width of the box plot
+        width = width / num_metrics if kwargs.get('no_overlap', False) else width
+
+        # get the xtick labels
+        xtick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
+        # get the xticks
+        xticks = np.arange(num_trials) + width * num_metrics if kwargs.get('no_overlap', False) else np.arange(
+            num_trials) + width / 2
+
+        # get the colors
+        colors = plt.cm.jet(np.linspace(0, 1, num_metrics))
         box_parts = []
+        # draw the box plot
         ax = plt.subplot()
-        for metric_name in plot_metrics.keys():
-            metrics = plot_metrics[metric_name]
-
-            color = random.choice(colors)
-            colors.remove(color)
-
-            data = [metrics[trial] for trial in metrics.keys()]
-
-            boxs_parts = ax.boxplot(
-                data,
-                positions=list(range(len(metrics.keys()))),
-                widths=kwargs.pop("widths", 0.8),
-                meanline=True,
-                boxprops={'linewidth': '3'},
-                medianprops={'linewidth': '3', 'color': 'red'},
-                meanprops={'linewidth': '3'},
-                capprops={'linewidth': '3'},
-                flierprops={"marker": "o", "markerfacecolor": "k", "markersize": 10},
-                whiskerprops={'linewidth': '3'}
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            # get the values
+            values = list(plot_metrics[metric_name].values())
+            # draw the box plot
+            box_part = ax.boxplot(
+                values,
+                labels=xtick_labels,
+                positions=xticks + i * width if kwargs.get('no_overlap', False) else xticks,
+                widths=width * 0.9,
+                # patch_artist=kwargs.get("patch_artist", True),
+                boxprops=dict(linewidth=2, color=colors[i]),
+                capprops=dict(linewidth=2, color=colors[i]),
+                whiskerprops=dict(linewidth=2, color=colors[i]),
+                flierprops=dict(linewidth=2, color=colors[i], markeredgecolor=colors[i]),
+                medianprops=dict(linewidth=2, color=colors[i]),
+                **kwargs.get("boxplot_kwargs", {})
             )
 
-            box_parts.append(boxs_parts["boxes"][0])
+            box_parts.append(box_part["boxes"][0])
 
             for item in ["boxes", "whiskers", "fliers", "medians", "caps"]:
-                plt.setp(boxs_parts[item], color=color)
+                plt.setp(box_part[item], color=colors[i])
 
-            plt.setp(boxs_parts["fliers"], markeredgecolor=color)
+            plt.setp(box_part["fliers"], markeredgecolor=colors[i])
 
         if kwargs.get("legend", True):
             ax.legend(box_parts, list(plot_metrics.keys()), loc=kwargs.pop("legend_loc", 1))
@@ -229,8 +235,8 @@ class MetricVisualizer:
             ax.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", list(range(len(metrics.keys())))),
-            labels=list(metrics.keys()),
+            kwargs.get("xticks", xticks + i / 2 * width if kwargs.get('no_overlap', False) else xticks),
+            labels=list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
@@ -305,31 +311,38 @@ class MetricVisualizer:
         else:
             plot_metrics = self.transpose()
 
-        if not kwargs.get("markers", None):
-            markers = self.MARKERS[:]
-        else:
-            markers = kwargs.pop("markers")
+        width = kwargs.pop("width", 0.9)
 
-        if not kwargs.get("colors", None):
-            colors = self.COLORS[:]
-        else:
-            colors = kwargs.pop("colors")
+        # get the number of metrics
+        num_metrics = len(plot_metrics.keys())
+        # get the number of trials
+        num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
+
+        # get the width of the violin plot
+        width = width / num_metrics if kwargs.get("no_overlap", False) else width
+        # get the xticks
+        xticks = np.arange(num_trials) + width / 2 if kwargs.get("no_overlap", False) else np.arange(num_trials)
+        # get the xtick labels
 
         violin_parts = []
+        # draw the violin plot
         ax = plt.subplot()
-        for metric_name in plot_metrics.keys():
-            metrics = plot_metrics[metric_name]
-            data = [metrics[trial] for trial in metrics.keys()]
-
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            # get the values
+            values = list(plot_metrics[metric_name].values())
+            # draw the violin plot
             violin = ax.violinplot(
-                data,
-                widths=kwargs.pop("widths", 0.8),
-                positions=list(range(len(metrics.keys()))),
-                showmeans=True,
-                showmedians=True,
-                showextrema=True,
+                values,
+                positions=xticks + i * width if kwargs.get("no_overlap", False) else xticks,
+                widths=width * 0.9,
+                showmeans=kwargs.get("showmeans", False),
+                showmedians=kwargs.get("showmedians", True),
+                showextrema=kwargs.get("showextrema", True),
+                bw_method=kwargs.get("bw_method", "scott"),
+                **kwargs.get("violinplot_kwargs", {})
             )
-            violin_parts.append(violin["bodies"][0])
+
+        violin_parts.append(violin["bodies"][0])
 
         if kwargs.get("legend", True):
             plt.legend(
@@ -347,8 +360,8 @@ class MetricVisualizer:
             plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", list(range(len(metrics.keys())))),
-            list(metrics.keys()),
+            kwargs.get("xticks", xticks + i * width / 2 if kwargs.get("no_overlap", False) else xticks),
+            list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
