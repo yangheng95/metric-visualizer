@@ -5,10 +5,10 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 __name__ = "metric_visualizer"
 
-from .core import MetricVisualizer
+from .metric_visualizer import MetricVisualizer
 from .colalab import reformat_tikz_format_for_colalab
 
 from update_checker import UpdateChecker
