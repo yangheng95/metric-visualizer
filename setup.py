@@ -44,6 +44,6 @@ setup(
     ],
     entry_points="""
       [console_scripts]
-      mvis=metric_visualizer.cli_command:instant_visualize
+      metric_visualizer=metric_visualizer.cli_command:instant_visualize
   """,
 )

@@ -93,8 +93,8 @@ class MetricVisualizer:
 
         self.trial2unit = {}
 
-        self.trial_rank_test_result = None
-        self.metric_rank_test_result = None
+        self.trial_rank_test_result = {}
+        self.metric_rank_test_result = {}
 
     @staticmethod
     def compile_tikz(crop=True, clean=True, **kwargs):
@@ -1176,7 +1176,7 @@ class MetricVisualizer:
             table_data, headers=header, numalign="center", tablefmt="fancy_grid"
         )
         summary_str += "\n -------------------- https://github.com/yangheng95/metric_visualizer --------------------\n"
-        summary_str += "\n -------------- You can use: mvis *.mv to visualize the metrics in any bash --------------\n"
+        summary_str += "\n -------------- You can use: metric_visualizer *.mv to visualize the metrics in any bash --------------\n"
         if not no_print:
             print(summary_str)
 
@@ -1309,6 +1309,8 @@ class MetricVisualizer:
             filenames = find_cwd_files(".mv")
         elif isinstance(filename, str):
             filenames = [filename]
+        elif isinstance(filename, list):
+            filenames = filename
         else:
             raise ValueError("The filename should be a string or a list of strings")
 
