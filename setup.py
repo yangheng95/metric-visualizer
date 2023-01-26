@@ -41,6 +41,7 @@ setup(
         "click",
         "pandas",
         "openpyxl",
+        "mvis"
     ],
     entry_points="""
       [console_scripts]
