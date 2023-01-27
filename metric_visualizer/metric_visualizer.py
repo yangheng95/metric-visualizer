@@ -25,6 +25,7 @@ from tabulate import tabulate
 
 from metric_visualizer import __version__ as version
 from metric_visualizer import __name__ as pkg_name
+from metric_visualizer.utils import MetricList
 
 mv_font = {
     "family": "Serif",
@@ -172,11 +173,11 @@ class MetricVisualizer:
         # add the metric to the metric dict
         if metric_name in self.metrics:
             if trial_name not in self.metrics[metric_name]:
-                self.metrics[metric_name][trial_name] = [value]
+                self.metrics[metric_name][trial_name] = MetricList([value])
             else:
                 self.metrics[metric_name][trial_name].append(value)
         else:
-            self.metrics[metric_name] = {trial_name: [value]}
+            self.metrics[metric_name] = {trial_name: MetricList([value])}
 
     def box_plot(
         self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
