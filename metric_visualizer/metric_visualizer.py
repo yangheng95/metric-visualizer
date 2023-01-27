@@ -1212,18 +1212,12 @@ class MetricVisualizer:
                 _data += [
                     [mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]
                 ]
-                _data[-1].append(round(np.mean(metrics[trial]), 2))
-                _data[-1].append(round(np.median(metrics[trial]), 2))
-                _data[-1].append(round(np.std(metrics[trial]), 2))
-                _data[-1].append(
-                    round(
-                        np.percentile(metrics[trial], 75)
-                        - np.percentile(metrics[trial], 25),
-                        2,
-                    )
-                )
-                _data[-1].append(round(np.min(metrics[trial]), 2))
-                _data[-1].append(round(np.max(metrics[trial]), 2))
+                _data[-1].append(round(metrics[trial].avg, 2))
+                _data[-1].append(round(metrics[trial].median, 2))
+                _data[-1].append(round(metrics[trial].std, 2))
+                _data[-1].append(round(metrics[trial].iqr, 2))
+                _data[-1].append(round(metrics[trial].min, 2))
+                _data[-1].append(round(metrics[trial].max, 2))
 
                 table_data += _data
 
