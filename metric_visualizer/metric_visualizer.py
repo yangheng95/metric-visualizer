@@ -162,7 +162,7 @@ class MetricVisualizer:
         assert metric_name is not None
 
         # if unit is not None, add the unit to the trial name
-        self.trial2unit[trial_name] = unit
+        self.trial2unit[metric_name] = unit
 
         # if trial_name is None, use the length of the metric dict as the trial name
         if trial_name is None:
