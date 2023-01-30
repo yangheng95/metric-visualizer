@@ -178,6 +178,7 @@ class MetricVisualizer:
                 self.metrics[metric_name][trial_name].append(value)
         else:
             self.metrics[metric_name] = {trial_name: MetricList([value])}
+        return self
 
     def box_plot(
         self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
@@ -1109,9 +1110,9 @@ class MetricVisualizer:
                     (c >= (a - b) * 1.5 + a) | (c <= b - (a - b) * outlier_constant)
                 ] = np.nan
                 c.fillna(c.median(), inplace=True)
-                self.metrics[metric_name][trial_name] = [
-                    x[0] for x in c.values.tolist()
-                ]
+                self.metrics[metric_name][trial_name] = MetricList(
+                    [x[0] for x in c.values.tolist()]
+                )
 
     def transpose(self):
         transposed_metrics = OrderedDict()
