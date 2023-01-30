@@ -10,10 +10,10 @@ import numpy as np
 from scipy import stats
 
 
-class MetricList(list):
+class MetricList:
     def __init__(self, *args, **kwargs):
         self._data = list(*args, **kwargs)
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.avg = np.nanmean(self._data)
         self.std = np.nanstd(self._data)
         self.median = np.nanmedian(self._data)
@@ -69,7 +69,9 @@ class MetricList(list):
         self._update()
 
     def extend(self, iterable):
-        self._data.extend(iterable)
+        if isinstance(iterable, MetricList):
+            iterable = iterable._data.copy()
+        self._data.extend(list(iterable))
         self._update()
 
     def insert(self, index, item):
@@ -104,6 +106,3 @@ class MetricList(list):
 
     def copy(self):
         return self._data.copy()
-
-    def __getattr__(self, item):
-        return getattr(self._data, item)
