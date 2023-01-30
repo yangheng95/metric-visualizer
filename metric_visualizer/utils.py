@@ -107,6 +107,3 @@ class MetricList(list):
 
     def __getattr__(self, item):
         return getattr(self._data, item)
-
-    def __getattribute__(self, item):
-        return super().__getattribute__(item)
