@@ -1203,11 +1203,14 @@ class MetricVisualizer:
         table_data = []
         if kwargs.get("transpose", False):
             transposed_metrics = self.transpose()
+            trial_tag_list = list(transposed_metrics.keys())
         else:
             transposed_metrics = self.metrics
+            trial_tag_list = list(
+                transposed_metrics[list(transposed_metrics.keys())[0]]
+            )
         for mn in transposed_metrics.keys():
             metrics = transposed_metrics[mn]
-            trial_tag_list = list(self.trial2unit.keys())
             for i, trial in enumerate(metrics.keys()):
                 _data = []
                 _data += [
@@ -1225,6 +1228,9 @@ class MetricVisualizer:
         return table_data, header
 
     def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
+        if filename:
+            print("Warning: filename is deprecated, please use save_path instead.")
+
         summary_str = "\n ----------------------------------- Metric Visualizer ----------------------------------- \n"
 
         table_data, header = self._get_table_data(**kwargs)

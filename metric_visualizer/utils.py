@@ -12,97 +12,96 @@ from scipy import stats
 
 class MetricList:
     def __init__(self, *args, **kwargs):
-        self._data = list(*args, **kwargs)
-        super().__init__()
-        self.avg = np.nanmean(self._data)
-        self.std = np.nanstd(self._data)
-        self.median = np.nanmedian(self._data)
-        self.mode = stats.mode(self._data)[0][0]
-        self.max = np.nanmax(self._data)
-        self.min = np.nanmin(self._data)
-        self.var = np.nanvar(self._data)
-        self.iqr = stats.iqr(self._data)
-        self.skew = stats.skew(self._data)
-        self.kurtosis = stats.kurtosis(self._data)
-        self.sum = np.nansum(self._data)
-        self.count = len(self._data)
+        self.data = list(*args, **kwargs)
+        self.avg = np.nanmean(self.data)
+        self.std = np.nanstd(self.data)
+        self.median = np.nanmedian(self.data)
+        self.mode = stats.mode(self.data)[0][0]
+        self.max = np.nanmax(self.data)
+        self.min = np.nanmin(self.data)
+        self.var = np.nanvar(self.data)
+        self.iqr = stats.iqr(self.data)
+        self.skew = stats.skew(self.data)
+        self.kurtosis = stats.kurtosis(self.data)
+        self.sum = np.nansum(self.data)
+        self.count = len(self.data)
 
     def _update(self):
-        self.avg = np.nanmean(self._data)
-        self.std = np.nanstd(self._data)
-        self.median = np.nanmedian(self._data)
-        self.mode = stats.mode(self._data)[0][0]
-        self.max = np.nanmax(self._data)
-        self.min = np.nanmin(self._data)
-        self.var = np.nanvar(self._data)
-        self.iqr = stats.iqr(self._data)
-        self.skew = stats.skew(self._data)
-        self.kurtosis = stats.kurtosis(self._data)
-        self.sum = np.nansum(self._data)
-        self.count = len(self._data)
+        self.avg = np.nanmean(self.data)
+        self.std = np.nanstd(self.data)
+        self.median = np.nanmedian(self.data)
+        self.mode = stats.mode(self.data)[0][0]
+        self.max = np.nanmax(self.data)
+        self.min = np.nanmin(self.data)
+        self.var = np.nanvar(self.data)
+        self.iqr = stats.iqr(self.data)
+        self.skew = stats.skew(self.data)
+        self.kurtosis = stats.kurtosis(self.data)
+        self.sum = np.nansum(self.data)
+        self.count = len(self.data)
 
     def __getitem__(self, item):
-        return self._data[item]
+        return self.data[item]
 
     def __setitem__(self, key, value):
-        self._data[key] = value
+        self.data[key] = value
         self._update()
 
     def __delitem__(self, key):
-        del self._data[key]
+        del self.data[key]
         self._update()
 
     def __len__(self):
-        return len(self._data)
+        return len(self.data)
 
     def __iter__(self):
-        return iter(self._data)
+        return iter(self.data)
 
     def __reversed__(self):
-        return reversed(self._data)
+        return reversed(self.data)
 
     def __contains__(self, item):
-        return item in self._data
+        return item in self.data
 
     def append(self, item):
-        self._data.append(item)
+        self.data.append(item)
         self._update()
 
     def extend(self, iterable):
         if isinstance(iterable, MetricList):
-            iterable = iterable._data.copy()
-        self._data.extend(list(iterable))
+            iterable = iterable.data.copy()
+        self.data.extend(list(iterable))
         self._update()
 
     def insert(self, index, item):
-        self._data.insert(index, item)
+        self.data.insert(index, item)
         self._update()
 
     def pop(self, index=-1):
-        self._data.pop(index)
+        self.data.pop(index)
         self._update()
 
     def remove(self, item):
-        self._data.remove(item)
+        self.data.remove(item)
         self._update()
 
     def clear(self):
-        self._data.clear()
+        self.data.clear()
         self._update()
 
     def index(self, item, start=0, stop=None):
-        return self._data.index(item, start, stop)
+        return self.data.index(item, start, stop)
 
     def count(self, item):
-        return self._data.count(item)
+        return self.data.count(item)
 
     def sort(self, key=None, reverse=False):
-        self._data.sort(key, reverse)
+        self.data.sort(key, reverse)
         self._update()
 
     def reverse(self):
-        self._data.reverse()
+        self.data.reverse()
         self._update()
 
     def copy(self):
-        return self._data.copy()
+        return self.data.copy()
