@@ -13,18 +13,21 @@ from scipy import stats
 class MetricList:
     def __init__(self, *args, **kwargs):
         self.data = list(*args, **kwargs)
-        self.avg = np.nanmean(self.data)
-        self.std = np.nanstd(self.data)
-        self.median = np.nanmedian(self.data)
-        self.mode = stats.mode(self.data)[0][0]
-        self.max = np.nanmax(self.data)
-        self.min = np.nanmin(self.data)
-        self.var = np.nanvar(self.data)
-        self.iqr = stats.iqr(self.data)
-        self.skew = stats.skew(self.data)
-        self.kurtosis = stats.kurtosis(self.data)
-        self.sum = np.nansum(self.data)
-        self.count = len(self.data)
+        try:
+            self.avg = np.nanmean(self.data)
+            self.std = np.nanstd(self.data)
+            self.median = np.nanmedian(self.data)
+            self.mode = stats.mode(self.data)[0][0]
+            self.max = np.nanmax(self.data)
+            self.min = np.nanmin(self.data)
+            self.var = np.nanvar(self.data)
+            self.iqr = stats.iqr(self.data)
+            self.skew = stats.skew(self.data, keepdims=True)
+            self.kurtosis = stats.kurtosis(self.data, keepdims=True)
+            self.sum = np.nansum(self.data)
+            self.count = len(self.data)
+        except Exception as e:
+            print("Can create MetricList with: ", self.data)
 
     def _update(self):
         self.avg = np.nanmean(self.data)
