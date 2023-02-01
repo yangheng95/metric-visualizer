@@ -33,7 +33,7 @@ for r in range(repeat):  # repeat the experiments to plot violin or box figure
 
 MV.remove_outliers()  # remove outliers
 MV.to_execl(save_path=os.getcwd() + "/example.xlsx")  # save to excel
-MV.summary()
+MV.summary(transpose=True, save_path=os.getcwd() + "/summary.txt")  # save summary
 MV.box_plot(no_overlap=True, save_path="box_plot.png")
 MV.violin_plot(no_overlap=True, save_path="violin_plot.png")
 MV.scatter_plot(save_path="scatter_plot.png")

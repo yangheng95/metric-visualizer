@@ -209,14 +209,14 @@ class MetricVisualizer:
         num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
 
         # get the width of the box plot
-        width = width / num_metrics if kwargs.get("no_overlap", False) else width
+        width = width / num_metrics if kwargs.get("no_overlap", True) else width
 
         # get the xtick labels
         xtick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
         # get the xticks
         xticks = (
             np.arange(num_trials) + width * num_metrics
-            if kwargs.get("no_overlap", False)
+            if kwargs.get("no_overlap", True)
             else np.arange(num_trials) + width / 2
         )
 
@@ -233,7 +233,7 @@ class MetricVisualizer:
                 values,
                 labels=xtick_labels,
                 positions=xticks + i * width
-                if kwargs.get("no_overlap", False)
+                if kwargs.get("no_overlap", True)
                 else xticks,
                 widths=width * 0.9,
                 # patch_artist=kwargs.get("patch_artist", True),
@@ -269,7 +269,7 @@ class MetricVisualizer:
         plt.xticks(
             kwargs.get(
                 "xticks",
-                xticks + i / 2 * width if kwargs.get("no_overlap", False) else xticks,
+                xticks + i / 2 * width if kwargs.get("no_overlap", True) else xticks,
             ),
             labels=list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
@@ -354,11 +354,11 @@ class MetricVisualizer:
         num_trials = len(plot_metrics[list(plot_metrics.keys())[0]].keys())
 
         # get the width of the violin plot
-        width = width / num_metrics if kwargs.get("no_overlap", False) else width
+        width = width / num_metrics if kwargs.get("no_overlap", True) else width
         # get the xticks
         xticks = (
             np.arange(num_trials) + width / 2
-            if kwargs.get("no_overlap", False)
+            if kwargs.get("no_overlap", True)
             else np.arange(num_trials)
         )
         # get the xtick labels
@@ -373,7 +373,7 @@ class MetricVisualizer:
             violin = ax.violinplot(
                 values,
                 positions=xticks + i * width
-                if kwargs.get("no_overlap", False)
+                if kwargs.get("no_overlap", True)
                 else xticks,
                 widths=width * 0.9,
                 showmeans=kwargs.get("showmeans", False),
@@ -403,7 +403,7 @@ class MetricVisualizer:
         plt.xticks(
             kwargs.get(
                 "xticks",
-                xticks + i * width / 2 if kwargs.get("no_overlap", False) else xticks,
+                xticks + i * width / 2 if kwargs.get("no_overlap", True) else xticks,
             ),
             list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
@@ -523,7 +523,10 @@ class MetricVisualizer:
             plt.grid(which="minor", linestyle=":", linewidth="0.3", color="grey")
 
         plt.xticks(
-            kwargs.get("xticks", list(range(len(plot_metrics[metric_name].keys())))),
+            kwargs.get(
+                "xticks",
+                xticks + i * width / 2 if kwargs.get("no_overlap", True) else xticks,
+            ),
             list(plot_metrics[metric_name].keys()),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
@@ -1175,55 +1178,62 @@ class MetricVisualizer:
             return self.metric_rank_test_result
 
     def _get_table_data(self, **kwargs):
-        if kwargs.get("transpose", False):
-            header = [
-                "Trial",
-                "Metric",
-                "Values",
-                "Average",
-                "Median",
-                "Std",
-                "IQR",
-                "Min",
-                "Max",
-            ]
-        else:
-            header = [
-                "Metric",
-                "Trial",
-                "Values",
-                "Average",
-                "Median",
-                "Std",
-                "IQR",
-                "Min",
-                "Max",
-            ]
-
         table_data = []
         if kwargs.get("transpose", False):
+            header = [
+                "Trial",
+                "Metric",
+                "Values",
+                "Average",
+                "Median",
+                "Std",
+                "IQR",
+                "Min",
+                "Max",
+            ]
             transposed_metrics = self.transpose()
-            trial_tag_list = list(transposed_metrics.keys())
-        else:
-            transposed_metrics = self.metrics
-            trial_tag_list = list(
-                transposed_metrics[list(transposed_metrics.keys())[0]]
-            )
-        for mn in transposed_metrics.keys():
-            metrics = transposed_metrics[mn]
-            for i, trial in enumerate(metrics.keys()):
-                _data = []
-                _data += [
-                    [mn, trial_tag_list[i], [round(x, 2) for x in metrics[trial][:10]]]
-                ]
-                _data[-1].append(round(metrics[trial].avg, 2))
-                _data[-1].append(round(metrics[trial].median, 2))
-                _data[-1].append(round(metrics[trial].std, 2))
-                _data[-1].append(round(metrics[trial].iqr, 2))
-                _data[-1].append(round(metrics[trial].min, 2))
-                _data[-1].append(round(metrics[trial].max, 2))
+            for i, trial in enumerate(transposed_metrics.keys()):
+                trials = transposed_metrics[trial]
+                for j, metric in enumerate(trials.keys()):
+                    _data = []
+                    _data += [
+                        [trial, metric, [round(x, 2) for x in trials[metric][:10]]]
+                    ]
+                    _data[-1].append(round(trials[metric].avg, 2))
+                    _data[-1].append(round(trials[metric].median, 2))
+                    _data[-1].append(round(trials[metric].std, 2))
+                    _data[-1].append(round(trials[metric].iqr, 2))
+                    _data[-1].append(round(trials[metric].min, 2))
+                    _data[-1].append(round(trials[metric].max, 2))
+                    table_data += _data
 
-                table_data += _data
+        else:
+            header = [
+                "Metric",
+                "Trial",
+                "Values",
+                "Average",
+                "Median",
+                "Std",
+                "IQR",
+                "Min",
+                "Max",
+            ]
+            transposed_metrics = self.metrics
+            for i, metric in enumerate(transposed_metrics.keys()):
+                metrics = transposed_metrics[metric]
+                for j, trial in enumerate(metrics.keys()):
+                    _data = []
+                    _data += [
+                        [metric, trial, [round(x, 2) for x in metrics[trial][:10]]]
+                    ]
+                    _data[-1].append(round(metrics[trial].avg, 2))
+                    _data[-1].append(round(metrics[trial].median, 2))
+                    _data[-1].append(round(metrics[trial].std, 2))
+                    _data[-1].append(round(metrics[trial].iqr, 2))
+                    _data[-1].append(round(metrics[trial].min, 2))
+                    _data[-1].append(round(metrics[trial].max, 2))
+                    table_data += _data
 
         return table_data, header
 
