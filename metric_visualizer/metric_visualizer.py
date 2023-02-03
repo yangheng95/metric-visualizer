@@ -271,7 +271,9 @@ class MetricVisualizer:
                 "xticks",
                 xticks + i / 2 * width if kwargs.get("no_overlap", True) else xticks,
             ),
-            labels=list(plot_metrics[metric_name].keys()),
+            xtick_labels
+            if not kwargs.get("xticklabels", None)
+            else kwargs.get("xticklabels"),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
@@ -361,6 +363,7 @@ class MetricVisualizer:
             if kwargs.get("no_overlap", True)
             else np.arange(num_trials)
         )
+        xtick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
         # get the xtick labels
 
         violin_parts = []
@@ -405,7 +408,9 @@ class MetricVisualizer:
                 "xticks",
                 xticks + i * width / 2 if kwargs.get("no_overlap", True) else xticks,
             ),
-            list(plot_metrics[metric_name].keys()),
+            xtick_labels
+            if not kwargs.get("xticklabels", None)
+            else kwargs.get("xticklabels"),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
@@ -420,6 +425,90 @@ class MetricVisualizer:
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        # if kwargs.get("xticklabels", True):
+        #     ax.set_xticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         # verticalalignment=kwargs.pop("verticalalignment", "top"),
+        #         **kwargs.pop("xticklabels_kwargs", {}),
+        #     )
+        # if kwargs.get("yticklabels", True):
+        #     ax.set_yticklabels(
+        #         [metric_name for metric_name in metrics],
+        #         rotation=kwargs.pop("rotation", 0),
+        #         rotation_mode=kwargs.pop("rotation_mode", "anchor"),
+        #         horizontalalignment=kwargs.pop("horizontalalignment", "center"),
+        #         verticalalignment=kwargs.pop("verticalalignment", "baseline"),
+        #         **kwargs.pop("yticklabels_kwargs", {}),
+        #     )
+        if engine != "tikz":
+            # save the violin plot
+            if save_path is not None:
+                plt.savefig(save_path, dpi=kwargs.pop("dpi", 1000))
+            # show the violin plot
+            if show:
+                plt.show()
+        else:
+            import tikzplotlib
+
+            tex_code = tikzplotlib.get_tikz_code()
+            tex_code = tex_template.replace("$tikz_code$", tex_code)
+            if save_path is not None:
+                with open(save_path, "w") as f:
+                    f.write(tex_code)
+            if show:
+                print(tex_code)
+
+            return save_path
+
+    def pie_plot(
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
+    ):
+        """
+        Draw a pie plot based on the metric name and trial name.
+        :param by: the name of the x-axis, such as trial, metric, etc.
+        :param engine: the engine to draw the pie plot, such as matplotlib, tikz, etc.
+        :param save_path: the path to save the pie plot
+        :param show: whether to show the pie plot
+
+        :return: None
+        """
+        import matplotlib.pyplot as plt
+
+        plt.cla()
+        if by != "trial":
+            plot_metrics = self.transpose()
+        else:
+            plot_metrics = self.metrics
+
+        # get the number of metrics
+        num_metrics = len(plot_metrics.keys())
+        # get the number of trials
+        num_trials = len(plot_metrics[list(plot_metrics.keys())[0]])
+        # get the xticks
+        xticks = np.arange(num_metrics)
+        xtick_labels = list(plot_metrics.keys())
+        # get the xtick labels
+        # get the yticks
+        yticks = np.arange(num_trials)
+        ytick_labels = list(plot_metrics[list(plot_metrics.keys())[0]].keys())
+        # get the ytick labels
+
+        # draw the pie plot
+        ax = plt.subplot()
+        for i, metric_name in enumerate(plot_metrics.keys()):
+            # get the values
+            values = list(plot_metrics[metric_name].values())
+            # draw the pie plot
+            pie = ax.pie(
+                [np.nanmean(vec) for vec in values],
+                labels=ytick_labels,
+                center=kwargs.pop("center", (0, 0)),
+                **kwargs.pop("pieplot_kwargs", {}),
+            )
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
@@ -527,7 +616,9 @@ class MetricVisualizer:
                 "xticks",
                 xticks + i * width / 2 if kwargs.get("no_overlap", True) else xticks,
             ),
-            list(plot_metrics[metric_name].keys()),
+            xtick_labels
+            if not kwargs.get("xtick_labels", None)
+            else kwargs.get("xtick_labels", None),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
             # verticalalignment=kwargs.pop("verticalalignment", "top"),
@@ -623,8 +714,6 @@ class MetricVisualizer:
                 [[i for i, label in enumerate(metrics)] for _ in range(y.shape[1])]
             )
 
-            # y_avg = np.median(y, axis=1)
-
             y_avg = np.average(y, axis=1)
             y_std = np.std(y, axis=1)
 
@@ -673,10 +762,11 @@ class MetricVisualizer:
 
         plt.xticks(
             kwargs.get("xticks", list(range(len(metrics.keys())))),
-            list(metrics.keys()),
+            list(metrics.keys())
+            if not kwargs.get("xticklabels", None)
+            else kwargs.get("xticklabels", None),
             rotation=kwargs.pop("xrotation", 0),
             horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            # verticalalignment=kwargs.pop("verticalalignment", "top"),
             **kwargs.pop("xticks_kwargs", {}),
         )
         plt.yticks(
@@ -1265,6 +1355,20 @@ class MetricVisualizer:
             self.dump(save_path.replace(".summary.txt", ".mv"))
 
         return summary_str
+
+    def drop(self, metric=None, trial=None):
+        if metric:
+            self.metrics.pop(metric)
+        if trial:
+            for metric in self.metrics.keys():
+                self.metrics[metric].pop(trial)
+
+    def fillna(self, value=0):
+        for metric in self.metrics.keys():
+            for trial in self.metrics[metric].keys():
+                for i, x in enumerate(self.metrics[metric][trial]):
+                    if x == np.nan or x == np.inf or x == -np.inf or x is None:
+                        self.metrics[metric][trial] = value
 
     def to_execl(self, path=None, **kwargs):
         """Save the metrics to an excel file

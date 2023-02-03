@@ -38,6 +38,7 @@ MV.box_plot(no_overlap=True, save_path="box_plot.png")
 MV.violin_plot(no_overlap=True, save_path="violin_plot.png")
 MV.scatter_plot(save_path="scatter_plot.png")
 MV.trajectory_plot(save_path="trajectory_plot.png")
+MV.pie_plot(save_path="pie_plot.png")
 # tikz_file_path = MV.box_plot(
 #     by="trial",
 #     engine="tikz",
