@@ -30,7 +30,7 @@ setup(
     # Choose your license
     license="MIT",
     install_requires=[
-        "matplotlib<3.6.0",
+        "matplotlib>=3.6.3",
         "tikzplotlib",
         "findfile",
         "scipy",
