@@ -94,7 +94,6 @@ class MetricVisualizer:
         self.pkg_name = pkg_name
 
         if metric_dict is None:
-
             self.metrics = OrderedDict(
                 {
                     # Example data:
@@ -224,11 +223,7 @@ class MetricVisualizer:
                 self.metrics[metric_name][trial_name].color = metric_color
 
     def box_plot(
-        self, by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a box plot based on the metric name and trial name.
@@ -375,12 +370,7 @@ class MetricVisualizer:
             return save_path
 
     def violin_plot(
-        self,
-            by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a violin plot based on the metric name and trial name.
@@ -517,12 +507,7 @@ class MetricVisualizer:
             return save_path
 
     def pie_plot(
-        self,
-            by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a pie plot based on the metric name and trial name.
@@ -606,12 +591,7 @@ class MetricVisualizer:
             return save_path
 
     def scatter_plot(
-        self,
-            by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a scatter plot based on the metric name and trial name.
@@ -735,12 +715,7 @@ class MetricVisualizer:
             return save_path
 
     def trajectory_plot(
-        self,
-            by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a trajectory plot based on the metric name and trial name.
@@ -885,12 +860,7 @@ class MetricVisualizer:
             return save_path
 
     def bar_plot(
-        self,
-            by="trial",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, by="trial", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a bar plot based on the metric name and trial name.
@@ -1209,12 +1179,7 @@ class MetricVisualizer:
         )
 
     def sk_rank_plot(
-        self,
-            plot_type="box",
-            engine="matplotlib",
-            save_path=None,
-            show=True,
-            **kwargs
+        self, plot_type="box", engine="matplotlib", save_path=None, show=True, **kwargs
     ):
         """
         Draw a rank plot based on the metric name and trial name.
@@ -1408,7 +1373,6 @@ class MetricVisualizer:
         if filename:
             print("Warning: filename is deprecated, please use save_path instead.")
 
-
         table_data, header = self._get_table_data(**kwargs)
 
         summary_str = tabulate(
@@ -1416,11 +1380,25 @@ class MetricVisualizer:
         )
         logo = " Metric Visualizer "
         url = " https://github.com/yangheng95/metric_visualizer "
-        _prefix = "\n"+"-" * ((len(summary_str.split("\n")[0])-len(logo))//2) + logo + "-" * ((len(summary_str.split("\n")[0])-len(logo))//2)+"\n"
+        _prefix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + logo
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + "\n"
+        )
 
-        _postfix = "\n" + "-" * ((len(summary_str.split("\n")[0])-len( url))//2) + url + "-" * ((len(summary_str.split("\n")[0])-len( url))//2) +"\n"
+        _postfix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + url
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + "\n"
+        )
+
+        summary_str = _prefix + summary_str + _postfix
         if not no_print:
-            print(_prefix + summary_str + _postfix)
+            print(summary_str)
 
         if save_path:
             if not save_path.endswith(".summary.txt"):

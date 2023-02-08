@@ -271,7 +271,6 @@ def reformat_tikz_format_for_colalab(
     new_table_and_styles = extract_table_style_from_tex(tex_src_to_format)
     old_table_and_styles = extract_table_style_from_tex(_template)
     for i in range(max(len(new_table_and_styles[0]), len(old_table_and_styles[0]))):
-
         new_table, new_style = new_table_and_styles[0][i], new_table_and_styles[1][i]
         if i < len(old_table_and_styles[0]):
             old_table, old_style = (

@@ -13,7 +13,6 @@ from metric_visualizer.colalab import reformat_tikz_format_for_colalab
 from metric_visualizer import MetricVisualizer
 
 if __name__ == "__main__":
-
     # select a tikz template, paste the path of the template or text of the template
     tex_src_template = r"""
         \documentclass{article}
