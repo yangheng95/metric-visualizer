@@ -180,6 +180,49 @@ class MetricVisualizer:
             self.metrics[metric_name] = {trial_name: MetricList([value])}
         return self
 
+    def set_trial_names(self, trial_names):
+        """
+        Set the trial names.
+        :param trial_names: the trial names
+
+        :return: None
+        """
+        for metric_name in self.metrics:
+            self.metrics[metric_name] = OrderedDict(
+                zip(trial_names, self.metrics[metric_name].values())
+            )
+
+    def set_trial_colors(self, trial_colors):
+        """
+        Set the trial colors.
+        :param trial_colors: the trial colors
+
+        :return: None
+        """
+        for metric_name in self.metrics:
+            for trial_name, trial_color in zip(self.metrics[metric_name], trial_colors):
+                self.metrics[metric_name][trial_name].color = trial_color
+
+    def set_metric_names(self, metric_names):
+        """
+        Set the metric names.
+        :param metric_names: the metric names
+
+        :return: None
+        """
+        self.metrics = OrderedDict(zip(metric_names, self.metrics.values()))
+
+    def set_metric_colors(self, metric_colors):
+        """
+        Set the metric colors.
+        :param metric_colors: the metric colors
+
+        :return: None
+        """
+        for metric_name, metric_color in zip(self.metrics, metric_colors):
+            for trial_name in self.metrics[metric_name]:
+                self.metrics[metric_name][trial_name].color = metric_color
+
     def box_plot(
         self, by="trial",
             engine="matplotlib",
@@ -1392,7 +1435,7 @@ class MetricVisualizer:
 
         return summary_str
 
-    def drop(self, metric=None, trial=None):
+    def drop(self, *, metric=None, trial=None):
         if metric:
             self.metrics.pop(metric)
         if trial:
