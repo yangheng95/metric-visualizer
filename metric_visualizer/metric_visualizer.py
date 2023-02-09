@@ -46,7 +46,7 @@ mv_font_large = {
 }
 
 # set font for matplotlib
-matplotlib.rc("font", **mv_font_small)
+matplotlib.rc("font", **mv_font)
 
 tex_template = r"""
     \documentclass{article}
@@ -323,13 +323,16 @@ class MetricVisualizer:
         )
         plt.yticks(
             rotation=kwargs.pop("yrotation", 0),
-            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            horizontalalignment=kwargs.pop("horizontalalignment", "right"),
+            verticalalignment=kwargs.pop("verticalalignment", "center"),
             **kwargs.pop("yticks_kwargs", {}),
         )
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        if kwargs.get("tight_layout", True):
+            plt.tight_layout()
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
@@ -460,13 +463,16 @@ class MetricVisualizer:
         )
         plt.yticks(
             rotation=kwargs.pop("yrotation", 0),
-            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            horizontalalignment=kwargs.pop("horizontalalignment", "right"),
+            verticalalignment=kwargs.pop("verticalalignment", "center"),
             **kwargs.pop("yticks_kwargs", {}),
         )
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        if kwargs.get("tight_layout", True):
+            plt.tight_layout()
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
@@ -668,13 +674,16 @@ class MetricVisualizer:
         )
         plt.yticks(
             rotation=kwargs.pop("yrotation", 0),
-            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            horizontalalignment=kwargs.pop("horizontalalignment", "right"),
+            verticalalignment=kwargs.pop("verticalalignment", "center"),
             **kwargs.pop("yticks_kwargs", {}),
         )
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        if kwargs.get("tight_layout", True):
+            plt.tight_layout()
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
@@ -813,13 +822,16 @@ class MetricVisualizer:
         )
         plt.yticks(
             rotation=kwargs.pop("yrotation", 0),
-            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            horizontalalignment=kwargs.pop("horizontalalignment", "right"),
+            verticalalignment=kwargs.pop("verticalalignment", "center"),
             **kwargs.pop("yticks_kwargs", {}),
         )
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        if kwargs.get("tight_layout", True):
+            plt.tight_layout()
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
@@ -942,13 +954,16 @@ class MetricVisualizer:
         )
         plt.yticks(
             rotation=kwargs.pop("yrotation", 0),
-            horizontalalignment=kwargs.pop("horizontalalignment", "center"),
-            verticalalignment=kwargs.pop("verticalalignment", "center_baseline"),
+            horizontalalignment=kwargs.pop("horizontalalignment", "right"),
+            verticalalignment=kwargs.pop("verticalalignment", "center"),
             **kwargs.pop("yticks_kwargs", {}),
         )
 
         plt.xlabel(kwargs.pop("xlabel", "Trial Name"))
         plt.ylabel(kwargs.pop("ylabel", "Metric Value"))
+
+        if kwargs.get("tight_layout", True):
+            plt.tight_layout()
 
         # if kwargs.get("xticklabels", True):
         #     ax.set_xticklabels(
