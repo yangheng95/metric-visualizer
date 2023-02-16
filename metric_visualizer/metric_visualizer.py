@@ -1324,7 +1324,7 @@ class MetricVisualizer:
         except KeyError:
             return self.metric_rank_test_result
 
-    def _get_table_data(self, **kwargs):
+    def _get_raw_table_data(self, **kwargs):
         table_data = []
         if kwargs.get("transpose", False):
             header = [
@@ -1384,11 +1384,166 @@ class MetricVisualizer:
 
         return table_data, header
 
+    def _get_processed_table_data(self, method="average", stat="std", **kwargs):
+        assert method in ["average", "median", "min", "max"]
+        assert stat in ["std", "iqr", "skewness", "kurtosis"]
+        table_data = []
+
+        header = ["Trial"] + [
+            "{}-{} ({})".format(method, x, stat) for x in list(self.metrics.keys())
+        ]
+        transposed_metrics = self.transpose()
+        for i, trial in enumerate(transposed_metrics.keys()):
+            trials = transposed_metrics[trial]
+            _data = []
+            _data.append(trial)
+            for metric in trials.keys():
+                if method == "average":
+                    if stat == "std":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].avg, 2),
+                                round(trials[metric].std, 2),
+                            )
+                        )
+                    elif stat == "iqr":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].avg, 2),
+                                round(trials[metric].iqr, 2),
+                            )
+                        )
+                    elif stat == "skewness":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].avg, 2),
+                                round(trials[metric].skewness, 2),
+                            )
+                        )
+                    elif stat == "kurtosis":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].avg, 2),
+                                round(trials[metric].kurtosis, 2),
+                            )
+                        )
+                    else:
+                        raise NotImplementedError(
+                            "stat {} not implemented".format(stat)
+                        )
+                elif method == "median":
+                    if stat == "std":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].median, 2),
+                                round(trials[metric].std, 2),
+                            )
+                        )
+                    elif stat == "iqr":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].median, 2),
+                                round(trials[metric].iqr, 2),
+                            )
+                        )
+                    elif stat == "skewness":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].median, 2),
+                                round(trials[metric].skewness, 2),
+                            )
+                        )
+                    elif stat == "kurtosis":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].median, 2),
+                                round(trials[metric].kurtosis, 2),
+                            )
+                        )
+                    else:
+                        raise NotImplementedError(
+                            "stat {} not implemented".format(stat)
+                        )
+                elif method == "min":
+                    if stat == "std":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].min, 2),
+                                round(trials[metric].std, 2),
+                            )
+                        )
+                    elif stat == "iqr":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].min, 2),
+                                round(trials[metric].iqr, 2),
+                            )
+                        )
+                    elif stat == "skewness":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].min, 2),
+                                round(trials[metric].skewness, 2),
+                            )
+                        )
+                    elif stat == "kurtosis":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].min, 2),
+                                round(trials[metric].kurtosis, 2),
+                            )
+                        )
+                    else:
+                        raise NotImplementedError(
+                            "stat {} not implemented".format(stat)
+                        )
+                elif method == "max":
+                    if stat == "std":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].max, 2),
+                                round(trials[metric].std, 2),
+                            )
+                        )
+                    elif stat == "iqr":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].max, 2),
+                                round(trials[metric].iqr, 2),
+                            )
+                        )
+                    elif stat == "skewness":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].max, 2),
+                                round(trials[metric].skewness, 2),
+                            )
+                        )
+                    elif stat == "kurtosis":
+                        _data.append(
+                            "{} ({})".format(
+                                round(trials[metric].max, 2),
+                                round(trials[metric].kurtosis, 2),
+                            )
+                        )
+                    else:
+                        raise NotImplementedError(
+                            "stat {} not implemented".format(stat)
+                        )
+                else:
+                    raise NotImplementedError(
+                        "method {} not implemented".format(method)
+                    )
+
+            table_data.append(_data)
+
+        return table_data, header
+
     def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
         if filename:
             print("Warning: filename is deprecated, please use save_path instead.")
 
-        table_data, header = self._get_table_data(**kwargs)
+        table_data, header = self._get_processed_table_data(**kwargs)
 
         summary_str = tabulate(
             table_data, headers=header, numalign="center", tablefmt="fancy_grid"
@@ -1428,20 +1583,6 @@ class MetricVisualizer:
 
         return summary_str
 
-    def drop(self, *, metric=None, trial=None):
-        if metric:
-            self.metrics.pop(metric)
-        if trial:
-            for metric in self.metrics.keys():
-                self.metrics[metric].pop(trial)
-
-    def fillna(self, value=0):
-        for metric in self.metrics.keys():
-            for trial in self.metrics[metric].keys():
-                for i, x in enumerate(self.metrics[metric][trial]):
-                    if x == np.nan or x == np.inf or x == -np.inf or x is None:
-                        self.metrics[metric][trial] = value
-
     def to_execl(self, path=None, **kwargs):
         """Save the metrics to an excel file
 
@@ -1455,7 +1596,7 @@ class MetricVisualizer:
             path = path + ".xlsx"
 
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
-        table_data, header = self._get_table_data(**kwargs)
+        table_data, header = self._get_processed_table_data(**kwargs)
 
         df = pd.DataFrame(table_data, columns=header)
         df.to_excel(writer, sheet_name=self.name)
@@ -1474,7 +1615,7 @@ class MetricVisualizer:
             path = path + ".txt"
 
         with open(path, "w") as f:
-            table_data, header = self._get_table_data(**kwargs)
+            table_data, header = self._get_processed_table_data(**kwargs)
             f.write(
                 tabulate(
                     table_data, headers=header, numalign="center", tablefmt="fancy_grid"
@@ -1493,7 +1634,7 @@ class MetricVisualizer:
         if not path.endswith(".csv"):
             path = path + ".csv"
 
-        table_data, header = self._get_table_data(**kwargs)
+        table_data, header = self._get_processed_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
         df.to_csv(path, index=kwargs.get("index", False))
 
@@ -1523,12 +1664,166 @@ class MetricVisualizer:
         if not path.endswith(".tex"):
             path = path + ".tex"
         with open(path, mode="w", encoding="utf8") as fout:
-            table_data, header = self._get_table_data(**kwargs)
-            fout.write(
+            table_data, header = self._get_processed_table_data(**kwargs)
+            fmt_table = tabulate(
+                table_data,
+                headers=header,
+                numalign="center",
+                tablefmt="latex",
+                **kwargs,
+            )
+            print(fmt_table)
+            fout.write(fmt_table)
+
+    def raw_summary(self, save_path=None, filename=None, no_print=False, **kwargs):
+        if filename:
+            print("Warning: filename is deprecated, please use save_path instead.")
+
+        table_data, header = self._get_raw_table_data(**kwargs)
+
+        summary_str = tabulate(
+            table_data, headers=header, numalign="center", tablefmt="fancy_grid"
+        )
+        logo = " Metric Visualizer "
+        url = " https://github.com/yangheng95/metric_visualizer "
+        _prefix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + logo
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + "\n"
+        )
+
+        _postfix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + url
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + "\n"
+        )
+
+        summary_str = _prefix + summary_str + _postfix
+        if not no_print:
+            print(summary_str)
+
+        if save_path:
+            if not save_path.endswith(".summary.txt"):
+                save_path = save_path + ".summary.txt"
+
+            fout = open(save_path, mode="w", encoding="utf8")
+            summary_str += "\n{}\n".format(str(self.metrics))
+            fout.write(summary_str)
+            fout.close()
+
+            self.dump(save_path.replace(".summary.txt", ".mv"))
+
+        return summary_str
+
+    def raw_to_execl(self, path=None, **kwargs):
+        """Save the metrics to an excel file
+
+        :param path:  the path to save the excel file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.xlsx".format(self.name)
+        if not path.endswith(".xlsx"):
+            path = path + ".xlsx"
+
+        writer = pd.ExcelWriter(path, engine="xlsxwriter")
+        table_data, header = self._get_raw_table_data(**kwargs)
+
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_excel(writer, sheet_name=self.name)
+        writer.save()
+
+    def raw_to_txt(self, path=None, **kwargs):
+        """Save the metrics to a txt file
+
+        :param path:  the path to save the txt file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.txt".format(self.name)
+        if not path.endswith(".txt"):
+            path = path + ".txt"
+
+        with open(path, "w") as f:
+            table_data, header = self._get_raw_table_data(**kwargs)
+            f.write(
                 tabulate(
-                    table_data, headers=header, numalign="center", tablefmt="latex"
+                    table_data, headers=header, numalign="center", tablefmt="fancy_grid"
                 )
             )
+
+    def raw_to_csv(self, path=None, **kwargs):
+        """Save the metrics to a csv file
+
+        :param path:  the path to save the csv file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.csv".format(self.name)
+        if not path.endswith(".csv"):
+            path = path + ".csv"
+
+        table_data, header = self._get_raw_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_csv(path, index=kwargs.get("index", False))
+
+    def raw_to_json(self, path=None, **kwargs):
+        """Save the metrics to a json file
+
+        :param path:  the path to save the json file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.json".format(self.name)
+        if not path.endswith(".json"):
+            path = path + ".json"
+        with open(path, mode="w", encoding="utf8") as fout:
+            json.dump(self.metrics, fout, indent=4)
+
+    def raw_to_latex(self, path=None, **kwargs):
+        """Save the metrics to a latex file
+
+        :param path:  the path to save the latex file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.tex".format(self.name)
+        if not path.endswith(".tex"):
+            path = path + ".tex"
+        with open(path, mode="w", encoding="utf8") as fout:
+            table_data, header = self._get_raw_table_data(**kwargs)
+            fout.write(
+                tabulate(
+                    table_data,
+                    headers=header,
+                    numalign="center",
+                    tablefmt="latex",
+                    **kwargs,
+                )
+            )
+
+    def drop(self, *, metric=None, trial=None):
+        if metric:
+            self.metrics.pop(metric)
+        if trial:
+            for metric in self.metrics.keys():
+                self.metrics[metric].pop(trial)
+
+    def fillna(self, value=0):
+        for metric in self.metrics.keys():
+            for trial in self.metrics[metric].keys():
+                for i, x in enumerate(self.metrics[metric][trial]):
+                    if x == np.nan or x == np.inf or x == -np.inf or x is None:
+                        self.metrics[metric][trial] = value
 
     def dump(self, filename=None):
         """Dump the metric visualizer to a file

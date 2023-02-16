@@ -22,7 +22,7 @@ class MetricList:
             self.min = np.nanmin(self.data)
             self.var = np.nanvar(self.data)
             self.iqr = stats.iqr(self.data)
-            self.skew = stats.skew(self.data, keepdims=True)
+            self.skewness = stats.skew(self.data, keepdims=True)
             self.kurtosis = stats.kurtosis(self.data, keepdims=True)
             self.sum = np.nansum(self.data)
             self.count = len(self.data)
