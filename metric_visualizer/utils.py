@@ -17,7 +17,7 @@ class MetricList:
             self.avg = np.nanmean(self.data)
             self.std = np.nanstd(self.data)
             self.median = np.nanmedian(self.data)
-            self.mode = stats.mode(self.data)[0][0]
+            self.mode = stats.mode(self.data, keepdims=True)[0][0]
             self.max = np.nanmax(self.data)
             self.min = np.nanmin(self.data)
             self.var = np.nanvar(self.data)

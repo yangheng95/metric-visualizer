@@ -1548,7 +1548,7 @@ class MetricVisualizer:
         summary_str = tabulate(
             table_data, headers=header, numalign="center", tablefmt="fancy_grid"
         )
-        logo = " Metric Visualizer "
+        logo = " Metrics Table "
         url = " https://github.com/yangheng95/metric_visualizer "
         _prefix = (
             "\n"
@@ -1684,7 +1684,7 @@ class MetricVisualizer:
         summary_str = tabulate(
             table_data, headers=header, numalign="center", tablefmt="fancy_grid"
         )
-        logo = " Metric Visualizer "
+        logo = " Raw Metric Records "
         url = " https://github.com/yangheng95/metric_visualizer "
         _prefix = (
             "\n"
