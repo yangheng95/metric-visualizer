@@ -1540,48 +1540,7 @@ class MetricVisualizer:
         return table_data, header
 
     def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
-        if filename:
-            print("Warning: filename is deprecated, please use save_path instead.")
-
-        table_data, header = self._get_processed_table_data(**kwargs)
-
-        summary_str = tabulate(
-            table_data, headers=header, numalign="center", tablefmt="fancy_grid"
-        )
-        logo = " Metrics Table "
-        url = " https://github.com/yangheng95/metric_visualizer "
-        _prefix = (
-            "\n"
-            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
-            + logo
-            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
-            + "\n"
-        )
-
-        _postfix = (
-            "\n"
-            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
-            + url
-            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
-            + "\n"
-        )
-
-        summary_str = _prefix + summary_str + _postfix
-        if not no_print:
-            print(summary_str)
-
-        if save_path:
-            if not save_path.endswith(".summary.txt"):
-                save_path = save_path + ".summary.txt"
-
-            fout = open(save_path, mode="w", encoding="utf8")
-            summary_str += "\n{}\n".format(str(self.metrics))
-            fout.write(summary_str)
-            fout.close()
-
-            self.dump(save_path.replace(".summary.txt", ".mv"))
-
-        return summary_str
+        return self.short_summary(save_path, filename, no_print, **kwargs)
 
     def to_execl(self, path=None, **kwargs):
         """Save the metrics to an excel file
@@ -1596,7 +1555,7 @@ class MetricVisualizer:
             path = path + ".xlsx"
 
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
-        table_data, header = self._get_processed_table_data(**kwargs)
+        table_data, header = self._get_raw_table_data(**kwargs)
 
         df = pd.DataFrame(table_data, columns=header)
         df.to_excel(writer, sheet_name=self.name)
@@ -1615,12 +1574,28 @@ class MetricVisualizer:
             path = path + ".txt"
 
         with open(path, "w") as f:
-            table_data, header = self._get_processed_table_data(**kwargs)
+            table_data, header = self._get_raw_table_data(**kwargs)
             f.write(
                 tabulate(
                     table_data, headers=header, numalign="center", tablefmt="fancy_grid"
                 )
             )
+
+    def to_html(self, path=None, **kwargs):
+        """Save the metrics to a html file
+
+        :param path:  the path to save the html file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.html".format(self.name)
+        if not path.endswith(".html"):
+            path = path + ".html"
+
+        table_data, header = self._get_raw_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_html(path, index=kwargs.get("index", False))
 
     def to_csv(self, path=None, **kwargs):
         """Save the metrics to a csv file
@@ -1634,7 +1609,7 @@ class MetricVisualizer:
         if not path.endswith(".csv"):
             path = path + ".csv"
 
-        table_data, header = self._get_processed_table_data(**kwargs)
+        table_data, header = self._get_raw_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
         df.to_csv(path, index=kwargs.get("index", False))
 
@@ -1664,7 +1639,7 @@ class MetricVisualizer:
         if not path.endswith(".tex"):
             path = path + ".tex"
         with open(path, mode="w", encoding="utf8") as fout:
-            table_data, header = self._get_processed_table_data(**kwargs)
+            table_data, header = self._get_raw_table_data(**kwargs)
             fmt_table = tabulate(
                 table_data,
                 headers=header,
@@ -1719,7 +1694,51 @@ class MetricVisualizer:
 
         return summary_str
 
-    def raw_to_execl(self, path=None, **kwargs):
+    def short_summary(self, save_path=None, filename=None, no_print=False, **kwargs):
+        if filename:
+            print("Warning: filename is deprecated, please use save_path instead.")
+
+        table_data, header = self._get_processed_table_data(**kwargs)
+
+        summary_str = tabulate(
+            table_data, headers=header, numalign="center", tablefmt="fancy_grid"
+        )
+        logo = " Metrics Table "
+        url = " https://github.com/yangheng95/metric_visualizer "
+        _prefix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + logo
+            + "-" * ((len(summary_str.split("\n")[0]) - len(logo)) // 2)
+            + "\n"
+        )
+
+        _postfix = (
+            "\n"
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + url
+            + "-" * ((len(summary_str.split("\n")[0]) - len(url)) // 2)
+            + "\n"
+        )
+
+        summary_str = _prefix + summary_str + _postfix
+        if not no_print:
+            print(summary_str)
+
+        if save_path:
+            if not save_path.endswith(".summary.txt"):
+                save_path = save_path + ".summary.txt"
+
+            fout = open(save_path, mode="w", encoding="utf8")
+            summary_str += "\n{}\n".format(str(self.metrics))
+            fout.write(summary_str)
+            fout.close()
+
+            self.dump(save_path.replace(".summary.txt", ".mv"))
+
+        return summary_str
+
+    def short_to_excel(self, path=None, **kwargs):
         """Save the metrics to an excel file
 
         :param path:  the path to save the excel file
@@ -1730,15 +1749,11 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.xlsx".format(self.name)
         if not path.endswith(".xlsx"):
             path = path + ".xlsx"
-
-        writer = pd.ExcelWriter(path, engine="xlsxwriter")
-        table_data, header = self._get_raw_table_data(**kwargs)
-
+        table_data, header = self._get_processed_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
-        df.to_excel(writer, sheet_name=self.name)
-        writer.save()
+        df.to_excel(path, index=kwargs.get("index", False))
 
-    def raw_to_txt(self, path=None, **kwargs):
+    def short_to_txt(self, path=None, **kwargs):
         """Save the metrics to a txt file
 
         :param path:  the path to save the txt file
@@ -1749,16 +1764,26 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.txt".format(self.name)
         if not path.endswith(".txt"):
             path = path + ".txt"
+        table_data, header = self._get_processed_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_csv(path, index=kwargs.get("index", False), sep="\t")
 
-        with open(path, "w") as f:
-            table_data, header = self._get_raw_table_data(**kwargs)
-            f.write(
-                tabulate(
-                    table_data, headers=header, numalign="center", tablefmt="fancy_grid"
-                )
-            )
+    def short_to_html(self, path=None, **kwargs):
+        """Save the metrics to a html file
 
-    def raw_to_csv(self, path=None, **kwargs):
+        :param path:  the path to save the html file
+        :param kwargs:  the kwargs to pass to the _get_table_data function
+        :return:
+        """
+        if not path:
+            path = os.getcwd() + "/{}.html".format(self.name)
+        if not path.endswith(".html"):
+            path = path + ".html"
+        table_data, header = self._get_processed_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_html(path, index=kwargs.get("index", False))
+
+    def short_to_csv(self, path=None, **kwargs):
         """Save the metrics to a csv file
 
         :param path:  the path to save the csv file
@@ -1769,12 +1794,11 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.csv".format(self.name)
         if not path.endswith(".csv"):
             path = path + ".csv"
-
-        table_data, header = self._get_raw_table_data(**kwargs)
+        table_data, header = self._get_processed_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
         df.to_csv(path, index=kwargs.get("index", False))
 
-    def raw_to_json(self, path=None, **kwargs):
+    def short_to_json(self, path=None, **kwargs):
         """Save the metrics to a json file
 
         :param path:  the path to save the json file
@@ -1785,10 +1809,11 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.json".format(self.name)
         if not path.endswith(".json"):
             path = path + ".json"
-        with open(path, mode="w", encoding="utf8") as fout:
-            json.dump(self.metrics, fout, indent=4)
+        table_data, header = self._get_processed_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_json(path, orient="records")
 
-    def raw_to_latex(self, path=None, **kwargs):
+    def short_to_latex(self, path=None, **kwargs):
         """Save the metrics to a latex file
 
         :param path:  the path to save the latex file
@@ -1799,17 +1824,9 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.tex".format(self.name)
         if not path.endswith(".tex"):
             path = path + ".tex"
-        with open(path, mode="w", encoding="utf8") as fout:
-            table_data, header = self._get_raw_table_data(**kwargs)
-            fout.write(
-                tabulate(
-                    table_data,
-                    headers=header,
-                    numalign="center",
-                    tablefmt="latex",
-                    **kwargs,
-                )
-            )
+        table_data, header = self._get_processed_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+        df.to_latex(path, index=kwargs.get("index", False))
 
     def drop(self, *, metric=None, trial=None):
         if metric:
