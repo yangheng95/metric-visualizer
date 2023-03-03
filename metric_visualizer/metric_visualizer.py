@@ -148,13 +148,19 @@ class MetricVisualizer:
         :param value:
         :return:
         """
+        assert metric_name is not None
+
+        trial_name = f"trial{self.trial_id}"
+
+        # add the metric to the metric dict
         if metric_name in self.metrics:
-            if "trial{}".format(self.trial_id) not in self.metrics[metric_name]:
-                self.metrics[metric_name]["trial{}".format(self.trial_id)] = [value]
+            if trial_name not in self.metrics[metric_name]:
+                self.metrics[metric_name][trial_name] = MetricList([value])
             else:
-                self.metrics[metric_name]["trial{}".format(self.trial_id)].append(value)
+                self.metrics[metric_name][trial_name].append(value)
         else:
-            self.metrics[metric_name] = {"trial{}".format(self.trial_id): [value]}
+            self.metrics[metric_name] = {trial_name: MetricList([value])}
+        return self
 
     def log(self, trial_name=None, metric_name=None, value=0, unit=None):
         """
