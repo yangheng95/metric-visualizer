@@ -89,6 +89,7 @@ class MetricVisualizer:
     HATCHES = ["/", "\\", "|", "-", "+", "x", "o", "O", ".", "*"]
 
     def __init__(self, name, *, metric_dict=None, **kwargs):
+        self.trial_id = 0
         self.name = name
         self.version = version
         self.pkg_name = pkg_name
@@ -135,6 +136,25 @@ class MetricVisualizer:
                 os.remove(f)
             for f in findfile.find_cwd_files(".out", exclude_key=["ignore", ".pdf"]):
                 os.remove(f)
+
+    def next_trial(self):
+        self.trial_id += 1
+        self.dump()
+
+    def add_metric(self, metric_name="Accuracy", value=0):
+        """
+        Add a metric to the metric dict.
+        :param metric_name:
+        :param value:
+        :return:
+        """
+        if metric_name in self.metrics:
+            if "trial{}".format(self.trial_id) not in self.metrics[metric_name]:
+                self.metrics[metric_name]["trial{}".format(self.trial_id)] = [value]
+            else:
+                self.metrics[metric_name]["trial{}".format(self.trial_id)].append(value)
+        else:
+            self.metrics[metric_name] = {"trial{}".format(self.trial_id): [value]}
 
     def log(self, trial_name=None, metric_name=None, value=0, unit=None):
         """
