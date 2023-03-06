@@ -1566,7 +1566,7 @@ class MetricVisualizer:
         return table_data, header
 
     def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
-        return self.short_summary(save_path, filename, no_print, **kwargs)
+        return self.raw_summary(save_path, filename, no_print, **kwargs)
 
     def to_execl(self, path=None, **kwargs):
         """Save the metrics to an excel file
