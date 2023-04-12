@@ -1912,6 +1912,6 @@ class MetricVisualizer:
                 _ = pickle.load(open(fn, mode="rb"))
                 for metric_name in _.metrics:
                     if metric_name not in mv.metrics:
-                        mv.metrics[metric_name] = []
+                        mv.metrics[metric_name] = {}
                     mv.metrics[metric_name].update(_.metrics[metric_name])
         return mv
