@@ -17,17 +17,21 @@ class MetricList:
             self.avg = np.nanmean(self.data)
             self.std = np.nanstd(self.data)
             self.median = np.nanmedian(self.data)
-            self.mode = stats.mode(self.data, keepdims=True)[0][0]
             self.max = np.nanmax(self.data)
             self.min = np.nanmin(self.data)
             self.var = np.nanvar(self.data)
             self.iqr = stats.iqr(self.data)
-            self.skewness = stats.skew(self.data, keepdims=True)
-            self.kurtosis = stats.kurtosis(self.data, keepdims=True)
             self.sum = np.nansum(self.data)
             self.count = len(self.data)
         except Exception as e:
             print("Can create MetricList with: ", self.data)
+
+        try:
+            # self.mode = stats.mode(self.data, keepdims=True)[0][0]
+            self.skewness = stats.skew(self.data, keepdims=True)
+            self.kurtosis = stats.kurtosis(self.data, keepdims=True)
+        except Exception as e:
+            print("Can not create MetricList with: ", self.data)
 
     def _update(self):
         self.avg = np.nanmean(self.data)
