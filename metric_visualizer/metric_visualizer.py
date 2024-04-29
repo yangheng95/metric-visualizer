@@ -1069,6 +1069,7 @@ class MetricVisualizer:
                 VD.A(c(method1,method2), categs)
 
                 """
+        use_round = kwargs.get("round", None)
         plot_metrics = self.transpose()
         if target_trial is None:
             new_plot_metrics = {
@@ -1129,7 +1130,11 @@ class MetricVisualizer:
             for metric in new_plot_metrics.keys():
                 for trial in new_plot_metrics[metric].keys():
                     new_plot_metrics[metric][trial][0] = max(
-                        round(new_plot_metrics[metric][trial][0] / count * 100, 2),
+                        round(
+                            new_plot_metrics[metric][trial][0] / count * 100, use_round
+                        )
+                        if use_round
+                        else new_plot_metrics[metric][trial][0] / count * 100,
                         new_plot_metrics[metric][trial][0] / count * 5,
                     )
             plot_metrics = new_plot_metrics
@@ -1209,7 +1214,11 @@ class MetricVisualizer:
             for metric in new_plot_metrics.keys():
                 for trial in new_plot_metrics[metric].keys():
                     new_plot_metrics[metric][trial][0] = max(
-                        round(new_plot_metrics[metric][trial][0] / count * 100, 2),
+                        round(
+                            new_plot_metrics[metric][trial][0] / count * 100, use_round
+                        )
+                        if use_round
+                        else new_plot_metrics[metric][trial][0] / count * 100,
                         new_plot_metrics[metric][trial][0] / count * 5,
                     )
             plot_metrics = new_plot_metrics
@@ -1351,6 +1360,7 @@ class MetricVisualizer:
             return self.metric_rank_test_result
 
     def _get_raw_table_data(self, **kwargs):
+        use_round = kwargs.get("round", None)
         table_data = []
         if kwargs.get("transpose", False):
             header = [
@@ -1370,14 +1380,45 @@ class MetricVisualizer:
                 for j, metric in enumerate(trials.keys()):
                     _data = []
                     _data += [
-                        [trial, metric, [round(x, 2) for x in trials[metric][:10]]]
+                        [
+                            trial,
+                            metric,
+                            [
+                                round(x, use_round) if use_round else x
+                                for x in trials[metric][:10]
+                            ],
+                        ]
                     ]
-                    _data[-1].append(round(trials[metric].avg, 2))
-                    _data[-1].append(round(trials[metric].median, 2))
-                    _data[-1].append(round(trials[metric].std, 2))
-                    _data[-1].append(round(trials[metric].iqr, 2))
-                    _data[-1].append(round(trials[metric].min, 2))
-                    _data[-1].append(round(trials[metric].max, 2))
+                    _data[-1].append(
+                        round(trials[metric].avg, use_round)
+                        if use_round
+                        else trials[metric].avg
+                    )
+                    _data[-1].append(
+                        round(trials[metric].median, use_round)
+                        if use_round
+                        else trials[metric].median
+                    )
+                    _data[-1].append(
+                        round(trials[metric].std, use_round)
+                        if use_round
+                        else trials[metric].std
+                    )
+                    _data[-1].append(
+                        round(trials[metric].iqr, use_round)
+                        if use_round
+                        else trials[metric].iqr
+                    )
+                    _data[-1].append(
+                        round(trials[metric].min, use_round)
+                        if use_round
+                        else trials[metric].min
+                    )
+                    _data[-1].append(
+                        round(trials[metric].max, use_round)
+                        if use_round
+                        else trials[metric].max
+                    )
                     table_data += _data
 
         else:
@@ -1398,20 +1439,51 @@ class MetricVisualizer:
                 for j, trial in enumerate(metrics.keys()):
                     _data = []
                     _data += [
-                        [metric, trial, [round(x, 2) for x in metrics[trial][:10]]]
+                        [
+                            metric,
+                            trial,
+                            [
+                                round(x, use_round) if use_round else x
+                                for x in metrics[trial][:10]
+                            ],
+                        ]
                     ]
-                    _data[-1].append(round(metrics[trial].avg, 2))
-                    _data[-1].append(round(metrics[trial].median, 2))
-                    _data[-1].append(round(metrics[trial].std, 2))
-                    _data[-1].append(round(metrics[trial].iqr, 2))
-                    _data[-1].append(round(metrics[trial].min, 2))
-                    _data[-1].append(round(metrics[trial].max, 2))
+                    _data[-1].append(
+                        round(metrics[trial].avg, use_round)
+                        if use_round
+                        else metrics[trial].avg
+                    )
+                    _data[-1].append(
+                        round(metrics[trial].median, use_round)
+                        if use_round
+                        else metrics[trial].median
+                    )
+                    _data[-1].append(
+                        round(metrics[trial].std, use_round)
+                        if use_round
+                        else metrics[trial].std
+                    )
+                    _data[-1].append(
+                        round(metrics[trial].iqr, use_round)
+                        if use_round
+                        else metrics[trial].iqr
+                    )
+                    _data[-1].append(
+                        round(metrics[trial].min, use_round)
+                        if use_round
+                        else metrics[trial].min
+                    )
+                    _data[-1].append(
+                        round(metrics[trial].max, use_round)
+                        if use_round
+                        else metrics[trial].max
+                    )
                     table_data += _data
 
         return table_data, header
 
     def _get_processed_table_data(self, method="average", stat="std", **kwargs):
-        round = kwargs.get("round", 10)
+        use_round = kwargs.get("round", None)
         assert method in ["average", "median", "min", "max"]
         assert stat in ["std", "iqr", "skewness", "kurtosis"]
         table_data = []
@@ -1429,44 +1501,44 @@ class MetricVisualizer:
                     if stat == "std":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].avg, round)
-                                if round
+                                round(trials[metric].avg, use_round)
+                                if use_round
                                 else trials[metric].avg,
-                                round(trials[metric].std, round)
-                                if round
+                                round(trials[metric].std, use_round)
+                                if use_round
                                 else trials[metric].std,
                             )
                         )
                     elif stat == "iqr":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].avg, round)
-                                if round
+                                round(trials[metric].avg, use_round)
+                                if use_round
                                 else trials[metric].avg,
-                                round(trials[metric].iqr, round)
-                                if round
+                                round(trials[metric].iqr, use_round)
+                                if use_round
                                 else trials[metric].iqr,
                             )
                         )
                     elif stat == "skewness":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].avg, round)
-                                if round
+                                round(trials[metric].avg, use_round)
+                                if use_round
                                 else trials[metric].avg,
-                                round(trials[metric].skewness, round)
-                                if round
+                                round(trials[metric].skewness, use_round)
+                                if use_round
                                 else trials[metric].skewness,
                             )
                         )
                     elif stat == "kurtosis":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].avg, round)
-                                if round
+                                round(trials[metric].avg, use_round)
+                                if use_round
                                 else trials[metric].avg,
-                                round(trials[metric].kurtosis, round)
-                                if round
+                                round(trials[metric].kurtosis, use_round)
+                                if use_round
                                 else trials[metric].kurtosis,
                             )
                         )
@@ -1478,44 +1550,44 @@ class MetricVisualizer:
                     if stat == "std":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].median, round)
-                                if round
+                                round(trials[metric].median, use_round)
+                                if use_round
                                 else trials[metric].median,
-                                round(trials[metric].std, round)
-                                if round
+                                round(trials[metric].std, use_round)
+                                if use_round
                                 else trials[metric].std,
                             )
                         )
                     elif stat == "iqr":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].median, round)
-                                if round
+                                round(trials[metric].median, use_round)
+                                if use_round
                                 else trials[metric].median,
-                                round(trials[metric].iqr, round)
-                                if round
+                                round(trials[metric].iqr, use_round)
+                                if use_round
                                 else trials[metric].iqr,
                             )
                         )
                     elif stat == "skewness":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].median, round)
-                                if round
+                                round(trials[metric].median, use_round)
+                                if use_round
                                 else trials[metric].median,
-                                round(trials[metric].skewness, round)
-                                if round
+                                round(trials[metric].skewness, use_round)
+                                if use_round
                                 else trials[metric].skewness,
                             )
                         )
                     elif stat == "kurtosis":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].median, round)
-                                if round
+                                round(trials[metric].median, use_round)
+                                if use_round
                                 else trials[metric].median,
-                                round(trials[metric].kurtosis, round)
-                                if round
+                                round(trials[metric].kurtosis, use_round)
+                                if use_round
                                 else trials[metric].kurtosis,
                             )
                         )
@@ -1527,44 +1599,44 @@ class MetricVisualizer:
                     if stat == "std":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].min, round)
-                                if round
+                                round(trials[metric].min, use_round)
+                                if use_round
                                 else trials[metric].min,
-                                round(trials[metric].std, round)
-                                if round
+                                round(trials[metric].std, use_round)
+                                if use_round
                                 else trials[metric].std,
                             )
                         )
                     elif stat == "iqr":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].min, round)
-                                if round
+                                round(trials[metric].min, use_round)
+                                if use_round
                                 else trials[metric].min,
-                                round(trials[metric].iqr, round)
-                                if round
+                                round(trials[metric].iqr, use_round)
+                                if use_round
                                 else trials[metric].iqr,
                             )
                         )
                     elif stat == "skewness":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].min, round)
-                                if round
+                                round(trials[metric].min, use_round)
+                                if use_round
                                 else trials[metric].min,
-                                round(trials[metric].skewness, round)
-                                if round
+                                round(trials[metric].skewness, use_round)
+                                if use_round
                                 else trials[metric].skewness,
                             )
                         )
                     elif stat == "kurtosis":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].min, round)
-                                if round
+                                round(trials[metric].min, use_round)
+                                if use_round
                                 else trials[metric].min,
-                                round(trials[metric].kurtosis, round)
-                                if round
+                                round(trials[metric].kurtosis, use_round)
+                                if use_round
                                 else trials[metric].kurtosis,
                             )
                         )
@@ -1576,44 +1648,44 @@ class MetricVisualizer:
                     if stat == "std":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].max, round)
-                                if round
+                                round(trials[metric].max, use_round)
+                                if use_round
                                 else trials[metric].max,
-                                round(trials[metric].std, round)
-                                if round
+                                round(trials[metric].std, use_round)
+                                if use_round
                                 else trials[metric].std,
                             )
                         )
                     elif stat == "iqr":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].max, round)
-                                if round
+                                round(trials[metric].max, use_round)
+                                if use_round
                                 else trials[metric].max,
-                                round(trials[metric].iqr, round)
-                                if round
+                                round(trials[metric].iqr, use_round)
+                                if use_round
                                 else trials[metric].iqr,
                             )
                         )
                     elif stat == "skewness":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].max, round)
-                                if round
+                                round(trials[metric].max, use_round)
+                                if use_round
                                 else trials[metric].max,
-                                round(trials[metric].skewness, round)
-                                if round
+                                round(trials[metric].skewness, use_round)
+                                if use_round
                                 else trials[metric].skewness,
                             )
                         )
                     elif stat == "kurtosis":
                         _data.append(
                             "{} ({})".format(
-                                round(trials[metric].max, round)
-                                if round
+                                round(trials[metric].max, use_round)
+                                if use_round
                                 else trials[metric].max,
-                                round(trials[metric].kurtosis, round)
-                                if round
+                                round(trials[metric].kurtosis, use_round)
+                                if use_round
                                 else trials[metric].kurtosis,
                             )
                         )
