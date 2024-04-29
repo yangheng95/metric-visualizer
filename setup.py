@@ -43,7 +43,7 @@ setup(
         "openpyxl",
         "xlsxwriter",
         "scipy<1.11.0",
-        "scikit-learn<1.3.0",
+        "scikit-learn",
     ],
     entry_points="""
       [console_scripts]

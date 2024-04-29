@@ -1650,7 +1650,7 @@ class MetricVisualizer:
 
         df = pd.DataFrame(table_data, columns=header)
         df.to_excel(writer, sheet_name=self.name)
-        writer.save()
+        writer._save()
 
     def to_txt(self, path=None, **kwargs):
         """Save the metrics to a txt file
