@@ -1912,9 +1912,13 @@ class MetricVisualizer:
             path = os.getcwd() + "/{}.xlsx".format(self.name)
         if not path.endswith(".xlsx"):
             path = path + ".xlsx"
+
+        writer = pd.ExcelWriter(path, engine="xlsxwriter")
         table_data, header = self._get_processed_table_data(**kwargs)
+
         df = pd.DataFrame(table_data, columns=header)
-        df.to_excel(path, index=kwargs.get("index", False))
+        df.to_excel(writer, sheet_name=self.name)
+        writer._save()
 
     def short_to_txt(self, path=None, **kwargs):
         """Save the metrics to a txt file
@@ -2052,3 +2056,17 @@ class MetricVisualizer:
                         mv.metrics[metric_name] = {}
                     mv.metrics[metric_name].update(_.metrics[metric_name])
         return mv
+
+    def pop(self, metric_or_trial_name):
+        if metric_or_trial_name in self.metrics:
+            return self.metrics.pop(metric_or_trial_name)
+        else:
+            for metric in self.metrics.keys():
+                if metric_or_trial_name in self.metrics[metric]:
+                    return self.metrics[metric].pop(metric_or_trial_name)
+
+    def __getitem__(self, key):
+        return self.metrics[key]
+
+    def __setitem__(self, key, value):
+        self.metrics[key] = value
