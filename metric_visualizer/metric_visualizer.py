@@ -94,10 +94,6 @@ class MetricVisualizer:
         self.version = version
         self.pkg_name = pkg_name
 
-        for metric, trial_values in metric_dict.items():
-            for trial, values in trial_values.items():
-                metric_dict[metric][trial] = MetricList(values)
-
         if metric_dict is None:
             self.metrics = OrderedDict(
                 {
@@ -115,6 +111,10 @@ class MetricVisualizer:
                 }
             )
         else:
+            for metric, trial_values in metric_dict.items():
+                for trial, values in trial_values.items():
+                    metric_dict[metric][trial] = MetricList(values)
+
             self.metrics = metric_dict
 
         self.trial2unit = {}
