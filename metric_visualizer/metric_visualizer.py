@@ -94,6 +94,10 @@ class MetricVisualizer:
         self.version = version
         self.pkg_name = pkg_name
 
+        for metric, trial_values in metric_dict.items():
+            for trial, values in trial_values.items():
+                metric_dict[metric][trial] = MetricList(values)
+
         if metric_dict is None:
             self.metrics = OrderedDict(
                 {
@@ -2048,9 +2052,11 @@ class MetricVisualizer:
 
             print("Load", fn)
             if not mv:
-                mv = pickle.load(open(fn, mode="rb"))
+                with open(fn, mode="rb") as f:
+                    mv = pickle.load(f)
             else:
-                _ = pickle.load(open(fn, mode="rb"))
+                with open(fn, mode="rb") as f:
+                    _ = pickle.load(f)
                 for metric_name in _.metrics:
                     if metric_name not in mv.metrics:
                         mv.metrics[metric_name] = {}
