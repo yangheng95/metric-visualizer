@@ -33,7 +33,7 @@ setup(
         "matplotlib>=3.6.3",
         "tikzplotlib",
         "findfile",
-        "scipy>=1.10.0",
+        "scipy>=1.15.0",
         "tabulate",
         "natsort",
         "numpy",
@@ -47,6 +47,6 @@ setup(
     ],
     entry_points="""
       [console_scripts]
-      metric_visualizer=metric_visualizer.cli_command:instant_visualize
+      mvis=metric_visualizer.cli_command:instant_visualize
   """,
 )

@@ -32,14 +32,15 @@ for r in range(repeat):  # repeat the experiments to plot violin or box figure
             )  # add metric by custom name and value
 
 MV.remove_outliers()  # remove outliers
-MV.to_execl(save_path=os.getcwd() + "/example.xlsx")  # save to excel
-MV.to_latex()  # save to excel
-MV.summary(transpose=True, save_path=os.getcwd() + "/summary.txt")  # save summary
-MV.box_plot(no_overlap=True, save_path="box_plot.png")
-MV.violin_plot(no_overlap=True, save_path="violin_plot.png")
-MV.scatter_plot(save_path="scatter_plot.png")
-MV.trajectory_plot(save_path="trajectory_plot.png")
-MV.pie_plot(save_path="pie_plot.png")
+# MV.to_execl(save_path=os.getcwd() + "/example.xlsx")  # save to excel
+# MV.to_latex()  # save to excel
+# MV.summary(transpose=True, save_path=os.getcwd() + "/summary.txt")  # save summary
+# MV.box_plot(no_overlap=True, save_path="box_plot.png")
+# MV.violin_plot(no_overlap=True, save_path="violin_plot.png")
+# MV.scatter_plot(save_path="scatter_plot.png")
+# MV.trajectory_plot(save_path="trajectory_plot.png")
+# MV.pie_plot(save_path="pie_plot.png")
+MV.a12_bar_plot(save_path="A12_bar_plot.png", show=True)
 # tikz_file_path = MV.box_plot(
 #     by="trial",
 #     engine="tikz",
