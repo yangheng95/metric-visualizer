@@ -42,7 +42,6 @@ setup(
         "pandas",
         "openpyxl",
         "xlsxwriter",
-        "scipy<1.11.0",
         "scikit-learn",
     ],
     entry_points="""
