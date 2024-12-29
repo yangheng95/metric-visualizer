@@ -33,7 +33,7 @@ setup(
         "matplotlib>=3.6.3",
         "tikzplotlib",
         "findfile",
-        "scipy>=1.15.0",
+        "scipy",
         "tabulate",
         "natsort",
         "numpy",
