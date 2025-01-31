@@ -191,7 +191,7 @@ class MetricVisualizer:
 
         :return: None
         """
-        assert metric_name is not None
+        assert metric_name is not None, "Please provide the metric name."
 
         # if unit is not None, add the unit to the trial name
         self.trial2unit[metric_name] = unit
@@ -210,6 +210,9 @@ class MetricVisualizer:
                 self.metrics[metric_name][trial_name].append(value)
         else:
             self.metrics[metric_name] = {trial_name: MetricList([value])}
+
+        # sort the data by metric name
+        self.metrics = OrderedDict(natsort.natsorted(self.metrics.items()))
         return self
 
     def set_trial_names(self, trial_names):
