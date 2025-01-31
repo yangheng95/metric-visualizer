@@ -43,6 +43,7 @@ setup(
         "openpyxl",
         "xlsxwriter",
         "scikit-learn",
+        "colorama",
     ],
     entry_points="""
       [console_scripts]

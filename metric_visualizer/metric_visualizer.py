@@ -22,10 +22,13 @@ from findfile import find_cwd_files
 import numpy as np
 from scipy.stats import ranksums
 from tabulate import tabulate
+import colorama
 
 from metric_visualizer import __version__ as version
 from metric_visualizer import __name__ as pkg_name
 from metric_visualizer.utils import MetricList
+
+colorama.init()
 
 mv_font = {
     "family": "Serif",
@@ -397,7 +400,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -539,7 +542,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -623,7 +626,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -752,7 +755,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -902,7 +905,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -1035,7 +1038,7 @@ class MetricVisualizer:
             tex_code = tikzplotlib.get_tikz_code()
             tex_code = tex_template.replace("$tikz_code$", tex_code)
             if save_path is not None:
-                with open(save_path, "w") as f:
+                with open(save_path, "w", encoding="utf8") as f:
                     f.write(tex_code)
             if show:
                 print(tex_code)
@@ -1787,42 +1790,50 @@ class MetricVisualizer:
     def summary(self, save_path=None, filename=None, no_print=False, **kwargs):
         return self.raw_summary(save_path, filename, no_print, **kwargs)
 
-    def to_execl(self, path=None, **kwargs):
+    def to_excel(self, path=None, **kwargs):
         """Save the metrics to an excel file
 
         :param path:  the path to save the excel file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.xlsx".format(self.name)
-        if not path.endswith(".xlsx"):
-            path = path + ".xlsx"
+            path = os.path.join(os.getcwd(), f"{self.name}.xlsx")
+        elif not path.endswith(".xlsx"):
+            path += ".xlsx"
 
-        writer = pd.ExcelWriter(path, engine="xlsxwriter")
+        # 确保目录存在
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
         table_data, header = self._get_raw_table_data(**kwargs)
-
         df = pd.DataFrame(table_data, columns=header)
-        df.to_excel(writer, sheet_name=self.name)
-        writer._save()
+
+        with pd.ExcelWriter(path, engine="xlsxwriter") as writer:
+            df.to_excel(
+                writer, sheet_name=self.name[:31], index=kwargs.get("index", False)
+            )
 
     def to_txt(self, path=None, **kwargs):
         """Save the metrics to a txt file
 
         :param path:  the path to save the txt file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.txt".format(self.name)
-        if not path.endswith(".txt"):
-            path = path + ".txt"
+            path = os.path.join(os.getcwd(), f"{self.name}.txt")
+        elif not path.endswith(".txt"):
+            path += ".txt"
 
-        with open(path, "w") as f:
-            table_data, header = self._get_raw_table_data(**kwargs)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        table_data, header = self._get_raw_table_data(**kwargs)
+        with open(path, "w", encoding="utf-8") as f:
             f.write(
                 tabulate(
-                    table_data, headers=header, numalign="center", tablefmt="fancy_grid"
+                    table_data,
+                    headers=header,
+                    numalign="center",
+                    tablefmt="plain",
+                    **kwargs.get("tabulate_kwargs", {}),
                 )
             )
 
@@ -1831,12 +1842,13 @@ class MetricVisualizer:
 
         :param path:  the path to save the html file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.html".format(self.name)
-        if not path.endswith(".html"):
-            path = path + ".html"
+            path = os.path.join(os.getcwd(), f"{self.name}.html")
+        elif not path.endswith(".html"):
+            path += ".html"
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
         table_data, header = self._get_raw_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
@@ -1847,53 +1859,72 @@ class MetricVisualizer:
 
         :param path:  the path to save the csv file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.csv".format(self.name)
-        if not path.endswith(".csv"):
-            path = path + ".csv"
+            path = os.path.join(os.getcwd(), f"{self.name}.csv")
+        elif not path.endswith(".csv"):
+            path += ".csv"
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
         table_data, header = self._get_raw_table_data(**kwargs)
         df = pd.DataFrame(table_data, columns=header)
-        df.to_csv(path, index=kwargs.get("index", False))
+        df.to_csv(
+            path,
+            index=kwargs.get("index", False),
+            sep=kwargs.get("sep", ","),
+            encoding=kwargs.get("encoding", "utf-8"),
+        )
 
     def to_json(self, path=None, **kwargs):
         """Save the metrics to a json file
 
         :param path:  the path to save the json file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.json".format(self.name)
-        if not path.endswith(".json"):
-            path = path + ".json"
-        with open(path, mode="w", encoding="utf8") as fout:
-            json.dump(self.metrics, fout, indent=4)
+            path = os.path.join(os.getcwd(), f"{self.name}.json")
+        elif not path.endswith(".json"):
+            path += ".json"
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        # 转换MetricList为普通list
+        serializable_metrics = {}
+        for metric, trials in self.metrics.items():
+            serializable_metrics[metric] = {
+                trial: list(values) for trial, values in trials.items()
+            }
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(
+                serializable_metrics, f, indent=4, cls=kwargs.get("json_encoder", None)
+            )
 
     def to_latex(self, path=None, **kwargs):
         """Save the metrics to a latex file
 
         :param path:  the path to save the latex file
         :param kwargs:  the kwargs to pass to the _get_table_data function
-        :return:
         """
         if not path:
-            path = os.getcwd() + "/{}.tex".format(self.name)
-        if not path.endswith(".tex"):
-            path = path + ".tex"
-        with open(path, mode="w", encoding="utf8") as fout:
-            table_data, header = self._get_raw_table_data(**kwargs)
-            fmt_table = tabulate(
-                table_data,
-                headers=header,
-                numalign="center",
-                tablefmt="latex",
-                **kwargs,
+            path = os.path.join(os.getcwd(), f"{self.name}.tex")
+        elif not path.endswith(".tex"):
+            path += ".tex"
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        table_data, header = self._get_raw_table_data(**kwargs)
+        df = pd.DataFrame(table_data, columns=header)
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(
+                df.to_latex(
+                    index=kwargs.get("index", False),
+                    escape=kwargs.get("escape", False),
+                    **kwargs.get("latex_kwargs", {}),
+                )
             )
-            print(fmt_table)
-            fout.write(fmt_table)
 
     def raw_summary(self, save_path=None, filename=None, no_print=False, **kwargs):
         if filename:
